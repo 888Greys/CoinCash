@@ -109,7 +109,7 @@ export const referenceLibrary = [
 ];
 
 export const appNavRoutes: AppNavRoute[] = [
-  { href: "/", label: "Home" },
+  { href: "/home", label: "Home" },
   { href: "/markets", label: "Markets" },
   { href: "/p2p", label: "P2P" },
   { href: "/assets", label: "Assets" },
