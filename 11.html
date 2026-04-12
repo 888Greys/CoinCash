@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinetic Terminal - Settings &amp; Security</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-dim": "#69e6a1",
+                    "on-primary": "#005d22",
+                    "on-tertiary-fixed-variant": "#005762",
+                    "primary-fixed-dim": "#4bee74",
+                    "inverse-surface": "#f8f9fe",
+                    "tertiary-container": "#00e3fe",
+                    "on-secondary": "#005a35",
+                    "surface": "#0b0e11",
+                    "on-surface": "#f8f9fe",
+                    "surface-container-highest": "#22262b",
+                    "secondary": "#78f5ae",
+                    "primary-dim": "#4bee74",
+                    "surface-container": "#161a1e",
+                    "secondary-fixed-dim": "#69e6a1",
+                    "surface-variant": "#22262b",
+                    "surface-container-low": "#101417",
+                    "on-secondary-fixed-variant": "#00653c",
+                    "on-tertiary-container": "#004d57",
+                    "tertiary-fixed-dim": "#00d4ed",
+                    "on-primary-fixed-variant": "#006827",
+                    "primary-container": "#02c953",
+                    "surface-dim": "#0b0e11",
+                    "secondary-container": "#006d41",
+                    "surface-bright": "#282d31",
+                    "error-dim": "#d53d18",
+                    "background": "#0b0e11",
+                    "outline": "#737679",
+                    "on-primary-container": "#003711",
+                    "error": "#ff7351",
+                    "error-container": "#b92902",
+                    "on-error-container": "#ffd2c8",
+                    "tertiary-dim": "#00d4ed",
+                    "primary-fixed": "#5cfd80",
+                    "surface-container-high": "#1c2024",
+                    "on-primary-fixed": "#004819",
+                    "tertiary-fixed": "#00e3fe",
+                    "secondary-fixed": "#78f5ae",
+                    "inverse-on-surface": "#535559",
+                    "on-tertiary-fixed": "#003840",
+                    "tertiary": "#84ecff",
+                    "surface-tint": "#5cfd80",
+                    "outline-variant": "#45484c",
+                    "on-error": "#450900",
+                    "on-secondary-container": "#e2ffe8",
+                    "on-secondary-fixed": "#004528",
+                    "on-background": "#f8f9fe",
+                    "inverse-primary": "#006e2a",
+                    "on-surface-variant": "#a9abaf",
+                    "surface-container-lowest": "#000000",
+                    "on-tertiary": "#005762",
+                    "primary": "#5cfd80"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline-font { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0b0e11] text-[#5cfd80] flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-2xl">terminal</span>
+<span class="text-lg font-bold tracking-widest text-[#5cfd80] font-['Space_Grotesk'] tracking-tight uppercase">KINETIC TERMINAL</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#5cfd80] hover:bg-[#1c2024] transition-colors p-2 rounded-sm cursor-pointer">sensors</span>
+</div>
+</header>
+<main class="pt-24 px-4 max-w-4xl mx-auto space-y-8">
+<!-- Header Section -->
+<section class="mb-10">
+<h1 class="text-4xl font-bold tracking-tight mb-2">SYSTEM CONFIGURATION</h1>
+<p class="text-on-surface-variant text-sm tracking-wider uppercase font-medium">Terminal Security &amp; Global Environment Variables</p>
+</section>
+<!-- ACCOUNT_SECURITY Section -->
+<section class="space-y-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-1 h-4 bg-primary"></span>
+<h2 class="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">ACCOUNT_SECURITY</h2>
+</div>
+<div class="bg-surface-container-low rounded-lg overflow-hidden">
+<!-- 2FA -->
+<div class="flex items-center justify-between p-5 hover:bg-surface-container-high transition-colors group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm">
+<span class="material-symbols-outlined text-primary">vibration</span>
+</div>
+<div>
+<p class="text-sm font-bold tracking-wide">Two-Factor Authentication</p>
+<p class="text-xs text-on-surface-variant">Secure your terminal with TOTP or hardware keys</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] bg-primary-container/20 text-primary px-2 py-0.5 font-bold rounded-sm">ACTIVE</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Password -->
+<div class="flex items-center justify-between p-5 border-t border-outline-variant/10 hover:bg-surface-container-high transition-colors group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm">
+<span class="material-symbols-outlined text-on-surface-variant">password</span>
+</div>
+<div>
+<p class="text-sm font-bold tracking-wide">Master Password</p>
+<p class="text-xs text-on-surface-variant">Last updated 14 days ago</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<!-- Biometrics -->
+<div class="flex items-center justify-between p-5 border-t border-outline-variant/10 hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm">
+<span class="material-symbols-outlined text-on-surface-variant">fingerprint</span>
+</div>
+<div>
+<p class="text-sm font-bold tracking-wide">Biometric Bypass</p>
+<p class="text-xs text-on-surface-variant">Use system-level biometric auth for fast entry</p>
+</div>
+</div>
+<!-- Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-10 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-surface-variant peer-checked:after:bg-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary/20"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- PREFERENCES Section -->
+<section class="space-y-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-1 h-4 bg-primary"></span>
+<h2 class="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">PREFERENCES</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Currency -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-outline-variant/5 hover:border-primary/20 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary text-3xl">payments</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">open_in_new</span>
+</div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Base Currency</p>
+<p class="text-xl font-bold tracking-tight">USD <span class="text-primary-dim opacity-50 font-medium">($)</span></p>
+</div>
+<!-- Theme -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-outline-variant/5 hover:border-primary/20 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary text-3xl">dark_mode</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">palette</span>
+</div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">UI Engine</p>
+<p class="text-xl font-bold tracking-tight">KINETIC DARK</p>
+</div>
+</div>
+<!-- Notifications List Item -->
+<div class="bg-surface-container-low rounded-lg overflow-hidden">
+<div class="flex items-center justify-between p-5 hover:bg-surface-container-high transition-colors group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm">
+<span class="material-symbols-outlined text-on-surface-variant">notifications_active</span>
+</div>
+<div>
+<p class="text-sm font-bold tracking-wide">Terminal Alerts</p>
+<p class="text-xs text-on-surface-variant">Push, Email, and Webhook dispatch settings</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- SYSTEM Section (Bento Style) -->
+<section class="space-y-4 pb-12">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-1 h-4 bg-primary"></span>
+<h2 class="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">SYSTEM_CORE</h2>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<!-- Node Selection -->
+<div class="lg:col-span-2 bg-surface-container-low p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-8xl">hub</span>
+</div>
+<h3 class="text-sm font-bold mb-4 tracking-wider">NODE_TOPOLOGY</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between bg-surface-container-highest/50 p-3 rounded-sm border-l-2 border-primary">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-xs font-mono">us-east-cluster-01.kinetic.io</span>
+</div>
+<span class="text-[10px] font-mono text-primary">12ms</span>
+</div>
+<div class="flex items-center justify-between bg-surface-container-highest/30 p-3 rounded-sm border-l-2 border-transparent">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-on-surface-variant/40"></div>
+<span class="text-xs font-mono text-on-surface-variant">eu-west-cluster-04.kinetic.io</span>
+</div>
+<span class="text-[10px] font-mono text-on-surface-variant">84ms</span>
+</div>
+</div>
+<button class="mt-6 text-[10px] font-bold tracking-[0.1em] uppercase text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                        Manage Clusters <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- API Access -->
+<div class="bg-primary-container p-6 rounded-lg flex flex-col justify-between group cursor-pointer hover:brightness-110 transition-all">
+<div>
+<span class="material-symbols-outlined text-on-primary-container text-4xl mb-4">api</span>
+<h3 class="text-on-primary-container font-bold tracking-tight leading-tight">API<br/>KEYS</h3>
+</div>
+<div class="mt-8">
+<p class="text-[10px] font-bold text-on-primary-container/60 uppercase tracking-widest mb-1">Active Keys</p>
+<p class="text-2xl font-bold text-on-primary-container">04</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-sm bg-[#0b0e11] flex justify-around items-center w-full h-20 pb-safe px-4 border-t border-[#45484c]/15">
+<a class="flex flex-col items-center justify-center text-slate-500 py-1 px-3 hover:text-[#78f5ae] transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">grid_view</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-[0.05em] uppercase">TERMINAL</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 py-1 px-3 hover:text-[#78f5ae] transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">swap_horiz</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-[0.05em] uppercase">EXCHANGE</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 py-1 px-3 hover:text-[#78f5ae] transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">security</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-[0.05em] uppercase">SECURE</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5cfd80] bg-[#1c2024] rounded-sm py-1 px-3 hover:text-[#78f5ae] transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-[0.05em] uppercase">SETTINGS</span>
+</a>
+</nav>
+</body></html>

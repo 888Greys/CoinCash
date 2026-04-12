@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System Logs | KINETIC TERMINAL</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#000000",
+                        "on-primary": "#005d22",
+                        "on-tertiary": "#005762",
+                        "tertiary-fixed": "#00e3fe",
+                        "background": "#0b0e11",
+                        "tertiary-fixed-dim": "#00d4ed",
+                        "on-surface": "#f8f9fe",
+                        "on-tertiary-fixed-variant": "#005762",
+                        "secondary-fixed": "#78f5ae",
+                        "secondary-fixed-dim": "#69e6a1",
+                        "outline": "#737679",
+                        "error": "#f6465d",
+                        "outline-variant": "#2b2f36",
+                        "primary-dim": "#4bee74",
+                        "surface-container-high": "#1e2329",
+                        "primary-fixed-dim": "#4bee74",
+                        "tertiary-dim": "#00d4ed",
+                        "on-primary-container": "#003711",
+                        "on-secondary-fixed": "#004528",
+                        "on-error-container": "#ffd2c8",
+                        "on-tertiary-fixed": "#003840",
+                        "on-background": "#f8f9fe",
+                        "on-error": "#450900",
+                        "on-secondary-container": "#e2ffe8",
+                        "error-container": "#b92902",
+                        "surface-variant": "#2b2f36",
+                        "primary-container": "#02c953",
+                        "on-primary-fixed-variant": "#006827",
+                        "inverse-primary": "#006e2a",
+                        "surface-container": "#181a20",
+                        "surface": "#0b0e11",
+                        "inverse-on-surface": "#535559",
+                        "inverse-surface": "#f8f9fe",
+                        "surface-tint": "#02d076",
+                        "on-surface-variant": "#848e9c",
+                        "error-dim": "#d53d18",
+                        "surface-container-highest": "#2b2f36",
+                        "on-secondary-fixed-variant": "#00653c",
+                        "on-tertiary-container": "#004d57",
+                        "tertiary-container": "#00e3fe",
+                        "surface-bright": "#2b2f36",
+                        "on-primary-fixed": "#004819",
+                        "primary": "#02d076",
+                        "surface-dim": "#0b0e11",
+                        "secondary-dim": "#69e6a1",
+                        "secondary-container": "#006d41",
+                        "on-secondary": "#005a35",
+                        "surface-container-low": "#12161c",
+                        "secondary": "#78f5ae",
+                        "tertiary": "#84ecff",
+                        "primary-fixed": "#02d076"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "2px",
+                        "lg": "4px",
+                        "xl": "8px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["Roboto Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+        }
+        body {
+            background-color: #0b0e11;
+            color: #eaecef;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .terminal-grid {
+            background-image: radial-gradient(#1e2329 0.5px, transparent 0.5px);
+            background-size: 32px 32px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .pro-shadow {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface terminal-grid min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0b0e11]/95 backdrop-blur-md border-b border-white/5 flex justify-between items-center px-4 h-14">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 bg-primary flex items-center justify-center rounded-[2px]">
+<span class="material-symbols-outlined text-black font-bold text-lg" data-icon="terminal">terminal</span>
+</div>
+<span class="text-base font-bold tracking-tight text-on-surface font-headline uppercase">KINETIC<span class="text-primary">_</span>TERMINAL</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-on-surface p-2 transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="relative text-primary p-2">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-1.5 h-1.5 bg-error rounded-full border border-background"></span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-4 max-w-5xl mx-auto">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3">
+<div>
+<h1 class="font-headline text-2xl font-bold tracking-tight uppercase leading-none mb-1">System Logs</h1>
+<p class="font-label text-on-surface-variant text-[10px] uppercase tracking-[0.1em] font-medium">Real-time terminal protocol monitor</p>
+</div>
+<button class="font-label text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1.5 bg-surface-container-high px-3 py-1.5 rounded-sm">
+<span class="material-symbols-outlined text-sm" data-icon="done_all">done_all</span>
+            Mark as read
+        </button>
+</div>
+<!-- Filter Tabs - More dense and pro-like -->
+<div class="flex gap-1 mb-6 overflow-x-auto pb-1 scrollbar-hide border-b border-white/5">
+<button class="text-primary border-b-2 border-primary px-4 py-2 font-label text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">All Logs</button>
+<button class="text-on-surface-variant hover:text-on-surface px-4 py-2 font-label text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors">Trades</button>
+<button class="text-on-surface-variant hover:text-on-surface px-4 py-2 font-label text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors">Security</button>
+<button class="text-on-surface-variant hover:text-on-surface px-4 py-2 font-label text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors">API</button>
+</div>
+<!-- Notification Feed - Tighter Spacing & Binance-style Indicators -->
+<div class="space-y-[1px] bg-white/5 rounded-sm overflow-hidden border border-white/5">
+<!-- Log Item: Trade Success -->
+<div class="group relative flex items-start gap-3 p-3 bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex-shrink-0 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary block mt-2 shadow-[0_0_8px_rgba(2,208,118,0.4)]"></span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[9px] font-bold uppercase text-primary bg-primary/10 px-1 rounded-[1px]">EXEC</span>
+<span class="font-headline text-[13px] font-bold text-on-surface">BUY_ORDER_FILLED: BTC/USDT</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">12:45:02</span>
+</div>
+<p class="text-[12px] text-on-surface-variant leading-snug font-body">Limit order #88492-X filled at $64,210.44. Volume: 1.205 BTC. Fee: 0.00012 BTC.</p>
+</div>
+<div class="opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-base">open_in_new</span></button>
+</div>
+</div>
+<!-- Log Item: System Warning -->
+<div class="group relative flex items-start gap-3 p-3 bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex-shrink-0 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-error block mt-2 shadow-[0_0_8px_rgba(246,70,93,0.4)]"></span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[9px] font-bold uppercase text-error bg-error/10 px-1 rounded-[1px]">WARN</span>
+<span class="font-headline text-[13px] font-bold text-on-surface">LATENCY_ANOMALY</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">11:30:15</span>
+</div>
+<p class="text-[12px] text-on-surface-variant leading-snug font-body">Increased latency in AP-Northeast. Failover to Frankfurt-02 recommended for HFT.</p>
+</div>
+</div>
+<!-- Log Item: Activity Info -->
+<div class="group relative flex items-start gap-3 p-3 bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex-shrink-0 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary block mt-2 shadow-[0_0_8px_rgba(0,227,254,0.4)]"></span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[9px] font-bold uppercase text-tertiary bg-tertiary/10 px-1 rounded-[1px]">AUTH</span>
+<span class="font-headline text-[13px] font-bold text-on-surface">NEW_LOGIN_DETECTED</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">09:12:44</span>
+</div>
+<p class="text-[12px] text-on-surface-variant leading-snug font-body">Access via API Key [MK-82] from IP 192.168.1.104. HW wallet signing enabled.</p>
+</div>
+</div>
+<!-- Log Item: Trade Partial -->
+<div class="group relative flex items-start gap-3 p-3 bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex-shrink-0 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant/40 block mt-2"></span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[9px] font-bold uppercase text-on-surface-variant bg-on-surface-variant/10 px-1 rounded-[1px]">PEND</span>
+<span class="font-headline text-[13px] font-bold text-on-surface">PARTIAL_FILL: ETH/USDT</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">08:05:11</span>
+</div>
+<p class="text-[12px] text-on-surface-variant leading-snug font-body">Limit order #99211-P partially filled (45.2%). 12.5 ETH remaining in book.</p>
+</div>
+</div>
+<!-- Log Item: Core Update -->
+<div class="group relative flex items-start gap-3 p-3 bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex-shrink-0 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary block mt-2"></span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[9px] font-bold uppercase text-primary bg-primary/10 px-1 rounded-[1px]">CORE</span>
+<span class="font-headline text-[13px] font-bold text-on-surface">FIRMWARE_V2.0.4</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">YESTERDAY</span>
+</div>
+<p class="text-[12px] text-on-surface-variant leading-snug font-body">Kinetic Monolith architecture upgraded. +14% execution speed for atomic swaps.</p>
+</div>
+</div>
+</div>
+<!-- Terminal Status Footer - Precise & Technical -->
+<div class="mt-8 p-3 bg-surface-container-lowest border border-white/5 rounded-sm flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-on-surface-variant">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+<span>SYSTEM_STABLE</span>
+</div>
+<div class="hidden sm:flex items-center gap-4 border-l border-white/10 pl-4">
+<span>PING: 14MS</span>
+<span>BUFFER: 0.002MS</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="hidden sm:inline">NODE: FRA-MAIN-01</span>
+<span class="text-on-surface font-bold">LIVE</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar - Aligned to design system with tighter feel -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#181a20]/95 backdrop-blur-md border-t border-white/5 flex justify-around items-center px-1 pb-safe pt-2 pb-2">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="dashboard">dashboard</span>
+<span class="font-label text-[9px] font-bold uppercase tracking-tight">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="candlestick_chart">candlestick_chart</span>
+<span class="font-label text-[9px] font-bold uppercase tracking-tight">Markets</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="smart_toy">smart_toy</span>
+<span class="font-label text-[9px] font-bold uppercase tracking-tight">Trade Bot</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label text-[9px] font-bold uppercase tracking-tight">Assets</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary px-3 py-1 group">
+<span class="material-symbols-outlined mb-1 scale-110" data-icon="history_edu">history_edu</span>
+<span class="font-label text-[9px] font-bold uppercase tracking-tight">Logs</span>
+</div>
+</nav>
+</body></html>

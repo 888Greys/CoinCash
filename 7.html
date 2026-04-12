@@ -1,0 +1,408 @@
+<html class="dark"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-lowest": "#000000",
+            "on-primary": "#005d22",
+            "on-tertiary": "#005762",
+            "tertiary-fixed": "#00e3fe",
+            "background": "#0b0e11",
+            "tertiary-fixed-dim": "#00d4ed",
+            "on-surface": "#f8f9fe",
+            "on-tertiary-fixed-variant": "#005762",
+            "secondary-fixed": "#78f5ae",
+            "secondary-fixed-dim": "#69e6a1",
+            "outline": "#737679",
+            "error": "#ff7351",
+            "outline-variant": "#45484c",
+            "primary-dim": "#4bee74",
+            "surface-container-high": "#1c2024",
+            "primary-fixed-dim": "#4bee74",
+            "tertiary-dim": "#00d4ed",
+            "on-primary-container": "#003711",
+            "on-secondary-fixed": "#004528",
+            "on-error-container": "#ffd2c8",
+            "on-tertiary-fixed": "#003840",
+            "on-background": "#f8f9fe",
+            "on-error": "#450900",
+            "on-secondary-container": "#e2ffe8",
+            "error-container": "#b92902",
+            "surface-variant": "#22262b",
+            "primary-container": "#02c953",
+            "on-primary-fixed-variant": "#006827",
+            "inverse-primary": "#006e2a",
+            "surface-container": "#161a1e",
+            "surface": "#0b0e11",
+            "inverse-on-surface": "#535559",
+            "inverse-surface": "#f8f9fe",
+            "surface-tint": "#5cfd80",
+            "on-surface-variant": "#a9abaf",
+            "error-dim": "#d53d18",
+            "surface-container-highest": "#22262b",
+            "on-secondary-fixed-variant": "#00653c",
+            "on-tertiary-container": "#004d57",
+            "tertiary-container": "#00e3fe",
+            "surface-bright": "#282d31",
+            "on-primary-fixed": "#004819",
+            "primary": "#5cfd80",
+            "surface-dim": "#0b0e11",
+            "secondary-dim": "#69e6a1",
+            "secondary-container": "#006d41",
+            "on-secondary": "#005a35",
+            "surface-container-low": "#101417",
+            "secondary": "#78f5ae",
+            "tertiary": "#84ecff",
+            "primary-fixed": "#5cfd80"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      background-color: #0b0e11;
+      color: #f8f9fe;
+      font-family: 'Inter', sans-serif;
+    }
+    .technical-grid {
+      background-image: radial-gradient(circle, #1c2024 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .sparkline-svg {
+      width: 80px;
+      height: 32px;
+      fill: none;
+      stroke-width: 1.5;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface selection:bg-primary selection:text-on-primary-container min-h-screen">
+<header class="fixed top-0 w-full z-50 bg-[#0b0e11] flex justify-between items-center px-6 h-16 w-full max-w-none">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#5cfd80]">terminal</span>
+<h1 class="font-['Space_Grotesk'] tracking-widest uppercase text-xl font-bold tracking-tighter text-[#5cfd80]">KINETIC_TERMINAL</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex gap-6 mr-6">
+<a class="text-[#5cfd80] font-label text-xs uppercase tracking-widest" href="#">Markets</a>
+<a class="text-slate-400 hover:text-[#78f5ae] font-label text-xs uppercase tracking-widest transition-colors" href="#">Trade</a>
+<a class="text-slate-400 hover:text-[#78f5ae] font-label text-xs uppercase tracking-widest transition-colors" href="#">Earn</a>
+</div>
+<span class="material-symbols-outlined text-slate-400 hover:bg-[#282d31] transition-colors p-2 rounded-sm cursor-pointer">notifications</span>
+</div>
+</header>
+<main class="pt-20 pb-24 md:pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="font-headline text-3xl font-bold text-on-surface mb-2">MARKET_OVERVIEW</h2>
+<div class="flex items-center gap-4 text-on-surface-variant font-label text-[10px] uppercase tracking-widest">
+<span>Global Vol: $84.2B</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span>BTC Dom: 52.4%</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="text-primary">Gas: 18 Gwei</span>
+</div>
+</div>
+<div class="relative w-full md:w-80 group">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">search</span>
+</div>
+<input class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary/40 text-on-surface text-xs font-label uppercase tracking-widest pl-10 py-3 rounded-sm outline outline-1 outline-outline-variant/15 transition-all" placeholder="SEARCH ASSETS..." type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="bg-surface-container-low p-5 flex flex-col justify-between group hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Top Gainer</span>
+<span class="text-primary text-xs font-bold">+14.2%</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<div class="font-headline text-2xl font-bold">SOL/USDT</div>
+<div class="font-headline text-lg text-on-surface-variant">$114.82</div>
+</div>
+<svg class="sparkline-svg stroke-primary" viewbox="0 0 80 32">
+<path d="M0,30 L10,25 L20,28 L30,15 L40,20 L50,8 L60,12 L70,2 L80,5"></path>
+</svg>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 flex flex-col justify-between group hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">High Volume</span>
+<span class="text-on-surface text-xs font-bold">$4.2B</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<div class="font-headline text-2xl font-bold">BTC/USDT</div>
+<div class="font-headline text-lg text-on-surface-variant">$42,912.40</div>
+</div>
+<svg class="sparkline-svg stroke-on-surface-variant" viewbox="0 0 80 32">
+<path d="M0,15 L10,18 L20,12 L30,22 L40,15 L50,18 L60,10 L70,12 L80,15"></path>
+</svg>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 flex flex-col justify-between group hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">New Listing</span>
+<span class="text-tertiary text-xs font-bold">Active</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<div class="font-headline text-2xl font-bold">TIA/USDT</div>
+<div class="font-headline text-lg text-on-surface-variant">$18.45</div>
+</div>
+<svg class="sparkline-svg stroke-tertiary" viewbox="0 0 80 32">
+<path d="M0,28 L10,20 L20,22 L30,10 L40,12 L50,5 L60,8 L70,1 L80,3"></path>
+</svg>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low overflow-hidden">
+<div class="flex border-b border-outline-variant/15 px-6">
+<button class="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] bg-surface-bright text-on-surface transition-all">All</button>
+<button class="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-all">Favorites</button>
+<button class="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-all">Hot</button>
+<button class="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-all">New Listings</button>
+</div>
+<div class="overflow-x-auto hide-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="font-label text-[9px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/10">
+<th class="px-6 py-4 font-medium">Asset</th>
+<th class="px-6 py-4 font-medium">Price</th>
+<th class="px-6 py-4 font-medium">24h Change</th>
+<th class="px-6 py-4 font-medium hidden md:table-cell">24h Volume</th>
+<th class="px-6 py-4 font-medium hidden md:table-cell">Market Cap</th>
+<th class="px-6 py-4 font-medium text-right">Last 7 Days</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-bright transition-colors cursor-pointer group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-primary">B</div>
+<div>
+<div class="font-headline font-bold text-sm">BTC</div>
+<div class="font-label text-[9px] text-on-surface-variant tracking-widest uppercase">Bitcoin</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-headline font-bold">$42,912.40</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-label text-xs font-bold text-error">-0.42%</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$28.4B</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$842.1B</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex justify-end">
+<svg class="sparkline-svg stroke-error opacity-70 group-hover:opacity-100 transition-opacity" viewbox="0 0 80 32">
+<path d="M0,15 L10,18 L20,12 L30,22 L40,15 L50,18 L60,10 L70,12 L80,15"></path>
+</svg>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors cursor-pointer group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-tertiary">E</div>
+<div>
+<div class="font-headline font-bold text-sm">ETH</div>
+<div class="font-label text-[9px] text-on-surface-variant tracking-widest uppercase">Ethereum</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-headline font-bold">$2,314.15</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-label text-xs font-bold text-primary">+2.18%</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$14.2B</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$278.4B</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex justify-end">
+<svg class="sparkline-svg stroke-primary opacity-70 group-hover:opacity-100 transition-opacity" viewbox="0 0 80 32">
+<path d="M0,25 L10,22 L20,24 L30,12 L40,15 L50,5 L60,10 L70,8 L80,2"></path>
+</svg>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors cursor-pointer group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-secondary">S</div>
+<div>
+<div class="font-headline font-bold text-sm">SOL</div>
+<div class="font-label text-[9px] text-on-surface-variant tracking-widest uppercase">Solana</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-headline font-bold">$114.82</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-label text-xs font-bold text-primary">+14.2%</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$4.8B</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$48.9B</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex justify-end">
+<svg class="sparkline-svg stroke-primary opacity-70 group-hover:opacity-100 transition-opacity" viewbox="0 0 80 32">
+<path d="M0,30 L10,25 L20,28 L30,15 L40,20 L50,8 L60,12 L70,2 L80,5"></path>
+</svg>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors cursor-pointer group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-error">A</div>
+<div>
+<div class="font-headline font-bold text-sm">AVAX</div>
+<div class="font-label text-[9px] text-on-surface-variant tracking-widest uppercase">Avalanche</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-headline font-bold">$34.12</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-label text-xs font-bold text-error">-3.82%</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$842M</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$12.5B</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex justify-end">
+<svg class="sparkline-svg stroke-error opacity-70 group-hover:opacity-100 transition-opacity" viewbox="0 0 80 32">
+<path d="M0,5 L10,8 L20,4 L30,15 L40,12 L50,25 L60,20 L70,30 L80,28"></path>
+</svg>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors cursor-pointer group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-primary-dim">L</div>
+<div>
+<div class="font-headline font-bold text-sm">LINK</div>
+<div class="font-label text-[9px] text-on-surface-variant tracking-widest uppercase">Chainlink</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-headline font-bold">$18.94</div>
+</td>
+<td class="px-6 py-5">
+<div class="font-label text-xs font-bold text-primary">+1.04%</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$512M</div>
+</td>
+<td class="px-6 py-5 hidden md:table-cell">
+<div class="font-label text-xs text-on-surface-variant">$11.1B</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex justify-end">
+<svg class="sparkline-svg stroke-primary opacity-70 group-hover:opacity-100 transition-opacity" viewbox="0 0 80 32">
+<path d="M0,15 L10,14 L20,16 L30,12 L40,14 L50,11 L60,13 L70,10 L80,9"></path>
+</svg>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex justify-between items-center px-6 py-4 bg-surface-container-low border-t border-outline-variant/10">
+<div class="font-label text-[9px] text-on-surface-variant uppercase tracking-widest">Showing 1-5 of 142 Assets</div>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container-high hover:bg-surface-bright transition-colors rounded-sm group">
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary">chevron_left</span>
+</button>
+<button class="p-2 bg-surface-container-high hover:bg-surface-bright transition-colors rounded-sm group">
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-sm bg-[#0b0e11]/80 backdrop-blur-xl border-t border-[#45484c]/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center w-full px-2 py-3">
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5cfd80] bg-[#1c2024] rounded-sm p-2 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mb-1">equalizer</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Markets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mb-1">smart_toy</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Bot</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Assets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mb-1">swap_horizontal_circle</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">P2P</span>
+</a>
+</nav>
+<div class="fixed bottom-24 right-8 z-40 hidden md:block">
+<button class="w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-on-primary-container rounded-sm shadow-xl flex items-center justify-center group active:scale-95 duration-150">
+<span class="material-symbols-outlined transition-transform group-hover:rotate-12">add</span>
+</button>
+</div>
+</body></html>

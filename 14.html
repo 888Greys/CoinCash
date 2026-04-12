@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-dim": "#00d4ed",
+                        "surface-container": "#161a1e",
+                        "secondary-container": "#006d41",
+                        "tertiary": "#84ecff",
+                        "primary-dim": "#4bee74",
+                        "on-primary": "#005d22",
+                        "background": "#0b0e11",
+                        "on-tertiary": "#005762",
+                        "inverse-surface": "#f8f9fe",
+                        "secondary": "#78f5ae",
+                        "on-secondary-fixed": "#004528",
+                        "on-background": "#f8f9fe",
+                        "on-surface-variant": "#a9abaf",
+                        "primary": "#5cfd80",
+                        "surface-tint": "#5cfd80",
+                        "primary-fixed-dim": "#4bee74",
+                        "on-secondary-fixed-variant": "#00653c",
+                        "surface-bright": "#282d31",
+                        "on-primary-fixed-variant": "#006827",
+                        "error-container": "#b92902",
+                        "surface": "#0b0e11",
+                        "on-error-container": "#ffd2c8",
+                        "surface-container-high": "#1c2024",
+                        "secondary-fixed-dim": "#69e6a1",
+                        "surface-dim": "#0b0e11",
+                        "on-tertiary-fixed": "#003840",
+                        "surface-container-low": "#101417",
+                        "secondary-dim": "#69e6a1",
+                        "tertiary-container": "#00e3fe",
+                        "surface-container-highest": "#22262b",
+                        "surface-variant": "#22262b",
+                        "inverse-on-surface": "#535559",
+                        "on-surface": "#f8f9fe",
+                        "on-primary-fixed": "#004819",
+                        "on-primary-container": "#003711",
+                        "on-tertiary-fixed-variant": "#005762",
+                        "on-tertiary-container": "#004d57",
+                        "tertiary-fixed": "#00e3fe",
+                        "on-secondary-container": "#e2ffe8",
+                        "primary-container": "#02c953",
+                        "error-dim": "#d53d18",
+                        "tertiary-fixed-dim": "#00d4ed",
+                        "outline": "#737679",
+                        "inverse-primary": "#006e2a",
+                        "primary-fixed": "#5cfd80",
+                        "secondary-fixed": "#78f5ae",
+                        "error": "#ff7351",
+                        "surface-container-lowest": "#000000",
+                        "outline-variant": "#45484c",
+                        "on-secondary": "#005a35",
+                        "on-error": "#450900"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .kinetic-gradient {
+            background: linear-gradient(135deg, #5cfd80 0%, #02c953 100%);
+        }
+        .obsidian-glass {
+            background: rgba(28, 32, 36, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .ghost-border {
+            outline: 1px solid rgba(69, 72, 76, 0.15);
+        }
+        .ghost-border:focus-within {
+            outline: 1px solid rgba(92, 253, 128, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary-container">
+<header class="flex justify-between items-center w-full px-6 h-16 bg-[#0b0e11] fixed top-0 z-50">
+<div class="text-xl font-bold tracking-tighter text-[#5cfd80] font-['Space_Grotesk']">
+            CoinCash
+        </div>
+<a class="text-[#f8f9fe]/60 font-label text-xs uppercase tracking-widest hover:text-primary transition-colors" href="#">
+            Login
+        </a>
+</header>
+<main class="min-h-screen flex flex-col md:flex-row pt-16">
+<section class="hidden md:flex md:w-1/2 p-12 flex-col justify-center relative overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-br from-surface via-surface-container-low to-surface-container-high opacity-90"></div>
+<img alt="Abstract 3D digital block network" class="w-full h-full object-cover" data-alt="abstract 3d visualization of interconnected digital nodes and blocks representing blockchain technology in dark obsidian and neon green light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7Fa9BbgB3Id4BYrt-gbkLv8QuEZP0maCrft-060D-GAqAQhYXA8-UJPi5BH9SX3CLfFPyjNlycKlu5oQP34WA3dnHdutgtVdUorc5dtgwguSfg6e8vSvmXVV05_mhJ-mjMkgWjozrgJwHr_8Fee9mAnSApJhJjCgmthOW-j68RpMRmIqa7cDXWETxsCAAKCFejCvQpX7scfcQNZyWcxvNrZT5BplkXi9MUZRLMoI8xaDjIaft_A4p81KbE-hka0vocqXtQggSpic"/>
+</div>
+<div class="relative z-10 space-y-6">
+<h2 class="font-headline text-5xl font-extrabold tracking-tighter text-on-surface leading-tight">
+                    DECENTRALIZE <br/> <span class="text-primary">YOUR WEALTH</span>
+</h2>
+<p class="max-w-md text-on-surface-variant font-light text-lg">
+                    Join the high-frequency terminal for the next generation of asset exchange. Speed is your edge. Precision is your profit.
+                </p>
+<div class="flex gap-8 pt-8">
+<div>
+<div class="font-headline text-2xl font-bold text-primary">24/7</div>
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Uptime</div>
+</div>
+<div>
+<div class="font-headline text-2xl font-bold text-primary">0.01%</div>
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Taker Fee</div>
+</div>
+<div>
+<div class="font-headline text-2xl font-bold text-primary">400+</div>
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Assets</div>
+</div>
+</div>
+</div>
+</section>
+<section class="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-24">
+<div class="w-full max-w-md space-y-8">
+<div class="space-y-2">
+<h1 class="font-headline text-3xl font-bold tracking-tighter text-on-surface">CREATE_ACCOUNT</h1>
+<p class="text-on-surface-variant font-label text-xs uppercase tracking-[0.1em]">Enter your credentials to begin trading</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-high hover:bg-surface-bright transition-colors rounded-lg group">
+<img alt="Google" class="w-5 h-5" data-alt="Google logo icon in flat colorful style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiKtkAV18ij6Hrr40ygbML3QcIH0kuMwz_mxpKD_1pPxR937tuclyu7tgBmE7iDLUkKJzxels2LEkjI2Mc--KGwzdpaRP_ny79QvROS1SkA6qYHJrRdvdBoUacvnmtWRLtMflxcKZb1JJDS493e-vj-vpNvuQliG-wgFiPoDPpNhLGN0FsY5VrfF8tKmdyQfCvXCLHUCtZHvK9RQb4hTZTOTnmIcXDn3Ejz9cOFH_5v6zIQwfSBqr0CObCksh0DZ64Q2S2rEK_86I"/>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface group-hover:text-primary transition-colors">Google</span>
+</button>
+<button class="flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-high hover:bg-surface-bright transition-colors rounded-lg group">
+<img alt="Telegram" class="w-5 h-5" data-alt="Telegram logo icon in circular blue brand style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKdhBaiIwRRj-vm2_qCqULcMlSD8z3E10J7JnrZhNttScpP8ch452hiUwI6zxMLT23ZWg8CqAelf3o4XFRscCeGst2IoWIYfBt9bciSYoz4I7W-S7fBQ5KP7NgAJKaOswcvQfZ41Lj7vsa5hBWEBEcvEbKxlH6LCJe5C2WxBdEJQltgM7OQ7FyLLcQYPmpJjIbr83LjmZeZJzKwUGXP8rahaQsWPtiUJzJVZ7e8REb_0Nl9KlbVAih1Pl6sxSS7wImb7DtCUfOy1c"/>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface group-hover:text-primary transition-colors">Telegram</span>
+</button>
+</div>
+<div class="relative flex items-center py-4">
+<div class="flex-grow border-t border-outline-variant/20"></div>
+<span class="flex-shrink mx-4 font-label text-[10px] text-on-surface-variant uppercase tracking-widest">OR</span>
+<div class="flex-grow border-t border-outline-variant/20"></div>
+</div>
+<form class="space-y-6">
+<div class="space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between items-end">
+<label class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email or Phone</label>
+</div>
+<div class="ghost-border bg-surface-container-lowest transition-all">
+<input class="w-full bg-transparent border-none text-on-surface font-body text-sm py-4 px-4 focus:ring-0 placeholder:text-on-surface-variant/30" placeholder="terminal@coincash.io" type="text"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-end">
+<label class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Password</label>
+<span class="text-[10px] text-primary uppercase font-bold tracking-tighter">Security: Strong</span>
+</div>
+<div class="ghost-border bg-surface-container-lowest transition-all">
+<input class="w-full bg-transparent border-none text-on-surface font-body text-sm py-4 px-4 focus:ring-0 placeholder:text-on-surface-variant/30" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-end">
+<label class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Confirm Password</label>
+</div>
+<div class="ghost-border bg-surface-container-lowest transition-all">
+<input class="w-full bg-transparent border-none text-on-surface font-body text-sm py-4 px-4 focus:ring-0 placeholder:text-on-surface-variant/30" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="flex items-center h-5">
+<input class="w-4 h-4 bg-surface-container-low border-outline-variant text-primary focus:ring-0 rounded-sm" id="terms" type="checkbox"/>
+</div>
+<label class="text-xs text-on-surface-variant leading-relaxed" for="terms">
+                            I agree to the <span class="text-primary hover:underline cursor-pointer">Terms of Service</span> and <span class="text-primary hover:underline cursor-pointer">Privacy Policy</span>. I understand that digital asset trading involves significant risk.
+                        </label>
+</div>
+<button class="kinetic-gradient w-full py-4 rounded-lg font-label font-bold uppercase tracking-[0.2em] text-on-primary-container text-sm shadow-lg shadow-primary/10 active:scale-[0.98] transition-all" type="submit">
+                        Execute Registration
+                    </button>
+</form>
+<p class="text-center font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                    Already authenticated? <a class="text-primary font-bold" href="#">Access Terminal</a>
+</p>
+</div>
+</section>
+</main>
+<div class="fixed bottom-6 right-6 hidden md:flex items-center gap-4 obsidian-glass p-3 rounded-full border border-outline-variant/10">
+<div class="flex items-center gap-2 px-3">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label text-[10px] uppercase tracking-widest font-bold">Network: Stable</span>
+</div>
+<div class="h-4 w-px bg-outline-variant/20"></div>
+<div class="flex gap-3 pr-2">
+<span class="material-symbols-outlined text-sm text-on-surface-variant cursor-pointer hover:text-primary">help</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant cursor-pointer hover:text-primary">settings</span>
+</div>
+</div>
+</body></html>

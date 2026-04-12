@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #0b0e11;
+  color: #f8f9fe;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.terminal-grid {
+  background-image:
+    linear-gradient(to right, rgba(69, 72, 76, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(69, 72, 76, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.vignette {
+  background: radial-gradient(circle, transparent 20%, #0b0e11 100%);
+}
+
+.cursor-glow {
+  box-shadow: 0 0 30px rgba(92, 253, 128, 0.3);
+}
+
+.kinetic-gradient {
+  background: linear-gradient(135deg, #5cfd80 0%, #02c953 100%);
+}
+
+@keyframes splash-bar-loop {
+  0% {
+    transform: scaleX(0);
+    opacity: 0.35;
+  }
+
+  45% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  55% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleX(0);
+    opacity: 0.35;
+  }
+}
+
+.splash-bar-track {
+  background: rgba(92, 253, 128, 0.16);
+}
+
+.splash-bar-fill {
+  transform-origin: left center;
+  animation: splash-bar-loop 1.9s ease-in-out infinite;
+}
