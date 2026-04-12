@@ -8,7 +8,7 @@ type AppNavProps = {
 
 export function AppNav({ currentPath }: AppNavProps) {
   return (
-    <header className="flex-shrink-0 z-50 border-b border-outline-variant/15 bg-[#0b0e11] relative">
+    <header className="sticky top-0 z-50 border-b border-outline-variant/15 bg-[#0b0e11] w-full">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 md:px-6">
         <Link
           className="font-headline text-xl font-bold tracking-tight text-on-surface"
