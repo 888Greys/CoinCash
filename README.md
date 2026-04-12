@@ -154,6 +154,27 @@ Run lint:
 bun run lint
 ```
 
+## Dev Login Credentials (Netlify Variables)
+
+The login page validates against server-side environment variables.
+
+Set these in Netlify for your site:
+
+- `DEV_LOGIN_EMAIL`
+- `DEV_LOGIN_PASSWORD`
+
+Netlify dashboard path:
+
+1. Site settings
+2. Environment variables
+3. Add both variables above
+
+Flow behavior after setup:
+
+- Register submit -> redirects to `/login?registered=1`
+- Login submit with matching env credentials -> redirects to `/markets`
+- Login submit with wrong credentials -> stays on `/login` and shows an error
+
 ## Verification Notes
 
 At this stage the implementation is an initial scaffold, not a full migration. The reference HTML remains available in `public/reference-designs/` so every migrated page can be checked against the original.

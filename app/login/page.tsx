@@ -1,6 +1,39 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams?: {
+    error?: string;
+    registered?: string;
+  };
+};
+
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  async function loginAction(formData: FormData) {
+    "use server";
+
+    const identifier = String(formData.get("identifier") ?? "")
+      .trim()
+      .toLowerCase();
+    const password = String(formData.get("password") ?? "");
+
+    const devEmail = process.env.DEV_LOGIN_EMAIL?.trim().toLowerCase();
+    const devPassword = process.env.DEV_LOGIN_PASSWORD;
+
+    if (!devEmail || !devPassword) {
+      redirect("/login?error=config");
+    }
+
+    if (identifier === devEmail && password === devPassword) {
+      redirect("/markets");
+    }
+
+    redirect("/login?error=invalid");
+  }
+
+  const errorState = typeof searchParams?.error === "string" ? searchParams.error : undefined;
+  const justRegistered = searchParams?.registered === "1";
+
   return (
     <div className="min-h-screen bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary-container">
       <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#0b0e11] px-6">
@@ -107,7 +140,23 @@ export default function LoginPage() {
               <div className="flex-grow border-t border-outline-variant/20" />
             </div>
 
-            <form className="space-y-6">
+            <form action={loginAction} className="space-y-6">
+              {justRegistered && (
+                <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
+                  Account created. You can log in now.
+                </p>
+              )}
+              {errorState === "invalid" && (
+                <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                  Wrong email or password. Try again.
+                </p>
+              )}
+              {errorState === "config" && (
+                <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                  Dev login is not configured. Set DEV_LOGIN_EMAIL and DEV_LOGIN_PASSWORD.
+                </p>
+              )}
+
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label
@@ -120,7 +169,9 @@ export default function LoginPage() {
                     <input
                       className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
                       id="login-identifier"
+                      name="identifier"
                       placeholder="you@example.com"
+                      required
                       type="text"
                     />
                   </div>
@@ -145,7 +196,9 @@ export default function LoginPage() {
                     <input
                       className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
                       id="login-password"
+                      name="password"
                       placeholder="••••••••••••"
+                      required
                       type="password"
                     />
                   </div>

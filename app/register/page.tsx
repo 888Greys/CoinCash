@@ -1,6 +1,33 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function RegisterPage() {
+type RegisterPageProps = {
+  searchParams?: {
+    error?: string;
+  };
+};
+
+export default function RegisterPage({ searchParams }: RegisterPageProps) {
+  async function registerAction(formData: FormData) {
+    "use server";
+
+    const password = String(formData.get("password") ?? "");
+    const confirmPassword = String(formData.get("confirmPassword") ?? "");
+    const agreedToTerms = formData.get("terms") === "on";
+
+    if (!agreedToTerms) {
+      redirect("/register?error=terms");
+    }
+
+    if (password !== confirmPassword) {
+      redirect("/register?error=nomatch");
+    }
+
+    redirect("/login?registered=1");
+  }
+
+  const errorState = typeof searchParams?.error === "string" ? searchParams.error : undefined;
+
   return (
     <div className="min-h-screen bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary-container">
       <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#0b0e11] px-6">
@@ -113,7 +140,18 @@ export default function RegisterPage() {
               <div className="flex-grow border-t border-outline-variant/20" />
             </div>
 
-            <form className="space-y-6">
+            <form action={registerAction} className="space-y-6">
+              {errorState === "terms" && (
+                <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                  Please agree to Terms and Privacy Policy to continue.
+                </p>
+              )}
+              {errorState === "nomatch" && (
+                <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                  Password and confirm password do not match.
+                </p>
+              )}
+
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label
@@ -126,7 +164,9 @@ export default function RegisterPage() {
                     <input
                       className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
                       id="register-identifier"
+                      name="identifier"
                       placeholder="terminal@coincash.io"
+                      required
                       type="text"
                     />
                   </div>
@@ -148,7 +188,9 @@ export default function RegisterPage() {
                     <input
                       className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
                       id="register-password"
+                      name="password"
                       placeholder="••••••••••••"
+                      required
                       type="password"
                     />
                   </div>
@@ -165,7 +207,9 @@ export default function RegisterPage() {
                     <input
                       className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
                       id="register-password-confirm"
+                      name="confirmPassword"
                       placeholder="••••••••••••"
+                      required
                       type="password"
                     />
                   </div>
@@ -177,6 +221,7 @@ export default function RegisterPage() {
                   <input
                     className="h-4 w-4 rounded-sm border-outline-variant bg-surface-container-low text-primary focus:ring-0"
                     id="terms"
+                    name="terms"
                     type="checkbox"
                   />
                 </div>
