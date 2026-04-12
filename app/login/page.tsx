@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { loginAction } from "./actions";
+import { LoginOverlay } from "@/components/login-overlay";
 
 type LoginPageProps = {
   searchParams?: {
@@ -10,28 +10,7 @@ type LoginPageProps = {
 };
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
-  async function loginAction(formData: FormData) {
-    "use server";
 
-    const identifier = String(formData.get("identifier") ?? "")
-      .trim()
-      .toLowerCase();
-    const password = String(formData.get("password") ?? "");
-
-    const devEmail = process.env.DEV_LOGIN_EMAIL?.trim().toLowerCase();
-    const devPassword = process.env.DEV_LOGIN_PASSWORD;
-
-    if (!devEmail || !devPassword) {
-      redirect("/login?error=config");
-    }
-
-    if (identifier === devEmail && password === devPassword) {
-      cookies().set('auth_session', 'true', { path: '/' });
-      redirect("/home");
-    }
-
-    redirect("/login?error=invalid");
-  }
 
   const errorState = typeof searchParams?.error === "string" ? searchParams.error : undefined;
   const justRegistered = searchParams?.registered === "1";
@@ -143,6 +122,8 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             </div>
 
             <form action={loginAction} className="space-y-6">
+              <LoginOverlay />
+              
               {justRegistered && (
                 <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
                   Account created. You can log in now.

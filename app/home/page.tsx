@@ -57,6 +57,19 @@ const gainers = [
   { symbol: "AVAX", name: "Avalanche", icon: "hive", iconColor: "text-secondary", price: "38.91", change: "+8.7%" },
 ];
 
+const recentTransactions = [
+  { id: "TX-1092", type: "Deposit", status: "Completed", amount: "+0.150 BTC", date: "Today, 14:32", icon: "south_west", color: "text-primary", bg: "bg-primary/10" },
+  { id: "TX-1091", type: "Trade", status: "Completed", amount: "-1,200 USDT", date: "Yesterday, 09:15", icon: "swap_horiz", color: "text-secondary", bg: "bg-secondary/10" },
+  { id: "TX-1090", type: "Withdrawal", status: "Pending", amount: "-0.50 ETH", date: "Oct 12, 18:45", icon: "north_east", color: "text-error", bg: "bg-error/10" },
+  { id: "TX-1089", type: "P2P Buy", status: "Completed", amount: "+450.00 USDT", date: "Oct 10, 11:20", icon: "group", color: "text-primary", bg: "bg-primary/10" },
+];
+
+const academyLinks = [
+  { title: "What is Bitcoin Halving?", duration: "4 min read", level: "Beginner", icon: "school" },
+  { title: "Understanding Zero-Knowledge Proofs", duration: "8 min read", level: "Advanced", icon: "enhanced_encryption" },
+  { title: "How to use the Grid Trading Bot", duration: "6 min read", level: "Intermediate", icon: "smart_toy" },
+];
+
 export default function HomePage() {
   return (
     <AppShell currentPath="/home">
@@ -196,6 +209,65 @@ export default function HomePage() {
                   <p className="font-bold text-sm">{g.price}</p>
                   <p className="text-[10px] font-bold text-primary">{g.change}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent Transactions */}
+        <section className="space-y-3 pb-4">
+          <div className="flex justify-between items-center px-1">
+            <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
+              Recent Transactions
+            </h2>
+            <button className="text-primary text-xs uppercase tracking-tighter font-bold flex items-center gap-1">
+              History <span className="material-symbols-outlined text-sm">history</span>
+            </button>
+          </div>
+          <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 divide-y divide-outline-variant/10">
+            {recentTransactions.map((tx) => (
+              <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full ${tx.bg} flex items-center justify-center transition-transform group-hover:scale-110`}>
+                    <span className={`material-symbols-outlined ${tx.color} text-xl`}>{tx.icon}</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm tracking-tight">{tx.type}</p>
+                    <p className="text-[10px] text-on-surface-variant flex items-center gap-1">
+                      {tx.status === "Pending" && <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse" />}
+                      {tx.status} • {tx.date}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`font-bold text-sm font-mono ${tx.amount.startsWith('+') ? 'text-primary' : 'text-on-surface'}`}>{tx.amount}</p>
+                  <p className="text-[9px] uppercase tracking-widest text-on-surface-variant">{tx.id}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Learn & Earn / Academy */}
+        <section className="space-y-3 pb-24">
+          <div className="flex justify-between items-center px-1">
+            <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
+              CoinCash Academy
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {academyLinks.map((lesson) => (
+              <div key={lesson.title} className="bg-surface-container-highest p-5 rounded-lg border border-transparent hover:border-primary/30 transition-colors group cursor-pointer relative overflow-hidden">
+                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <span className="material-symbols-outlined text-8xl text-on-surface">{lesson.icon}</span>
+                </div>
+                <span className="inline-block px-2 py-0.5 bg-surface-container-low border border-outline-variant/10 text-on-surface-variant text-[9px] font-bold uppercase tracking-widest rounded-sm mb-3">
+                  {lesson.level}
+                </span>
+                <h3 className="font-bold text-sm leading-snug mb-2 pr-4">{lesson.title}</h3>
+                <p className="text-[10px] text-on-surface-variant flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[12px]">schedule</span> {lesson.duration}
+                </p>
               </div>
             ))}
           </div>
