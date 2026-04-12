@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { getMockData, MarketRow } from "@/lib/mock-api";
 
 const sparklines = {
   btcDown: "M0,15 L10,18 L20,12 L30,22 L40,15 L50,18 L60,10 L70,12 L80,15",
@@ -108,7 +109,9 @@ const spotlightCards = [
   },
 ];
 
-export default function MarketsPage() {
+export default async function MarketsPage() {
+  const asyncMarketData = await getMockData<MarketRow[]>("markets", 1500);
+
   return (
     <AppShell currentPath="/markets">
       <div className="px-4 md:px-8 pt-6 max-w-7xl mx-auto">
@@ -200,14 +203,14 @@ export default function MarketsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
-                {marketData.map((asset) => (
+                {asyncMarketData.map((asset) => (
                   <tr
                     key={asset.symbol}
                     className="hover:bg-surface-bright transition-colors cursor-pointer group"
                   >
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs ${asset.color}`}>
+                        <div className={`w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-primary`}>
                           {asset.symbol[0]}
                         </div>
                         <div>
@@ -222,7 +225,7 @@ export default function MarketsPage() {
                       <div className="font-headline font-bold">{asset.price}</div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className={`font-label text-xs font-bold ${asset.changePositive ? "text-primary" : "text-error"}`}>
+                      <div className={`font-label text-xs font-bold ${asset.isPositive ? "text-primary" : "text-error"}`}>
                         {asset.change}
                       </div>
                     </td>
@@ -230,12 +233,12 @@ export default function MarketsPage() {
                       <div className="font-label text-xs text-on-surface-variant">{asset.volume}</div>
                     </td>
                     <td className="px-6 py-5 hidden md:table-cell">
-                      <div className="font-label text-xs text-on-surface-variant">{asset.marketCap}</div>
+                      <div className="font-label text-xs text-on-surface-variant">$20.2B</div>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex justify-end">
                         <svg
-                          className={`w-20 h-8 fill-none ${asset.changePositive ? "stroke-primary" : "stroke-error"} opacity-70 group-hover:opacity-100 transition-opacity`}
+                          className={`w-20 h-8 fill-none ${asset.isPositive ? "stroke-primary" : "stroke-error"} opacity-70 group-hover:opacity-100 transition-opacity`}
                           strokeWidth="1.5"
                           viewBox="0 0 80 32"
                         >
