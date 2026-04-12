@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 type LoginPageProps = {
   searchParams?: {
@@ -25,6 +26,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
     }
 
     if (identifier === devEmail && password === devPassword) {
+      cookies().set('auth_session', 'true', { path: '/' });
       redirect("/home");
     }
 
@@ -151,6 +153,11 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
                   Wrong email or password. Try again.
                 </p>
               )}
+              {errorState === "auth_required" && (
+                <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                  Authentication required. Please log in first.
+                </p>
+              )}
               {errorState === "config" && (
                 <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
                   Dev login is not configured. Set DEV_LOGIN_EMAIL and DEV_LOGIN_PASSWORD.
@@ -230,10 +237,10 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
               </button>
 
               <div className="flex justify-between gap-3 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
-                <Link className="transition-colors hover:text-primary" href="/markets">
+                <Link className="transition-colors hover:text-primary" href="/login?error=auth_required">
                   View Markets
                 </Link>
-                <Link className="transition-colors hover:text-primary" href="/p2p/buy">
+                <Link className="transition-colors hover:text-primary" href="/login?error=auth_required">
                   Buy USDT
                 </Link>
               </div>
