@@ -36,6 +36,12 @@ export const wiredRoutes: WiredRoute[] = [
     referenceFile: "7.html",
   },
   {
+    href: "/bot",
+    title: "Trading Bots",
+    description: "Automated trading bots dashboard wired to the new preserved bot reference.",
+    referenceFile: "bot.html",
+  },
+  {
     href: "/p2p",
     title: "P2P Marketplace",
     description: "Peer-to-peer marketplace dashboard wired to the preserved reference.",
@@ -106,11 +112,13 @@ export const referenceLibrary = [
   "12.html",
   "13.html",
   "14.html",
+  "bot.html",
 ];
 
 export const appNavRoutes: AppNavRoute[] = [
   { href: "/home", label: "Home" },
   { href: "/markets", label: "Markets" },
+  { href: "/bot", label: "Bot" },
   { href: "/p2p", label: "P2P" },
   { href: "/assets", label: "Assets" },
   { href: "/payment-methods", label: "Payments" },
