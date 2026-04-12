@@ -105,11 +105,6 @@
       scrollbar-width: none;
     }
   </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
   </head>
 <body class="bg-surface selection:bg-primary selection:text-on-primary-container min-h-screen">
 <header class="fixed top-0 w-full z-50 bg-[#0b0e11] flex justify-between items-center px-6 h-16 w-full max-w-none">
@@ -119,14 +114,14 @@
 </div>
 <div class="flex items-center gap-4">
 <div class="hidden md:flex gap-6 mr-6">
-<a class="text-[#5cfd80] font-label text-xs uppercase tracking-widest" href="#">Markets</a>
-<a class="text-slate-400 hover:text-[#78f5ae] font-label text-xs uppercase tracking-widest transition-colors" href="#">Trade</a>
-<a class="text-slate-400 hover:text-[#78f5ae] font-label text-xs uppercase tracking-widest transition-colors" href="#">Earn</a>
+<a class="text-[#5cfd80] font-label text-xs uppercase tracking-widest" href="/markets" target="_top">Markets</a>
+<a class="text-slate-400 hover:text-[#78f5ae] font-label text-xs uppercase tracking-widest transition-colors" href="/p2p" target="_top">Trade</a>
+<a class="text-slate-400 hover:text-[#78f5ae] font-label text-xs uppercase tracking-widest transition-colors" href="/assets" target="_top">Earn</a>
 </div>
 <span class="material-symbols-outlined text-slate-400 hover:bg-[#282d31] transition-colors p-2 rounded-sm cursor-pointer">notifications</span>
 </div>
 </header>
-<main class="pt-20 pb-24 md:pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+<main class="pt-20 pb-16 md:pb-8 px-4 md:px-8 max-w-7xl mx-auto">
 <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
 <div>
 <h2 class="font-headline text-3xl font-bold text-on-surface mb-2">MARKET_OVERVIEW</h2>
@@ -379,23 +374,23 @@
 </div>
 </main>
 <nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-sm bg-[#0b0e11]/80 backdrop-blur-xl border-t border-[#45484c]/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center w-full px-2 py-3">
-<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="/home" target="_top">
 <span class="material-symbols-outlined mb-1">home</span>
 <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Home</span>
 </a>
-<a class="flex flex-col items-center justify-center text-[#5cfd80] bg-[#1c2024] rounded-sm p-2 transition-all duration-200 ease-in-out" href="#">
+<a class="flex flex-col items-center justify-center text-[#5cfd80] bg-[#1c2024] rounded-sm p-2 transition-all duration-200 ease-in-out" href="/markets" target="_top">
 <span class="material-symbols-outlined mb-1">equalizer</span>
 <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Markets</span>
 </a>
-<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="/p2p" target="_top">
 <span class="material-symbols-outlined mb-1">smart_toy</span>
 <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Bot</span>
 </a>
-<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="/assets" target="_top">
 <span class="material-symbols-outlined mb-1">account_balance_wallet</span>
 <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Assets</span>
 </a>
-<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="#">
+<a class="flex flex-col items-center justify-center text-slate-500 p-2 hover:text-[#78f5ae] transition-all duration-200 ease-in-out" href="/p2p" target="_top">
 <span class="material-symbols-outlined mb-1">swap_horizontal_circle</span>
 <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">P2P</span>
 </a>
