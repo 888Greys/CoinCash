@@ -71,3 +71,74 @@ body {
   transform-origin: left center;
   animation: splash-bar-loop 1.9s ease-in-out infinite;
 }
+
+@keyframes auth-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes auth-float {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes auth-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(92, 253, 128, 0.22);
+  }
+
+  70% {
+    box-shadow: 0 0 0 16px rgba(92, 253, 128, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(92, 253, 128, 0);
+  }
+}
+
+.auth-fade-up {
+  animation: auth-fade-up 0.7s ease-out both;
+}
+
+.auth-fade-up-delay-1 {
+  animation: auth-fade-up 0.7s ease-out 0.08s both;
+}
+
+.auth-fade-up-delay-2 {
+  animation: auth-fade-up 0.7s ease-out 0.16s both;
+}
+
+.auth-float-slow {
+  animation: auth-float 7s ease-in-out infinite;
+}
+
+.auth-float-slower {
+  animation: auth-float 10s ease-in-out infinite;
+}
+
+.auth-panel-glow {
+  box-shadow:
+    0 0 0 1px rgba(248, 249, 254, 0.05),
+    0 24px 70px rgba(0, 0, 0, 0.38),
+    0 0 40px rgba(92, 253, 128, 0.09);
+}
+
+.auth-live-dot {
+  animation: auth-pulse-ring 2.2s ease-out infinite;
+}

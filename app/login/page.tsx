@@ -33,18 +33,18 @@ export default function LoginPage() {
         <section className="relative hidden overflow-hidden p-12 md:flex md:w-1/2 md:flex-col md:justify-center">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-br from-surface via-surface-container-low to-surface-container-high opacity-95" />
-            <div className="absolute -left-10 top-16 h-64 w-64 rounded-full bg-primary/12 blur-3xl" />
-            <div className="absolute bottom-10 right-6 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+            <div className="auth-float-slow absolute -left-10 top-16 h-64 w-64 rounded-full bg-primary/12 blur-3xl" />
+            <div className="auth-float-slower absolute bottom-10 right-6 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
           </div>
 
-          <div className="relative z-10 space-y-6">
+          <div className="auth-fade-up relative z-10 space-y-6">
             <h2 className="font-headline text-5xl font-extrabold leading-tight tracking-tighter text-on-surface">
               TRADE FASTER <br /> <span className="text-primary">WITH CONFIDENCE</span>
             </h2>
-            <p className="max-w-md text-lg font-light text-on-surface-variant">
+            <p className="auth-fade-up-delay-1 max-w-md text-lg font-light text-on-surface-variant">
               Log in to check markets, manage P2P orders, and continue where you left off.
             </p>
-            <div className="flex gap-8 pt-8">
+            <div className="auth-fade-up-delay-2 flex gap-8 pt-8">
               <div>
                 <div className="font-headline text-2xl font-bold text-primary">24/7</div>
                 <div className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
@@ -68,7 +68,7 @@ export default function LoginPage() {
         </section>
 
         <section className="flex flex-1 items-center justify-center p-6 md:p-12 lg:p-24">
-          <div className="w-full max-w-md space-y-8">
+          <div className="auth-panel-glow auth-fade-up w-full max-w-md space-y-8 rounded-2xl border border-outline-variant/15 bg-surface-container-high/65 p-6 backdrop-blur-xl md:p-8">
             <div className="space-y-2">
               <h1 className="font-headline text-3xl font-bold tracking-tighter text-on-surface">
                 Log in
@@ -80,7 +80,7 @@ export default function LoginPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-colors hover:bg-surface-bright"
+                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
                 type="button"
               >
                 <span className="text-sm text-[#4285F4]">G</span>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 </span>
               </button>
               <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-colors hover:bg-surface-bright"
+                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
                 type="button"
               >
                 <span className="text-sm text-[#229ED9]">T</span>
@@ -159,7 +159,10 @@ export default function LoginPage() {
                     id="remember-login"
                     type="checkbox"
                   />
-                  Remember me
+                  <span className="inline-flex items-center gap-2">
+                    Remember me
+                    <span className="auth-live-dot h-1.5 w-1.5 rounded-full bg-primary" />
+                  </span>
                 </label>
                 <Link className="text-primary hover:underline" href="/">
                   Need help?

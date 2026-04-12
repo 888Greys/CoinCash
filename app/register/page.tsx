@@ -38,17 +38,19 @@ export default function RegisterPage() {
               className="h-full w-full object-cover"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7Fa9BbgB3Id4BYrt-gbkLv8QuEZP0maCrft-060D-GAqAQhYXA8-UJPi5BH9SX3CLfFPyjNlycKlu5oQP34WA3dnHdutgtVdUorc5dtgwguSfg6e8vSvmXVV05_mhJ-mjMkgWjozrgJwHr_8Fee9mAnSApJhJjCgmthOW-j68RpMRmIqa7cDXWETxsCAAKCFejCvQpX7scfcQNZyWcxvNrZT5BplkXi9MUZRLMoI8xaDjIaft_A4p81KbE-hka0vocqXtQggSpic"
             />
+            <div className="auth-float-slow absolute -left-10 top-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+            <div className="auth-float-slower absolute bottom-10 right-6 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
           </div>
 
-          <div className="relative z-10 space-y-6">
+          <div className="auth-fade-up relative z-10 space-y-6">
             <h2 className="font-headline text-5xl font-extrabold leading-tight tracking-tighter text-on-surface">
               DECENTRALIZE <br /> <span className="text-primary">YOUR WEALTH</span>
             </h2>
-            <p className="max-w-md text-lg font-light text-on-surface-variant">
+            <p className="auth-fade-up-delay-1 max-w-md text-lg font-light text-on-surface-variant">
               Join the high-frequency terminal for the next generation of asset exchange. Speed is
               your edge. Precision is your profit.
             </p>
-            <div className="flex gap-8 pt-8">
+            <div className="auth-fade-up-delay-2 flex gap-8 pt-8">
               <div>
                 <div className="font-headline text-2xl font-bold text-primary">24/7</div>
                 <div className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
@@ -72,7 +74,7 @@ export default function RegisterPage() {
         </section>
 
         <section className="flex flex-1 items-center justify-center p-6 md:p-12 lg:p-24">
-          <div className="w-full max-w-md space-y-8">
+          <div className="auth-panel-glow auth-fade-up w-full max-w-md space-y-8 rounded-2xl border border-outline-variant/15 bg-surface-container-high/65 p-6 backdrop-blur-xl md:p-8">
             <div className="space-y-2">
               <h1 className="font-headline text-3xl font-bold tracking-tighter text-on-surface">
                 Sign up
@@ -84,7 +86,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-colors hover:bg-surface-bright"
+                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
                 type="button"
               >
                 <span className="text-sm text-[#4285F4]">G</span>
@@ -93,7 +95,7 @@ export default function RegisterPage() {
                 </span>
               </button>
               <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-colors hover:bg-surface-bright"
+                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
                 type="button"
               >
                 <span className="text-sm text-[#229ED9]">T</span>
