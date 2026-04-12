@@ -1,58 +1,139 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useEffect } from "react";
 import { AppNav } from "@/components/app-nav";
+import { AppBottomNav } from "@/components/app-bottom-nav";
 
 type ReferenceScreenProps = {
   title: string;
   referenceFile: string;
   currentPath?: string;
+  hideReferenceHeader?: boolean;
+  hideReferenceBottomNav?: boolean;
+  hideReferenceFab?: boolean;
 };
 
+const OVERRIDE_STYLE_ID = "app-shell-overrides";
+
 /**
- * CSS injected into each reference iframe to hide its own fixed header
- * and mobile bottom nav, so only the app-shell AppNav is visible.
+ * Build CSS overrides injected into each reference iframe.
+ * By default we hide embedded chrome so the app shell controls navigation.
  */
-const IFRAME_OVERRIDE_CSS = `
-  /* Hide the reference page's own fixed header */
-  body > header,
-  body > header:first-of-type {
-    display: none !important;
+function buildIframeOverrideCss({
+  hideReferenceHeader,
+  hideReferenceBottomNav,
+  hideReferenceFab,
+}: {
+  hideReferenceHeader: boolean;
+  hideReferenceBottomNav: boolean;
+  hideReferenceFab: boolean;
+}) {
+  const rules: string[] = [];
+
+  if (hideReferenceHeader) {
+    rules.push(`
+      body > header,
+      body > header:first-of-type {
+        display: none !important;
+      }
+      body > main {
+        padding-top: 1rem !important;
+      }
+    `);
   }
 
-  /* Hide the reference page's fixed mobile bottom nav */
-  body > nav {
-    display: none !important;
+  if (hideReferenceBottomNav) {
+    rules.push(`
+      body > nav,
+      body > nav:last-of-type {
+        display: none !important;
+      }
+      body > main {
+        padding-bottom: 0 !important;
+      }
+    `);
   }
 
-  /* Shift main content up since the reference header is gone.
-     Most reference pages use pt-20 (5rem) to clear their own header,
-     so we reset that to a small amount. */
-  body > main {
-    padding-top: 1rem !important;
+  if (hideReferenceFab) {
+    rules.push(`
+      body > div[class*="fixed"][class*="bottom"] {
+        display: none !important;
+      }
+    `);
   }
 
-  /* Also hide the floating FAB that some reference pages include */
-  body > div[class*="fixed bottom"] {
-    display: none !important;
-  }
-`;
+  return rules.join("\n");
+}
 
-export function ReferenceScreen({ title, referenceFile, currentPath }: ReferenceScreenProps) {
+/**
+ * Try to inject override CSS into the iframe document.
+ * Returns true on success, false if the document isn't ready yet.
+ */
+function tryInjectCss(iframe: HTMLIFrameElement, css: string): boolean {
+  try {
+    const doc = iframe.contentDocument;
+    if (!doc || !doc.head) return false;
+
+    // Already injected — nothing to do
+    if (doc.getElementById(OVERRIDE_STYLE_ID)) return true;
+
+    const style = doc.createElement("style");
+    style.id = OVERRIDE_STYLE_ID;
+    style.textContent = css;
+    doc.head.appendChild(style);
+    return true;
+  } catch {
+    // Cross-origin or not ready — will retry
+    return false;
+  }
+}
+
+export function ReferenceScreen({
+  title,
+  referenceFile,
+  currentPath,
+  hideReferenceHeader = true,
+  hideReferenceBottomNav = true,
+  hideReferenceFab = true,
+}: ReferenceScreenProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const handleIframeLoad = useCallback(() => {
-    try {
-      const doc = iframeRef.current?.contentDocument;
-      if (!doc) return;
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
 
-      const style = doc.createElement("style");
-      style.textContent = IFRAME_OVERRIDE_CSS;
-      doc.head.appendChild(style);
-    } catch {
-      // Cross-origin access will throw — silently ignore.
-    }
-  }, []);
+    const css = buildIframeOverrideCss({
+      hideReferenceHeader,
+      hideReferenceBottomNav,
+      hideReferenceFab,
+    }).trim();
+
+    if (!css) return;
+
+    // Poll until we successfully inject (handles race conditions with iframe load)
+    const interval = setInterval(() => {
+      if (tryInjectCss(iframe, css)) {
+        clearInterval(interval);
+      }
+    }, 80);
+
+    // Also try on load events for faster injection
+    const onLoad = () => {
+      setTimeout(() => tryInjectCss(iframe, css), 0);
+      setTimeout(() => tryInjectCss(iframe, css), 50);
+      setTimeout(() => tryInjectCss(iframe, css), 200);
+    };
+    iframe.addEventListener("load", onLoad);
+
+    // Stop polling after 10s as a safety measure
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      iframe.removeEventListener("load", onLoad);
+    };
+  }, [referenceFile, hideReferenceHeader, hideReferenceBottomNav, hideReferenceFab]);
 
   return (
     <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background">
@@ -62,11 +143,11 @@ export function ReferenceScreen({ title, referenceFile, currentPath }: Reference
           ref={iframeRef}
           aria-label={title}
           className="absolute inset-0 w-full h-full border-0"
-          onLoad={handleIframeLoad}
           src={`/reference-designs/${referenceFile}`}
           title={title}
         />
       </div>
+      <AppBottomNav currentPath={currentPath} />
     </main>
   );
 }
