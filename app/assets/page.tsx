@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
+import { PortfolioBalance, PortfolioBtcEquivalent } from "@/components/portfolio-balance";
 
 type AssetRow = {
   symbol: string;
@@ -108,11 +109,11 @@ export default function AssetsPage() {
               </h2>
               <div className="flex items-baseline gap-3">
                 <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight text-on-surface">
-                  1.42857000 <span className="text-primary text-2xl md:text-3xl">BTC</span>
+                  <PortfolioBtcEquivalent /> <span className="text-primary text-2xl md:text-3xl">BTC</span>
                 </h1>
               </div>
               <p className="font-headline text-xl md:text-2xl text-on-surface-variant opacity-60 mt-1">
-                ≈ $85,420.32{" "}
+                ≈ $<PortfolioBalance />{" "}
                 <span className="text-primary text-sm font-label ml-2 uppercase">+4.2% (24H)</span>
               </p>
             </div>

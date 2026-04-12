@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { PortfolioBalance } from "@/components/portfolio-balance";
 
 const botTypes = [
   {
@@ -77,7 +78,7 @@ export default function BotPage() {
             </p>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <h2 className="font-headline text-3xl font-bold text-primary tracking-tight">$12,482.90</h2>
+                <h2 className="font-headline text-3xl font-bold text-primary tracking-tight">$<PortfolioBalance /></h2>
                 <p className="text-xs text-secondary-dim font-medium mt-1 flex items-center gap-1">
                   <span className="material-symbols-outlined text-xs">trending_up</span>
                   +$428.12 (24h Change)

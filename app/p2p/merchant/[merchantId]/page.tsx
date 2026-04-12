@@ -1,6 +1,52 @@
+"use client";
+
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 
+const mockOffers = [
+  {
+    id: "1",
+    type: "BUY",
+    asset: "BTC",
+    currency: "USD",
+    icon: "currency_bitcoin",
+    price: "64,231.50",
+    available: "0.4523 BTC",
+    limits: "$500 - $25,000",
+    methods: ["Zelle", "Bank Transfer"],
+    promo: "Fast Settlement Guaranteed",
+  },
+  {
+    id: "2",
+    type: "BUY",
+    asset: "USDT",
+    currency: "USD",
+    icon: "monetization_on",
+    price: "1.012",
+    available: "150,000 USDT",
+    limits: "$1,000 - $50,000",
+    methods: ["Wire", "Cash App"],
+    promo: "Verified Merchants Only",
+  },
+  {
+    id: "3",
+    type: "SELL",
+    asset: "USDT",
+    currency: "USD",
+    icon: "monetization_on",
+    price: "0.998",
+    available: "75,000 USDT",
+    limits: "$500 - $10,000",
+    methods: ["Bank Transfer", "PayPal"],
+    promo: "Instant Release",
+  },
+];
+
 export default function MerchantProfilePage() {
+  const [activeTab, setActiveTab] = useState<"BUY" | "SELL">("BUY");
+
+  const filteredOffers = mockOffers.filter((o) => o.type === activeTab);
+
   return (
     <AppShell currentPath="/p2p">
       <div className="pt-6 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
@@ -92,99 +138,88 @@ export default function MerchantProfilePage() {
             <h2 className="font-headline text-xl font-bold tracking-tight flex items-center gap-2">
               ONLINE_ADS
               <span className="text-[10px] bg-surface-container-highest px-2 py-0.5 rounded-full text-on-surface-variant font-label">
-                4 ACTIVE
+                {filteredOffers.length} ACTIVE
               </span>
             </h2>
             <div className="flex gap-2">
-              <button className="bg-surface-bright px-4 py-2 rounded-sm font-label text-[10px] font-bold tracking-widest text-primary uppercase border border-primary/10 hover:bg-primary/10 transition-colors">
+              <button
+                className={`px-4 py-2 rounded-sm font-label text-[10px] font-bold tracking-widest uppercase transition-colors ${
+                  activeTab === "BUY"
+                    ? "bg-surface-bright text-primary border border-primary/10"
+                    : "bg-surface-container-high text-on-surface-variant hover:bg-surface-bright border border-transparent"
+                }`}
+                onClick={() => setActiveTab("BUY")}
+              >
                 BUY_OFFERS
               </button>
-              <button className="bg-surface-container-high px-4 py-2 rounded-sm font-label text-[10px] font-bold tracking-widest text-on-surface-variant uppercase border border-transparent hover:bg-surface-bright transition-colors">
+              <button
+                className={`px-4 py-2 rounded-sm font-label text-[10px] font-bold tracking-widest uppercase transition-colors ${
+                  activeTab === "SELL"
+                    ? "bg-surface-bright text-primary border border-primary/10"
+                    : "bg-surface-container-high text-on-surface-variant hover:bg-surface-bright border border-transparent"
+                }`}
+                onClick={() => setActiveTab("SELL")}
+              >
                 SELL_OFFERS
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Ad Card 1 */}
-            <div className="bg-surface-container-low rounded-sm p-5 hover:bg-surface-container-high transition-colors group cursor-pointer border border-transparent hover:border-primary/20">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-sm">
-                    <span className="material-symbols-outlined text-primary">currency_bitcoin</span>
+            {filteredOffers.map((offer) => (
+              <div key={offer.id} className="bg-surface-container-low rounded-sm p-5 hover:bg-surface-container-high transition-colors group cursor-pointer border border-transparent hover:border-primary/20">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-sm">
+                      <span className="material-symbols-outlined text-primary">{offer.icon}</span>
+                    </div>
+                    <div>
+                      <span className="block font-headline text-lg font-bold">{offer.asset} / {offer.currency}</span>
+                      <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-wider">{offer.promo}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="block font-headline text-xl font-bold text-primary tracking-tight">{offer.price}</span>
+                    <span className="block font-label text-[10px] text-on-surface-variant uppercase">Price Per Unit</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 py-4 border-y border-outline-variant/10 mb-4">
+                  <div>
+                    <span className="block font-label text-[10px] text-on-surface-variant uppercase mb-1">Available</span>
+                    <span className="block font-body text-sm font-medium">{offer.available}</span>
                   </div>
                   <div>
-                    <span className="block font-headline text-lg font-bold">BTC / USD</span>
-                    <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-wider">Fast Settlement Guaranteed</span>
+                    <span className="block font-label text-[10px] text-on-surface-variant uppercase mb-1">Limits</span>
+                    <span className="block font-body text-sm font-medium">{offer.limits}</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="block font-headline text-xl font-bold text-primary tracking-tight">64,231.50</span>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase">Price Per Unit</span>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4 py-4 border-y border-outline-variant/10 mb-4">
-                <div>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase mb-1">Available</span>
-                  <span className="block font-body text-sm font-medium">0.4523 BTC</span>
-                </div>
-                <div>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase mb-1">Limits</span>
-                  <span className="block font-body text-sm font-medium">$500 - $25,000</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <span className="px-2 py-1 bg-surface-container-highest rounded-sm font-label text-[9px] text-on-surface-variant uppercase">Zelle</span>
-                  <span className="px-2 py-1 bg-surface-container-highest rounded-sm font-label text-[9px] text-on-surface-variant uppercase">Bank Transfer</span>
-                </div>
-                <button className="bg-gradient-to-br from-primary to-primary-container text-on-primary-container px-6 py-2 rounded-sm font-label text-xs font-black uppercase tracking-widest active:scale-95 duration-200">
-                  BUY_BTC
-                </button>
-              </div>
-            </div>
-
-            {/* Ad Card 2 */}
-            <div className="bg-surface-container-low rounded-sm p-5 hover:bg-surface-container-high transition-colors group cursor-pointer border border-transparent hover:border-primary/20">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-sm">
-                    <span className="material-symbols-outlined text-primary">monetization_on</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-2">
+                    {offer.methods.map((method) => (
+                      <span key={method} className="px-2 py-1 bg-surface-container-highest rounded-sm font-label text-[9px] text-on-surface-variant uppercase">{method}</span>
+                    ))}
                   </div>
-                  <div>
-                    <span className="block font-headline text-lg font-bold">USDT / USD</span>
-                    <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-wider">Verified Merchants Only</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="block font-headline text-xl font-bold text-primary tracking-tight">1.012</span>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase">Price Per Unit</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 py-4 border-y border-outline-variant/10 mb-4">
-                <div>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase mb-1">Available</span>
-                  <span className="block font-body text-sm font-medium">150,000 USDT</span>
-                </div>
-                <div>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase mb-1">Limits</span>
-                  <span className="block font-body text-sm font-medium">$1,000 - $50,000</span>
+                  <button
+                    className={`px-6 py-2 rounded-sm font-label text-xs font-black uppercase tracking-widest active:scale-95 duration-200 ${
+                      offer.type === "BUY"
+                        ? "bg-gradient-to-br from-primary to-primary-container text-on-primary-container"
+                        : "bg-surface-container-highest border border-error/50 text-error hover:bg-error/10"
+                    }`}
+                  >
+                    {offer.type}_{offer.asset}
+                  </button>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <span className="px-2 py-1 bg-surface-container-highest rounded-sm font-label text-[9px] text-on-surface-variant uppercase">Wire</span>
-                  <span className="px-2 py-1 bg-surface-container-highest rounded-sm font-label text-[9px] text-on-surface-variant uppercase">Cash App</span>
-                </div>
-                <button className="bg-gradient-to-br from-primary to-primary-container text-on-primary-container px-6 py-2 rounded-sm font-label text-xs font-black uppercase tracking-widest active:scale-95 duration-200">
-                  BUY_USDT
-                </button>
+            ))}
+            
+            {filteredOffers.length === 0 && (
+              <div className="col-span-1 md:col-span-2 p-12 flex flex-col items-center justify-center text-on-surface-variant bg-surface-container-low border border-dashed border-outline-variant/20 rounded-sm">
+                <span className="material-symbols-outlined text-4xl mb-2 opacity-50">inventory_2</span>
+                <p className="font-label text-xs uppercase tracking-widest font-bold">No Active Offers</p>
               </div>
-            </div>
+            )}
           </div>
         </section>
 

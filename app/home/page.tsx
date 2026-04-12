@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
+import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
 
 const marketCards = [
   {
@@ -71,7 +72,7 @@ export default function HomePage() {
                 Total Balance (USD)
               </span>
               <h1 className="font-headline text-4xl font-bold tracking-tight text-on-surface">
-                12,482.91
+                <PortfolioBalance />
               </h1>
             </div>
             <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded text-primary">
@@ -80,8 +81,8 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-2 mb-8">
-            <span className="text-xs text-on-surface-variant font-mono">≈ 0.248120 BTC</span>
-            <span className="material-symbols-outlined text-xs text-on-surface-variant">visibility</span>
+            <span className="text-xs text-on-surface-variant font-mono">≈ <PortfolioBtcEquivalent /> BTC</span>
+            <ToggleVisibilityButton />
           </div>
           {/* Quick Actions Grid */}
           <div className="grid grid-cols-4 gap-2">
