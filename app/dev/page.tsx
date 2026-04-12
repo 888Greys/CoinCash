@@ -7,7 +7,7 @@ export default function DevPage() {
   return (
     <div className="min-h-screen bg-background text-on-surface">
       <AppNav />
-      <main className="px-6 py-10 md:py-12">
+      <main className="px-6 pb-10 pt-28 md:pb-12 md:pt-20">
         <div className="mx-auto max-w-5xl space-y-10">
           <section className="space-y-4">
             <p className="font-label text-xs font-bold uppercase tracking-[0.25em] text-primary">
