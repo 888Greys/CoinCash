@@ -22,7 +22,7 @@ type AppBottomNavProps = {
 
 export function AppBottomNav({ currentPath }: AppBottomNavProps) {
   return (
-    <nav className="flex-shrink-0 md:hidden z-50 bg-[#0b0e11]/80 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center px-2 py-3">
+    <nav className="fixed bottom-0 left-0 w-full md:hidden z-50 bg-[#0b0e11]/80 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center px-2 py-3">
       {bottomNavItems.map((item) => {
         const isActive =
           currentPath === item.href ||

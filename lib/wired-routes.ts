@@ -12,6 +12,12 @@ export type AppNavRoute = {
 
 export const wiredRoutes: WiredRoute[] = [
   {
+    href: "/home",
+    title: "Home",
+    description: "Main dashboard home screen wired to the preserved home reference.",
+    referenceFile: "home.html",
+  },
+  {
     href: "/splash",
     title: "Splash Screen",
     description: "Custom migrated splash screen with the animated CoinCash underline.",
@@ -113,6 +119,7 @@ export const referenceLibrary = [
   "13.html",
   "14.html",
   "bot.html",
+  "home.html",
 ];
 
 export const appNavRoutes: AppNavRoute[] = [
