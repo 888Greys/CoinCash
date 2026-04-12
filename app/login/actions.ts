@@ -26,3 +26,8 @@ export async function loginAction(formData: FormData) {
 
   redirect("/login?error=invalid");
 }
+
+export async function logoutAction() {
+  cookies().delete('auth_session');
+  redirect("/login");
+}

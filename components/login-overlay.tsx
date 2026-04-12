@@ -1,16 +1,21 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 
 export function LoginOverlay() {
   const { pending } = useFormStatus();
+  const [mounted, setMounted] = useState(false);
 
-  if (!pending) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  return (
-    <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-surface/95 backdrop-blur-xl text-on-surface">
-      <div className="terminal-grid absolute inset-0 opacity-50" />
-      
+  if (!pending || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-surface text-on-surface">
       <div className="relative z-10 flex flex-col items-center justify-center">
         <div className="text-center auth-fade-up">
           <h1 className="font-headline text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
@@ -20,10 +25,8 @@ export function LoginOverlay() {
             <div className="splash-bar-fill kinetic-gradient h-full w-full rounded-full animate-pulse" />
           </div>
         </div>
-        <p className="mt-8 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-primary animate-pulse auth-fade-up-delay-1">
-          Establishing secure session...
-        </p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

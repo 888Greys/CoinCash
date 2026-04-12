@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { logoutAction } from "@/app/login/actions";
 
 export default function SettingsPage() {
   return (
@@ -204,6 +205,23 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* LOGOUT Section */}
+        <section className="pb-12 pt-6">
+          <form action={logoutAction}>
+            <button
+              className="w-full bg-surface-container-low border border-error/20 hover:bg-error/10 hover:border-error/50 text-error rounded-lg p-5 flex items-center justify-center gap-3 transition-colors group active:scale-95 duration-200"
+              type="submit"
+            >
+              <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">
+                logout
+              </span>
+              <span className="font-headline font-bold tracking-widest uppercase">
+                Terminate Session
+              </span>
+            </button>
+          </form>
         </section>
       </div>
     </AppShell>
