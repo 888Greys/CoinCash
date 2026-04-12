@@ -37,25 +37,25 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <div className="min-h-screen bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary-container">
       <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#0b0e11] px-6">
-        <Link className="font-headline text-xl font-bold tracking-tighter text-primary" href="/">
+        <Link className="font-headline text-xl font-bold tracking-tighter text-primary" href="/login">
           CoinCash
         </Link>
         <div className="flex items-center gap-3 md:gap-5">
           <Link
             className="hidden font-label text-[10px] font-bold uppercase tracking-[0.18em] text-[#f8f9fe]/60 transition-colors hover:text-on-surface md:inline-flex"
-            href="/markets"
+            href="/login"
           >
             Markets
           </Link>
           <Link
             className="hidden font-label text-[10px] font-bold uppercase tracking-[0.18em] text-[#f8f9fe]/60 transition-colors hover:text-on-surface md:inline-flex"
-            href="/p2p"
+            href="/login"
           >
             P2P
           </Link>
           <Link
             className="font-label text-[10px] font-bold uppercase tracking-[0.18em] text-[#f8f9fe]/60 transition-colors hover:text-primary"
-            href="/register"
+            href="/login"
           >
             Register
           </Link>
@@ -187,7 +187,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
                     </label>
                     <Link
                       className="text-[10px] font-bold uppercase tracking-tighter text-primary"
-                      href="/"
+                      href="/login"
                     >
                       Forgot password?
                     </Link>
@@ -217,7 +217,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
                     <span className="auth-live-dot h-1.5 w-1.5 rounded-full bg-primary" />
                   </span>
                 </label>
-                <Link className="text-primary hover:underline" href="/">
+                <Link className="text-primary hover:underline" href="/login">
                   Need help?
                 </Link>
               </div>
@@ -230,10 +230,10 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
               </button>
 
               <div className="flex justify-between gap-3 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
-                <Link className="transition-colors hover:text-primary" href="/markets">
+                <Link className="transition-colors hover:text-primary" href="/login">
                   View Markets
                 </Link>
-                <Link className="transition-colors hover:text-primary" href="/p2p/buy">
+                <Link className="transition-colors hover:text-primary" href="/login">
                   Buy USDT
                 </Link>
               </div>
@@ -241,7 +241,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
 
             <p className="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
               New to CoinCash?{" "}
-              <Link className="font-bold text-primary" href="/register">
+              <Link className="font-bold text-primary" href="/login">
                 Create account
               </Link>
             </p>

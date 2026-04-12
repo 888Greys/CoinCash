@@ -31,19 +31,19 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
   return (
     <div className="min-h-screen bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary-container">
       <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#0b0e11] px-6">
-        <Link className="font-headline text-xl font-bold tracking-tighter text-primary" href="/">
+        <Link className="font-headline text-xl font-bold tracking-tighter text-primary" href="/login">
           CoinCash
         </Link>
         <div className="flex items-center gap-3 md:gap-5">
           <Link
             className="hidden font-label text-[10px] font-bold uppercase tracking-[0.18em] text-[#f8f9fe]/60 transition-colors hover:text-on-surface md:inline-flex"
-            href="/markets"
+            href="/login"
           >
             Markets
           </Link>
           <Link
             className="hidden font-label text-[10px] font-bold uppercase tracking-[0.18em] text-[#f8f9fe]/60 transition-colors hover:text-on-surface md:inline-flex"
-            href="/p2p"
+            href="/login"
           >
             P2P
           </Link>
@@ -227,9 +227,13 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
                 </div>
                 <label className="text-xs leading-relaxed text-on-surface-variant" htmlFor="terms">
                   I agree to the{" "}
-                  <span className="cursor-pointer text-primary hover:underline">Terms of Service</span>{" "}
+                  <Link className="text-primary hover:underline" href="/login">
+                    Terms of Service
+                  </Link>{" "}
                   and{" "}
-                  <span className="cursor-pointer text-primary hover:underline">Privacy Policy</span>
+                  <Link className="text-primary hover:underline" href="/login">
+                    Privacy Policy
+                  </Link>
                   . I understand that digital asset trading involves significant risk.
                 </label>
               </div>
@@ -242,10 +246,10 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
               </button>
 
               <div className="flex justify-between gap-3 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
-                <Link className="transition-colors hover:text-primary" href="/markets">
+                <Link className="transition-colors hover:text-primary" href="/login">
                   View Markets
                 </Link>
-                <Link className="transition-colors hover:text-primary" href="/p2p/buy">
+                <Link className="transition-colors hover:text-primary" href="/login">
                   Buy USDT
                 </Link>
               </div>
@@ -270,12 +274,18 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
         </div>
         <div className="h-4 w-px bg-outline-variant/20" />
         <div className="flex gap-3 pr-2">
-          <span className="cursor-pointer text-sm text-on-surface-variant transition-colors hover:text-primary">
+          <Link
+            className="text-sm text-on-surface-variant transition-colors hover:text-primary"
+            href="/login"
+          >
             help
-          </span>
-          <span className="cursor-pointer text-sm text-on-surface-variant transition-colors hover:text-primary">
+          </Link>
+          <Link
+            className="text-sm text-on-surface-variant transition-colors hover:text-primary"
+            href="/login"
+          >
             settings
-          </span>
+          </Link>
         </div>
       </div>
     </div>
