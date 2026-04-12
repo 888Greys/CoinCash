@@ -25,7 +25,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
     }
 
     if (identifier === devEmail && password === devPassword) {
-      redirect("/markets");
+      redirect("/home");
     }
 
     redirect("/login?error=invalid");
@@ -37,8 +37,8 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <div className="min-h-screen bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary-container">
       <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#0b0e11] px-6">
-        <Link className="font-headline text-xl font-bold tracking-tighter text-primary" href="/home">
-          CoinCash
+        <Link className="font-headline text-xl font-bold tracking-tighter text-on-surface" href="/home">
+          Coin<span className="text-primary">Cash</span>
         </Link>
         <div className="flex items-center gap-3 md:gap-5">
           <Link
