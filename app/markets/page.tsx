@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import Image from "next/image";
 import { getLivePrices } from "@/lib/price-api";
 import { createClient } from "@/utils/supabase/server";
 
@@ -24,12 +25,12 @@ type MarketAsset = {
 
 // Static layout definitions, prices injected dynamically
 const marketLayout = [
-  { symbol: "BTC", name: "Bitcoin", change: "-0.42%", isPositive: false, volume: "$28.4B", marketCap: "$842.1B", sparkline: sparklines.btcDown, color: "text-primary" },
-  { symbol: "ETH", name: "Ethereum", change: "+2.18%", isPositive: true, volume: "$14.2B", marketCap: "$278.4B", sparkline: sparklines.ethUp, color: "text-tertiary" },
-  { symbol: "SOL", name: "Solana", change: "+14.2%", isPositive: true, volume: "$4.8B", marketCap: "$48.9B", sparkline: sparklines.solUp, color: "text-secondary" },
-  { symbol: "AVAX", name: "Avalanche", change: "-3.82%", isPositive: false, volume: "$842M", marketCap: "$12.5B", sparkline: sparklines.avaxDown, color: "text-error" },
-  { symbol: "USDT", name: "Tether USD", change: "+0.01%", isPositive: true, volume: "$50.2B", marketCap: "$99.1B", sparkline: sparklines.linkUp, color: "text-primary-dim" },
-  { symbol: "BNB", name: "Binance Coin", change: "+4.12%", isPositive: true, volume: "$1.2B", marketCap: "$42.1B", sparkline: sparklines.solUp, color: "text-primary" },
+  { symbol: "BTC", name: "Bitcoin", logo: "/icons/btc.svg", change: "-0.42%", isPositive: false, volume: "$28.4B", marketCap: "$842.1B", sparkline: sparklines.btcDown, color: "text-primary" },
+  { symbol: "ETH", name: "Ethereum", logo: "/icons/eth.svg", change: "+2.18%", isPositive: true, volume: "$14.2B", marketCap: "$278.4B", sparkline: sparklines.ethUp, color: "text-tertiary" },
+  { symbol: "SOL", name: "Solana", logo: "/icons/sol.svg", change: "+14.2%", isPositive: true, volume: "$4.8B", marketCap: "$48.9B", sparkline: sparklines.solUp, color: "text-secondary" },
+  { symbol: "AVAX", name: "Avalanche", logo: "/icons/avax.svg", change: "-3.82%", isPositive: false, volume: "$842M", marketCap: "$12.5B", sparkline: sparklines.avaxDown, color: "text-error" },
+  { symbol: "USDT", name: "Tether USD", logo: "/icons/usdt.svg", change: "+0.01%", isPositive: true, volume: "$50.2B", marketCap: "$99.1B", sparkline: sparklines.linkUp, color: "text-[#26A17B]" },
+  { symbol: "BNB", name: "Binance Coin", logo: "/icons/bnb.svg", change: "+4.12%", isPositive: true, volume: "$1.2B", marketCap: "$42.1B", sparkline: sparklines.solUp, color: "text-[#f3ba2f]" },
 ];
 
 const spotlightCards = [
@@ -177,8 +178,12 @@ export default async function MarketsPage() {
                   >
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs text-primary`}>
-                          {asset.symbol[0]}
+                        <div className={`w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs ${asset.color}`}>
+                          {asset.logo ? (
+                            <Image src={asset.logo} alt={asset.name} width={24} height={24} unoptimized />
+                          ) : (
+                            asset.symbol[0]
+                          )}
                         </div>
                         <div>
                           <div className="font-headline font-bold text-sm">{asset.symbol}</div>

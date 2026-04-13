@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
@@ -20,11 +21,14 @@ type Transaction = {
   created_at: string;
 };
 
-const currencyMeta: Record<string, { icon: string; color: string; name: string; letter: string }> = {
-  USDT: { icon: "paid", color: "text-primary", name: "Tether USD", letter: "U" },
-  BTC:  { icon: "currency_bitcoin", color: "text-[#f7931a]", name: "Bitcoin", letter: "B" },
-  ETH:  { icon: "token", color: "text-[#627eea]", name: "Ethereum", letter: "E" },
-  BNB:  { icon: "database", color: "text-[#f3ba2f]", name: "Binance Coin", letter: "N" },
+const currencyMeta: Record<string, { icon: string; color: string; name: string; letter: string; logo?: string }> = {
+  USDT: { icon: "paid", color: "text-[#26A17B]", name: "Tether USD", letter: "U", logo: "/icons/usdt.svg" },
+  BTC:  { icon: "currency_bitcoin", color: "text-[#f7931a]", name: "Bitcoin", letter: "B", logo: "/icons/btc.svg" },
+  ETH:  { icon: "token", color: "text-[#627eea]", name: "Ethereum", letter: "E", logo: "/icons/eth.svg" },
+  BNB:  { icon: "database", color: "text-[#f3ba2f]", name: "Binance Coin", letter: "N", logo: "/icons/bnb.svg" },
+  SOL:  { icon: "bolt", color: "text-[#14F195]", name: "Solana", letter: "S", logo: "/icons/sol.svg" },
+  AVAX: { icon: "hive", color: "text-[#E84142]", name: "Avalanche", letter: "A", logo: "/icons/avax.svg" },
+  USDC: { icon: "paid", color: "text-[#2775CA]", name: "USD Coin", letter: "C", logo: "/icons/usdc.svg" },
   KES:  { icon: "payments", color: "text-secondary", name: "Kenya Shilling", letter: "K" },
   UGX:  { icon: "payments", color: "text-tertiary", name: "Uganda Shilling", letter: "G" },
 };
@@ -178,8 +182,12 @@ export default async function AssetsPage() {
                       >
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 bg-surface-container-highest rounded-full flex items-center justify-center ${info.color} font-bold text-xs`}>
-                              {info.letter}
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${info.logo ? 'bg-transparent' : 'bg-surface-container-highest ' + info.color}`}>
+                              {info.logo ? (
+                                <Image src={info.logo} alt={info.name} width={32} height={32} unoptimized />
+                              ) : (
+                                info.letter
+                              )}
                             </div>
                             <div>
                               <p className="font-bold">{wallet.currency}</p>

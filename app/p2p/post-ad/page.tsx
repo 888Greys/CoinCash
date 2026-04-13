@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
 import { createOrder } from "../actions";
 
@@ -306,7 +307,10 @@ export default function PostAdPage() {
                 <div className="p-5 space-y-6">
                   <div className="space-y-1">
                     <div className="text-[10px] font-bold text-on-surface-variant uppercase">Type</div>
-                    <div className="font-headline text-lg font-bold">{type === "buy" ? "BUY" : "SELL"} {asset}</div>
+                    <div className="flex items-center gap-2">
+                       <Image src={`/icons/${asset?.toLowerCase()}.svg`} alt={asset} width={24} height={24} unoptimized />
+                       <div className="font-headline text-lg font-bold">{type === "buy" ? "BUY" : "SELL"} {asset}</div>
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-[10px] font-bold text-on-surface-variant uppercase">Price</div>

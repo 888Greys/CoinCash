@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
@@ -9,6 +10,7 @@ const marketCards = [
   {
     symbol: "BTC",
     icon: "currency_bitcoin",
+    logo: "/icons/btc.svg",
     color: "text-primary",
     borderColor: "border-primary/40",
     price: "52,340.12",
@@ -19,6 +21,7 @@ const marketCards = [
   {
     symbol: "ETH",
     icon: "token",
+    logo: "/icons/eth.svg",
     color: "text-secondary",
     borderColor: "border-secondary/40",
     price: "2,912.45",
@@ -29,6 +32,7 @@ const marketCards = [
   {
     symbol: "BNB",
     icon: "database",
+    logo: "/icons/bnb.svg",
     color: "text-error",
     borderColor: "border-error/40",
     price: "384.21",
@@ -56,8 +60,8 @@ const newsItems = [
 ];
 
 const gainers = [
-  { symbol: "SOL", name: "Solana", icon: "bolt", iconColor: "text-primary", price: "114.24", change: "+12.4%" },
-  { symbol: "AVAX", name: "Avalanche", icon: "hive", iconColor: "text-secondary", price: "38.91", change: "+8.7%" },
+  { symbol: "SOL", name: "Solana", icon: "bolt", logo: "/icons/sol.svg", iconColor: "text-primary", price: "114.24", change: "+12.4%" },
+  { symbol: "AVAX", name: "Avalanche", icon: "hive", logo: "/icons/avax.svg", iconColor: "text-secondary", price: "38.91", change: "+8.7%" },
 ];
 
 const academyLinks = [
@@ -203,7 +207,11 @@ export default async function HomePage() {
             {marketCards.map((card) => (
               <div key={card.symbol} className={`min-w-[140px] bg-surface-container-low p-4 rounded-lg border-b-2 ${card.borderColor}`}>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className={`material-symbols-outlined ${card.color} text-xl`}>{card.icon}</span>
+                  {card.logo ? (
+                    <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
+                  ) : (
+                    <span className={`material-symbols-outlined ${card.color} text-xl`}>{card.icon}</span>
+                  )}
                   <span className="font-headline font-bold text-sm">{card.symbol}</span>
                 </div>
                 <div className="space-y-1">
@@ -261,8 +269,12 @@ export default async function HomePage() {
             {gainers.map((g) => (
               <div key={g.symbol} className="flex items-center justify-between p-4 active:bg-surface-container transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
-                    <span className={`material-symbols-outlined ${g.iconColor} text-xl`}>{g.icon}</span>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${g.logo ? 'bg-transparent' : 'bg-surface-container-high'}`}>
+                    {g.logo ? (
+                      <Image src={g.logo} alt={g.symbol} width={24} height={24} unoptimized />
+                    ) : (
+                      <span className={`material-symbols-outlined ${g.iconColor} text-xl`}>{g.icon}</span>
+                    )}
                   </div>
                   <div>
                     <p className="font-bold text-sm">{g.symbol}</p>
