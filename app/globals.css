@@ -146,3 +146,21 @@ body {
 .auth-live-dot {
   animation: auth-pulse-ring 2.2s ease-out infinite;
 }
+
+@keyframes p2p-sheet-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .p2p-sheet-enter {
+    animation: p2p-sheet-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}

@@ -46,7 +46,9 @@ export default function SellPage() {
 
   return (
     <AppShell currentPath="/p2p">
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="fixed inset-0 bg-black/60 md:hidden" />
+      <div className="fixed inset-x-0 bottom-0 top-16 z-20 overflow-y-auto rounded-t-[28px] border border-outline-variant/15 bg-surface px-4 py-6 p2p-sheet-enter md:static md:inset-auto md:z-auto md:max-w-4xl md:mx-auto md:rounded-none md:border-0 md:bg-transparent md:px-4 md:py-8">
+        <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-outline-variant/30 md:hidden" />
         {/* Transaction Breadcrumb */}
         <div className="flex items-center gap-2 text-on-surface-variant mb-2">
           <button onClick={() => router.back()}>
