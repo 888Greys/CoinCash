@@ -14,8 +14,17 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "CoinCash",
-  description: "CoinCash HTML-first Next.js migration preserving the original product design.",
+  title: {
+    default: "CoinCash — P2P Crypto Exchange",
+    template: "%s | CoinCash",
+  },
+  description: "Trade crypto peer-to-peer with zero intermediaries. Instant settlement, AI trading bots, and bank-grade security.",
+  keywords: ["crypto", "p2p", "exchange", "bitcoin", "usdt", "trading", "coinCash"],
+  openGraph: {
+    title: "CoinCash — The Future of P2P Exchange",
+    description: "Trade crypto directly with peers worldwide. Zero intermediaries, atomic escrow settlement, and AI-powered trading bots.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

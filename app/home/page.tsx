@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
@@ -7,6 +8,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
 
+export const metadata: Metadata = { title: "Dashboard" };
 const marketCards = [
   {
     symbol: "BTC",

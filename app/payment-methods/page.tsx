@@ -1,30 +1,7 @@
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
-
-const paymentMethods = [
-  {
-    name: "M-Pesa Kenya",
-    icon: "smartphone",
-    iconColor: "text-primary",
-    holder: "JAMES OMINO • ****7240",
-    status: "Verified",
-    statusColor: "bg-primary/20 text-primary",
-    active: true,
-    ghost: "MPESA",
-    ghostColor: "text-primary/5",
-  },
-  {
-    name: "Equity Bank",
-    icon: "account_balance",
-    iconColor: "text-tertiary",
-    holder: "JAMES OMINO • 1220 **** **** 881",
-    status: "Action Required",
-    statusColor: "bg-error/20 text-error",
-    active: false,
-    ghost: "BANK",
-    ghostColor: "text-tertiary/5",
-  },
-];
+import { getPaymentMethods } from "@/app/actions/payment-methods";
+import { PaymentMethodsList } from "@/components/payment-methods-list";
 
 export default async function PaymentMethodsPage() {
   const supabase = createClient();
@@ -35,6 +12,8 @@ export default async function PaymentMethodsPage() {
     profile = data;
   }
   const displayName = profile?.username?.toUpperCase() || user?.email?.split("@")[0]?.toUpperCase() || "USER";
+
+  const methods = await getPaymentMethods();
 
   return (
     <AppShell currentPath="/payment-methods" user={user ? { email: user.email, ...profile } : null}>
@@ -73,71 +52,8 @@ export default async function PaymentMethodsPage() {
           </div>
         </div>
 
-        {/* Payment Methods List */}
-        <div className="space-y-4">
-          {paymentMethods.map((pm) => (
-            <div
-              key={pm.name}
-              className="group relative bg-surface-container-high hover:bg-surface-bright transition-colors duration-200 p-5 rounded-sm flex items-center justify-between overflow-hidden"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#0b0e11] rounded flex items-center justify-center border border-outline-variant/15">
-                  <span className={`material-symbols-outlined ${pm.iconColor}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                    {pm.icon}
-                  </span>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-headline font-bold text-on-surface tracking-tight">{pm.name}</span>
-                    <span className={`${pm.statusColor} text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter`}>
-                      {pm.status}
-                    </span>
-                  </div>
-                  <p className="text-on-surface-variant text-xs font-label">{pm.holder}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
-                    {pm.active ? "Active" : "Inactive"}
-                  </span>
-                  <div className={`w-10 h-5 ${pm.active ? "bg-primary-container" : "bg-outline-variant"} rounded-full relative cursor-pointer flex items-center px-1`}>
-                    <div className={`w-3 h-3 rounded-full ${pm.active ? "bg-white ml-auto" : "bg-surface-container-highest"}`} />
-                  </div>
-                </div>
-                <button className="text-on-surface-variant hover:text-error transition-colors">
-                  <span className="material-symbols-outlined">delete</span>
-                </button>
-              </div>
-              {/* Ghost decoration */}
-              <div className={`absolute right-0 bottom-0 ${pm.ghostColor} font-headline font-black text-4xl select-none translate-y-1/4 translate-x-1/4 pointer-events-none uppercase`}>
-                {pm.ghost}
-              </div>
-            </div>
-          ))}
-
-          {/* Add New */}
-          <button className="w-full py-5 border-2 border-dashed border-outline-variant/30 rounded-sm hover:border-primary/50 transition-all group">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span className="material-symbols-outlined text-primary">add</span>
-              </div>
-              <span className="font-headline font-bold text-sm uppercase tracking-[0.2em] text-on-surface-variant group-hover:text-primary">
-                Link New Account
-              </span>
-            </div>
-          </button>
-        </div>
-
-        {/* Security Notice */}
-        <div className="bg-error/10 p-4 border-l-2 border-error/50 flex gap-4 mb-8">
-          <span className="material-symbols-outlined text-error text-xl">info</span>
-          <p className="text-[11px] text-on-error-container leading-tight">
-            For security reasons, you cannot change the Account Name. All payment methods must match your KYC verified
-            name <span className="font-bold underline">{displayName}</span>. Unauthorized account linkage will lead to
-            permanent suspension.
-          </p>
-        </div>
+        {/* Interactive List (Client Component) */}
+        <PaymentMethodsList methods={methods} displayName={displayName} />
       </div>
     </AppShell>
   );
