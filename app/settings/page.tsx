@@ -19,10 +19,10 @@ export default async function SettingsPage() {
         {/* Header Section */}
         <section className="mb-10">
           <h1 className="font-headline text-4xl font-bold tracking-tight mb-2">
-            SYSTEM CONFIGURATION
+            Settings
           </h1>
           <p className="text-on-surface-variant text-sm tracking-wider uppercase font-medium">
-            Terminal Security &amp; Global Environment Variables
+            Manage your account and preferences
           </p>
         </section>
 
@@ -31,7 +31,7 @@ export default async function SettingsPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-1 h-4 bg-primary" />
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">
-              IDENTITY
+              Profile
             </h2>
           </div>
           <div className="bg-surface-container-low p-6 rounded-lg flex items-center justify-between border border-outline-variant/10">
@@ -41,7 +41,7 @@ export default async function SettingsPage() {
               </div>
               <div>
                 <p className="font-headline text-xl font-bold tracking-tight text-on-surface">
-                  {profile?.username || "Unnamed Node"}
+                  {profile?.username || "User"}
                 </p>
                 <div className="flex items-center gap-3 mt-1">
                   <p className="text-xs text-on-surface-variant lowercase flex items-center gap-1">
@@ -73,7 +73,7 @@ export default async function SettingsPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-1 h-4 bg-primary" />
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">
-              ACCOUNT_SECURITY
+              Account Security
             </h2>
           </div>
           <div className="bg-surface-container-low rounded-lg overflow-hidden">
@@ -86,7 +86,7 @@ export default async function SettingsPage() {
                 <div>
                   <p className="text-sm font-bold tracking-wide">Two-Factor Authentication</p>
                   <p className="text-xs text-on-surface-variant">
-                    Secure your terminal with TOTP or hardware keys
+                    Secure your account with authenticator apps
                   </p>
                 </div>
               </div>
@@ -143,7 +143,7 @@ export default async function SettingsPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-1 h-4 bg-primary" />
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">
-              PREFERENCES
+              Preferences
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,9 +172,9 @@ export default async function SettingsPage() {
                 </span>
               </div>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">
-                UI Engine
+                Theme
               </p>
-              <p className="text-xl font-bold tracking-tight">KINETIC DARK</p>
+              <p className="text-xl font-bold tracking-tight">Dark Mode</p>
             </div>
           </div>
 
@@ -188,9 +188,9 @@ export default async function SettingsPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm font-bold tracking-wide">Terminal Alerts</p>
+                  <p className="text-sm font-bold tracking-wide">Notifications</p>
                   <p className="text-xs text-on-surface-variant">
-                    Push, Email, and Webhook dispatch settings
+                    Push and email alert settings
                   </p>
                 </div>
               </div>
@@ -206,7 +206,7 @@ export default async function SettingsPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-1 h-4 bg-primary" />
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">
-              SYSTEM_CORE
+              Connections
             </h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -215,27 +215,27 @@ export default async function SettingsPage() {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <span className="material-symbols-outlined text-8xl">hub</span>
               </div>
-              <h3 className="text-sm font-bold mb-4 tracking-wider">NODE_TOPOLOGY</h3>
+              <h3 className="text-sm font-bold mb-4 tracking-wider">Recent Devices</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between bg-surface-container-highest/50 p-3 rounded-sm border-l-2 border-primary">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-xs font-mono">us-east-cluster-01.kinetic.io</span>
+                    <span className="text-xs font-mono">MacBook Pro - Chrome</span>
                   </div>
-                  <span className="text-[10px] font-mono text-primary">12ms</span>
+                  <span className="text-[10px] font-mono text-primary">Active</span>
                 </div>
                 <div className="flex items-center justify-between bg-surface-container-highest/30 p-3 rounded-sm border-l-2 border-transparent">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-on-surface-variant/40" />
                     <span className="text-xs font-mono text-on-surface-variant">
-                      eu-west-cluster-04.kinetic.io
+                      iPhone 14 - Safari
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-on-surface-variant">84ms</span>
+                  <span className="text-[10px] font-mono text-on-surface-variant">Yesterday</span>
                 </div>
               </div>
               <button className="mt-6 text-[10px] font-bold tracking-[0.1em] uppercase text-primary flex items-center gap-1 hover:gap-2 transition-all">
-                Manage Clusters{" "}
+                Manage Devices {" "}
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </button>
             </div>
@@ -271,7 +271,7 @@ export default async function SettingsPage() {
                 logout
               </span>
               <span className="font-headline font-bold tracking-widest uppercase">
-                Terminate Session
+                Sign Out
               </span>
             </button>
           </form>

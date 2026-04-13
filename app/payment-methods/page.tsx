@@ -25,7 +25,7 @@ export default async function PaymentMethodsPage() {
         <section className="space-y-2">
           <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight">Payment Methods</h1>
           <p className="text-on-surface-variant text-sm font-label uppercase tracking-widest">
-            Manage your liquidity channels
+            Manage your connected accounts
           </p>
         </section>
 

@@ -182,7 +182,7 @@ export default async function BotPage() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h3 className="font-headline font-bold text-sm uppercase tracking-widest text-on-surface">Bot Performance Matrix</h3>
-              <p className="text-xs text-on-surface-variant">Real-time aggregate alpha generation across all bots.</p>
+              <p className="text-xs text-on-surface-variant">Real-time performance across all algorithms.</p>
             </div>
             <div className="flex items-center gap-1 text-[10px] font-bold uppercase text-primary">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />

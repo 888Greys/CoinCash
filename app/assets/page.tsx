@@ -295,21 +295,22 @@ export default async function AssetsPage() {
         {/* Bottom Panels */}
         <aside className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Security Logs */}
+          {/* Security Activity */}
           <div className="p-4 bg-surface-container-highest/30 rounded-sm border-l-2 border-primary/40">
             <div className="flex items-center gap-2 mb-3">
-              <span className="material-symbols-outlined text-primary text-sm">terminal</span>
+              <span className="material-symbols-outlined text-primary text-sm">shield</span>
               <h4 className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                Security Logs
+                Recent Security Activity
               </h4>
             </div>
-            <ul className="font-label text-[9px] text-on-surface-variant/80 space-y-2">
+            <ul className="font-label text-[10px] text-on-surface-variant/80 space-y-2">
               <li className="flex justify-between">
-                <span className="text-secondary">[SYSTEM]</span>
-                <span>WALLET_SYNC_SUCCESSFUL: DB_PRIMARY</span>
+                <span>Successful Login</span>
+                <span>Today</span>
               </li>
               <li className="flex justify-between">
-                <span className="text-secondary">[AUTH]</span>
-                <span>SESSION_ACTIVE: ENCRYPTED_TRANSPORT</span>
+                <span>Wallet Synced</span>
+                <span>Today</span>
               </li>
             </ul>
           </div>

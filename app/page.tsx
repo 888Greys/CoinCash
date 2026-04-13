@@ -104,7 +104,7 @@ export default function LandingPage() {
             </h2>
 
             <p className="text-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed">
-              Trade crypto directly with peers worldwide. Zero intermediaries, atomic escrow settlement, and AI-powered trading bots — all in one terminal.
+              Trade crypto directly with peers worldwide. Zero intermediaries, fast secure escrow, and automated trading — all in one app.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -267,7 +267,7 @@ export default function LandingPage() {
               Coin<span className="text-primary">Cash</span>
             </h4>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">
-              The Next-Gen P2P Exchange Terminal
+              The Next-Gen P2P Exchange
             </p>
           </div>
           <div className="flex items-center gap-6 text-xs text-on-surface-variant uppercase tracking-widest">
