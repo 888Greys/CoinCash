@@ -97,7 +97,74 @@ export default function BuyPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-1">
+        {/* Mobile trade sheet (exchange-style) */}
+        <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-4 space-y-4">
+          <div className="text-center py-2">
+            <h1 className="text-3xl font-headline font-black tracking-tight">Buy {orderAsset}</h1>
+            <p className="text-sm text-on-surface-variant">
+              Price {orderFiat} {orderPrice.toFixed(3)}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xl font-semibold">By {orderFiat}</p>
+            <div className="rounded-xl border border-outline-variant/20 bg-surface-container-highest px-4 py-4">
+              <div className="flex items-center">
+                <input
+                  className="w-full bg-transparent border-none focus:ring-0 text-3xl font-bold text-on-surface placeholder:text-on-surface-variant/40"
+                  placeholder="10000"
+                  type="number"
+                  value={payAmount}
+                  onChange={(e) => setPayAmount(e.target.value)}
+                  disabled={loading}
+                />
+                <span className="text-2xl font-bold">{orderFiat}</span>
+                <button
+                  type="button"
+                  onClick={() => setPayAmount(maxLimit.replace(/,/g, ""))}
+                  className="ml-3 text-lg font-bold text-primary"
+                >
+                  Max
+                </button>
+              </div>
+            </div>
+            <p className="text-sm text-on-surface-variant">
+              Enter value above {Number(minLimit).toLocaleString("en-US")} {orderFiat}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between border-b border-outline-variant/15 pb-3">
+            <span className="text-3xl font-semibold">You Receive</span>
+            <span className="text-2xl font-bold">
+              {receiveAmount || "0.00"} {orderAsset}
+            </span>
+          </div>
+
+          <div className="rounded-xl border border-outline-variant/20 bg-surface-container-highest px-4 py-3">
+            <p className="text-lg font-semibold">{paymentMethod}</p>
+          </div>
+
+          <div className="space-y-1 pt-2">
+            <h2 className="text-3xl font-semibold">Advertiser's Info</h2>
+            <div className="flex items-center justify-between">
+              <p className="text-2xl font-bold uppercase">{merchantName}</p>
+              <p className="text-lg text-primary">Online</p>
+            </div>
+            <p className="text-sm text-on-surface-variant">Strictly no third party payment</p>
+          </div>
+
+          <div className="sticky bottom-2 pt-3">
+            <button
+              onClick={handleBuy}
+              disabled={loading || !payAmount || !orderId}
+              className="w-full rounded-xl bg-primary py-4 text-center text-xl font-black text-on-primary-container disabled:opacity-50"
+            >
+              {loading ? "Processing..." : "Place Order"}
+            </button>
+          </div>
+        </div>
+
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-12 gap-1">
           {/* LEFT COLUMN: Merchant & Status */}
           <div className="md:col-span-4 bg-surface-container-low p-6 flex flex-col justify-between">
             <div>
