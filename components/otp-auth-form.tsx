@@ -88,7 +88,7 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <button
           onClick={loginWithGoogle}
           className="group flex h-12 items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
@@ -99,10 +99,7 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
             Google
           </span>
         </button>
-        
-        <div className="flex justify-center items-center h-12 rounded-lg bg-surface-container-high transition-all hover:-translate-y-0.5 hover:bg-surface-bright overflow-hidden">
-           <TelegramLogin botName={botUsername} onAuth={handleTelegramAuth} />
-        </div>
+        <TelegramLogin botName={botUsername} onAuth={handleTelegramAuth} />
       </div>
 
       <div className="relative flex items-center py-4">

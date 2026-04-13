@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useCallback } from "react";
 
 interface TelegramLoginProps {
   botName: string;
@@ -8,27 +8,48 @@ interface TelegramLoginProps {
 }
 
 export function TelegramLogin({ botName, onAuth }: TelegramLoginProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
+  // Load the Telegram widget script (just for the auth API, not the iframe)
   useEffect(() => {
-    // Prevent reloading the script if already appended
-    if (containerRef.current && containerRef.current.children.length > 0) return;
-
-    // We expose a global function for the Telegram callback
-    (window as any).onTelegramAuth = (user: any) => {
-      onAuth(user);
-    };
+    if (document.getElementById("telegram-widget-script")) return;
 
     const script = document.createElement("script");
+    script.id = "telegram-widget-script";
     script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.setAttribute("data-telegram-login", botName);
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-onauth", "onTelegramAuth(user)");
-    script.setAttribute("data-request-access", "write"); // Optional, if you want to send messages
     script.async = true;
+    document.head.appendChild(script);
+  }, []);
 
-    containerRef.current?.appendChild(script);
+  const handleClick = useCallback(() => {
+    const win = window as any;
+    if (win.Telegram?.Login?.auth) {
+      win.Telegram.Login.auth(
+        { bot_id: botName, request_access: "write" },
+        (user: any) => {
+          if (user) {
+            onAuth(user);
+          }
+        }
+      );
+    } else {
+      // Fallback: open telegram auth manually
+      window.open(
+        `https://oauth.telegram.org/auth?bot_id=${botName}&origin=${encodeURIComponent(window.location.origin)}&request_access=write`,
+        "telegram_auth",
+        "width=550,height=450"
+      );
+    }
   }, [botName, onAuth]);
 
-  return <div ref={containerRef} className="flex justify-center" />;
+  return (
+    <button
+      onClick={handleClick}
+      className="group flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
+      type="button"
+    >
+      <span className="text-sm text-[#229ED9]">T</span>
+      <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface transition-colors group-hover:text-primary">
+        Telegram
+      </span>
+    </button>
+  );
 }
