@@ -49,11 +49,11 @@ export type TradeWithDetails = {
 export async function getActiveOrders(
   type: "buy" | "sell" = "sell",
   asset: string = "USDT",
-  fiat: string = "USD"
+  fiat: string = "ALL"
 ) {
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("p2p_orders")
     .select(`
       *,
@@ -61,10 +61,18 @@ export async function getActiveOrders(
     `)
     .eq("status", "active")
     .eq("type", type)
-    .eq("asset", asset)
-    .eq("fiat", fiat)
     .order("price", { ascending: type === "sell" })
     .limit(20);
+
+  if (asset !== "ALL") {
+    query = query.eq("asset", asset);
+  }
+
+  if (fiat !== "ALL") {
+    query = query.eq("fiat", fiat);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("getActiveOrders error:", error.message);

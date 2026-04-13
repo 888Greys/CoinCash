@@ -62,7 +62,7 @@ export default async function P2PPage({ searchParams }: Props) {
   const adTypeToFetch = currentTab === "buy" ? "sell" : "buy";
 
   const currentAsset = searchParams.asset || "USDT";
-  const currentFiat = searchParams.fiat || "USD";
+  const currentFiat = searchParams.fiat || "ALL";
   const toast = searchParams.myAdToast;
 
   // Fetch live orders
@@ -144,6 +144,7 @@ export default async function P2PPage({ searchParams }: Props) {
             <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-primary font-bold uppercase tracking-tighter z-10">Asset</span>
             <div className="relative bg-surface-container-lowest border border-outline-variant/20 flex items-center cursor-pointer">
               <select name="asset" defaultValue={currentAsset} className="w-full bg-transparent px-3 py-2 font-headline font-bold text-sm outline-none appearance-none cursor-pointer z-10">
+                <option value="ALL" className="bg-surface text-on-surface">ALL</option>
                 <option value="USDT" className="bg-surface text-on-surface">USDT</option>
                 <option value="BTC" className="bg-surface text-on-surface">BTC</option>
                 <option value="ETH" className="bg-surface text-on-surface">ETH</option>
@@ -156,6 +157,7 @@ export default async function P2PPage({ searchParams }: Props) {
             <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-on-surface-variant font-bold uppercase tracking-tighter z-10">Fiat</span>
             <div className="relative bg-surface-container-lowest border border-outline-variant/20 flex items-center cursor-pointer">
               <select name="fiat" defaultValue={currentFiat} className="w-full bg-transparent px-3 py-2 font-headline font-bold text-sm outline-none appearance-none cursor-pointer z-10 text-on-surface">
+                <option value="ALL" className="bg-surface text-on-surface">ALL</option>
                 <option value="USD" className="bg-surface text-on-surface">USD</option>
                 <option value="KES" className="bg-surface text-on-surface">KES</option>
                 <option value="UGX" className="bg-surface text-on-surface">UGX</option>
