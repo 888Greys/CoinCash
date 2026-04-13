@@ -7,7 +7,7 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   let profile = null;
   if (user) {
-    const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
+    const { data } = await supabase.from("profiles").select("username, avatar_url, created_at").eq("id", user.id).single();
     profile = data;
   }
   return (
@@ -21,6 +21,48 @@ export default async function SettingsPage() {
           <p className="text-on-surface-variant text-sm tracking-wider uppercase font-medium">
             Terminal Security &amp; Global Environment Variables
           </p>
+        </section>
+
+        {/* IDENTITY Section */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-1 h-4 bg-primary" />
+            <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">
+              IDENTITY
+            </h2>
+          </div>
+          <div className="bg-surface-container-low p-6 rounded-lg flex items-center justify-between border border-outline-variant/10">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center border-2 border-primary/20 text-primary font-headline text-2xl font-bold">
+                {profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+              </div>
+              <div>
+                <p className="font-headline text-xl font-bold tracking-tight text-on-surface">
+                  {profile?.username || "Unnamed Node"}
+                </p>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-xs text-on-surface-variant lowercase flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">mail</span>
+                    {user?.email}
+                  </p>
+                  {user?.email_confirmed_at && (
+                    <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 font-bold uppercase rounded-sm flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                      Verified
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="text-right hidden md:block">
+              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
+                Member Since
+              </p>
+              <p className="text-sm font-mono text-on-surface">
+                {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* ACCOUNT_SECURITY Section */}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
+import { ensureUserWallets } from "@/app/actions/wallet";
 
 type Wallet = {
   id: string;
@@ -50,7 +51,10 @@ export default async function AssetsPage() {
   let profile: { username: string | null; avatar_url: string | null } | null = null;
 
   if (user) {
-    // Fetch profile for nav
+    // 1. Ensure user has default wallets before doing anything
+    await ensureUserWallets(user.id);
+
+    // 2. Fetch profile for nav
     const { data: profileData } = await supabase
       .from("profiles")
       .select("username, avatar_url")

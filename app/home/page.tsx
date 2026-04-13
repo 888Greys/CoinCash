@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
+import { ensureUserWallets } from "@/app/actions/wallet";
 
 const marketCards = [
   {
@@ -85,6 +86,9 @@ export default async function HomePage() {
   let walletIds: string[] = [];
 
   if (user) {
+    // Ensure wallets exist immediately on login
+    await ensureUserWallets(user.id);
+
     // Fetch profile
     const { data: profileData } = await supabase
       .from("profiles")

@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/app-shell";
-import { getMockData, MarketRow } from "@/lib/mock-api";
+import { getLivePrices } from "@/lib/price-api";
 import { createClient } from "@/utils/supabase/server";
 
 const sparklines = {
@@ -22,62 +22,14 @@ type MarketAsset = {
   color: string;
 };
 
-const marketData: MarketAsset[] = [
-  {
-    symbol: "BTC",
-    name: "Bitcoin",
-    price: "$42,912.40",
-    change: "-0.42%",
-    changePositive: false,
-    volume: "$28.4B",
-    marketCap: "$842.1B",
-    sparkline: sparklines.btcDown,
-    color: "text-primary",
-  },
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    price: "$2,314.15",
-    change: "+2.18%",
-    changePositive: true,
-    volume: "$14.2B",
-    marketCap: "$278.4B",
-    sparkline: sparklines.ethUp,
-    color: "text-tertiary",
-  },
-  {
-    symbol: "SOL",
-    name: "Solana",
-    price: "$114.82",
-    change: "+14.2%",
-    changePositive: true,
-    volume: "$4.8B",
-    marketCap: "$48.9B",
-    sparkline: sparklines.solUp,
-    color: "text-secondary",
-  },
-  {
-    symbol: "AVAX",
-    name: "Avalanche",
-    price: "$34.12",
-    change: "-3.82%",
-    changePositive: false,
-    volume: "$842M",
-    marketCap: "$12.5B",
-    sparkline: sparklines.avaxDown,
-    color: "text-error",
-  },
-  {
-    symbol: "LINK",
-    name: "Chainlink",
-    price: "$18.94",
-    change: "+1.04%",
-    changePositive: true,
-    volume: "$512M",
-    marketCap: "$11.1B",
-    sparkline: sparklines.linkUp,
-    color: "text-primary-dim",
-  },
+// Static layout definitions, prices injected dynamically
+const marketLayout = [
+  { symbol: "BTC", name: "Bitcoin", change: "-0.42%", isPositive: false, volume: "$28.4B", marketCap: "$842.1B", sparkline: sparklines.btcDown, color: "text-primary" },
+  { symbol: "ETH", name: "Ethereum", change: "+2.18%", isPositive: true, volume: "$14.2B", marketCap: "$278.4B", sparkline: sparklines.ethUp, color: "text-tertiary" },
+  { symbol: "SOL", name: "Solana", change: "+14.2%", isPositive: true, volume: "$4.8B", marketCap: "$48.9B", sparkline: sparklines.solUp, color: "text-secondary" },
+  { symbol: "AVAX", name: "Avalanche", change: "-3.82%", isPositive: false, volume: "$842M", marketCap: "$12.5B", sparkline: sparklines.avaxDown, color: "text-error" },
+  { symbol: "USDT", name: "Tether USD", change: "+0.01%", isPositive: true, volume: "$50.2B", marketCap: "$99.1B", sparkline: sparklines.linkUp, color: "text-primary-dim" },
+  { symbol: "BNB", name: "Binance Coin", change: "+4.12%", isPositive: true, volume: "$1.2B", marketCap: "$42.1B", sparkline: sparklines.solUp, color: "text-primary" },
 ];
 
 const spotlightCards = [
@@ -119,7 +71,13 @@ export default async function MarketsPage() {
     profile = data;
   }
 
-  const asyncMarketData = await getMockData<MarketRow[]>("markets", 1500);
+  const livePrices = await getLivePrices();
+
+  // Map live prices onto our static visual layout
+  const marketDataDynamic = marketLayout.map(asset => ({
+    ...asset,
+    price: livePrices[asset.symbol] ? `$${livePrices[asset.symbol].toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"
+  }));
 
   return (
     <AppShell currentPath="/markets" user={user ? { email: user.email, ...profile } : null}>
@@ -212,7 +170,7 @@ export default async function MarketsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
-                {asyncMarketData.map((asset) => (
+                {marketDataDynamic.map((asset) => (
                   <tr
                     key={asset.symbol}
                     className="hover:bg-surface-bright transition-colors cursor-pointer group"
@@ -242,7 +200,7 @@ export default async function MarketsPage() {
                       <div className="font-label text-xs text-on-surface-variant">{asset.volume}</div>
                     </td>
                     <td className="px-6 py-5 hidden md:table-cell">
-                      <div className="font-label text-xs text-on-surface-variant">$20.2B</div>
+                      <div className="font-label text-xs text-on-surface-variant">{asset.marketCap}</div>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex justify-end">
