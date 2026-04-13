@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRef } from "react";
 import { AppShell } from "@/components/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
 import { takeOrder } from "../actions";
@@ -24,6 +25,10 @@ export default function SellPage() {
   const [payAmount, setPayAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchDeltaY = useRef(0);
+  const canSwipeClose = useRef(false);
 
   const receiveAmount = payAmount ? (Number(payAmount) * orderPrice).toFixed(2) : "";
 
@@ -44,10 +49,37 @@ export default function SellPage() {
     router.push(`/p2p/order/${result.tradeId}`);
   };
 
+  const onSheetTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (window.innerWidth >= 768) return;
+    touchStartY.current = e.touches[0].clientY;
+    touchDeltaY.current = 0;
+    canSwipeClose.current = (panelRef.current?.scrollTop ?? 0) <= 2;
+  };
+
+  const onSheetTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!canSwipeClose.current || touchStartY.current === null) return;
+    touchDeltaY.current = e.touches[0].clientY - touchStartY.current;
+  };
+
+  const onSheetTouchEnd = () => {
+    if (canSwipeClose.current && touchDeltaY.current > 95) {
+      router.back();
+    }
+    touchStartY.current = null;
+    touchDeltaY.current = 0;
+    canSwipeClose.current = false;
+  };
+
   return (
     <AppShell currentPath="/p2p">
-      <div className="fixed inset-0 bg-black/60 md:hidden" />
-      <div className="fixed inset-x-0 bottom-0 top-16 z-20 overflow-y-auto rounded-t-[28px] border border-outline-variant/15 bg-surface px-4 py-6 p2p-sheet-enter md:static md:inset-auto md:z-auto md:max-w-4xl md:mx-auto md:rounded-none md:border-0 md:bg-transparent md:px-4 md:py-8">
+      <div className="fixed inset-0 bg-black/60 md:hidden" onClick={() => router.back()} />
+      <div
+        ref={panelRef}
+        onTouchStart={onSheetTouchStart}
+        onTouchMove={onSheetTouchMove}
+        onTouchEnd={onSheetTouchEnd}
+        className="fixed inset-x-0 bottom-0 top-20 z-20 overflow-y-auto rounded-t-[32px] border border-outline-variant/15 bg-surface px-4 py-6 p2p-sheet-enter md:static md:inset-auto md:z-auto md:max-w-4xl md:mx-auto md:rounded-none md:border-0 md:bg-transparent md:px-4 md:py-8"
+      >
         <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-outline-variant/30 md:hidden" />
         {/* Transaction Breadcrumb */}
         <div className="flex items-center gap-2 text-on-surface-variant mb-2">
@@ -205,24 +237,25 @@ export default function SellPage() {
                 </div>
               </div>
 
-              {/* CTA Button */}
-              <button
-                onClick={handleBuy}
-                disabled={loading || !payAmount || !orderId}
-                className="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg uppercase tracking-[0.2em] shadow-[0_8px_30px_rgba(2,201,83,0.15)] active:scale-[0.98] transition-all disabled:opacity-50"
-              >
-                {loading ? "Processing..." : `SELL ${orderAsset}`}
-              </button>
-              <div className="flex items-center justify-center gap-2 text-[10px] text-on-surface-variant uppercase font-medium tracking-widest">
-                <span className="material-symbols-outlined text-sm">lock</span>
-                Secured by Escrow
+              <div className="-mx-8 mt-2 px-8 py-3 bg-surface/95 backdrop-blur border-t border-outline-variant/10 sticky bottom-0 md:static md:m-0 md:p-0 md:bg-transparent md:border-0">
+                <button
+                  onClick={handleBuy}
+                  disabled={loading || !payAmount || !orderId}
+                  className="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg uppercase tracking-[0.2em] shadow-[0_8px_30px_rgba(2,201,83,0.15)] active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  {loading ? "Processing..." : `SELL ${orderAsset}`}
+                </button>
+                <div className="flex items-center justify-center gap-2 text-[10px] text-on-surface-variant uppercase font-medium tracking-widest mt-2 md:mt-0">
+                  <span className="material-symbols-outlined text-sm">lock</span>
+                  Secured by Escrow
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Terms & Details */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-1">
           <div className="bg-surface-container-low p-6">
             <h3 className="font-label text-[10px] uppercase tracking-widest text-primary mb-4">Merchant Terms</h3>
             <p className="text-xs leading-relaxed text-on-surface-variant">

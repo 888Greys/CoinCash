@@ -125,6 +125,10 @@ export default async function HomePage() {
     trade_sell: { icon: "swap_horiz", color: "text-tertiary", bg: "bg-tertiary/10" },
   };
 
+  const baseName = profile?.username?.trim() || user?.email?.split("@")[0] || "Trader";
+  const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
+  const displayHandle = baseName ? `@${baseName}` : null;
+
   return (
     <AppShell currentPath="/home" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-4 max-w-5xl mx-auto space-y-6">
@@ -132,6 +136,15 @@ export default async function HomePage() {
         <section className="bg-surface-container-low rounded-lg p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none">
             <div className="w-full h-full bg-gradient-to-l from-primary to-transparent" />
+          </div>
+          <div className="relative z-10 mb-6 border-b border-outline-variant/10 pb-4">
+            <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tight leading-[0.95] text-on-surface">
+              Welcome back, {displayName}
+            </h2>
+            {displayHandle && (
+              <p className="text-primary font-headline text-xl md:text-2xl font-semibold mt-1">{displayHandle}</p>
+            )}
+            <p className="text-on-surface-variant text-base mt-2">Here is your latest market overview.</p>
           </div>
           <div className="flex justify-between items-start mb-2">
             <div className="space-y-1">
