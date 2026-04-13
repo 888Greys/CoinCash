@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
+import { WalletActionDrawer } from "@/components/wallet-action-drawer";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
@@ -126,20 +127,7 @@ export default async function AssetsPage() {
                 ≈ ${totalUsdValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="flex gap-2">
-              <button className="bg-gradient-to-br from-primary to-primary-container text-on-primary-container px-6 py-3 font-label text-sm font-bold uppercase tracking-wider rounded-sm flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
-                <span className="material-symbols-outlined text-lg">south_west</span>
-                Deposit
-              </button>
-              <button className="bg-surface-container-highest border border-primary/20 text-on-surface px-6 py-3 font-label text-sm font-bold uppercase tracking-wider rounded-sm flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-all">
-                <span className="material-symbols-outlined text-lg">north_east</span>
-                Withdraw
-              </button>
-              <button className="bg-surface-container-highest border border-primary/20 text-on-surface px-6 py-3 font-label text-sm font-bold uppercase tracking-wider rounded-sm flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-all">
-                <span className="material-symbols-outlined text-lg">swap_horiz</span>
-                Transfer
-              </button>
-            </div>
+            <WalletActionDrawer wallets={wallets} />
           </div>
         </section>
 
