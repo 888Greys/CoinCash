@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { updateBotStatus } from "@/app/actions/bots";
 import type { TradingBot } from "@/app/actions/bots";
 
@@ -14,11 +15,19 @@ function formatRuntime(runtimeStart: string | null): string {
   return `${String(d).padStart(2, "0")}d ${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m`;
 }
 
-const BOT_TYPE_ICONS: Record<string, string> = {
-  grid: "grid_view",
-  dca: "calendar_month",
-  arbitrage: "balance",
+const PAIR_LOGOS: Record<string, string> = {
+  BTC:  "/icons/btc.svg",
+  ETH:  "/icons/eth.svg",
+  SOL:  "/icons/sol.svg",
+  BNB:  "/icons/bnb.svg",
+  AVAX: "/icons/avax.svg",
+  USDT: "/icons/usdt.svg",
 };
+
+function getPairLogo(pair: string): string | null {
+  const base = pair.split("/")[0]?.toUpperCase();
+  return PAIR_LOGOS[base] ?? null;
+}
 
 export function BotCard({ bot }: { bot: TradingBot }) {
   const [isPending, startTransition] = useTransition();
@@ -31,16 +40,22 @@ export function BotCard({ bot }: { bot: TradingBot }) {
     });
   }
 
+  const logo = getPairLogo(bot.pair);
+
   return (
     <div className="bg-surface-container-low hover:bg-surface-container-high p-4 flex items-center justify-between group transition-colors">
       <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
-            <span className={`material-symbols-outlined text-lg ${isRunning ? "text-primary" : "text-on-surface-variant"}`}>
-              {BOT_TYPE_ICONS[bot.type] ?? "smart_toy"}
-            </span>
+          <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden">
+            {logo ? (
+              <Image src={logo} alt={bot.pair} width={28} height={28} unoptimized />
+            ) : (
+              <span className={`material-symbols-outlined text-lg ${isRunning ? "text-primary" : "text-on-surface-variant"}`}>
+                smart_toy
+              </span>
+            )}
           </div>
-          <div className={`absolute -bottom-1 -right-1 w-3 h-3 ${isRunning ? "bg-primary" : "bg-on-surface-variant/40"} rounded-full border-2 border-surface-container-low`} />
+          <div className={`absolute -bottom-1 -right-1 w-3 h-3 ${isRunning ? "bg-primary shadow-[0_0_6px_rgba(92,253,128,0.6)]" : "bg-on-surface-variant/40"} rounded-full border-2 border-surface-container-low`} />
         </div>
         <div>
           <div className="flex items-center gap-2">

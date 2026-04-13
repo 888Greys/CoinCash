@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
 import { getUserBots } from "@/app/actions/bots";
+import { getExtendedMarketData } from "@/lib/price-api";
 import { BotCard, CreateBotButton } from "@/components/bot-controls";
 
 export const metadata: Metadata = { title: "Trading Bots" };
@@ -34,7 +35,7 @@ const botTypes = [
   },
 ];
 
-const perfBars = [40, 60, 30, 80, 95, 50, 70, 40, 65, 85, 35, 55];
+const perfBars: number[] = []; // derived from live data below
 
 export default async function BotPage() {
   const supabase = createClient();
@@ -51,7 +52,23 @@ export default async function BotPage() {
     profile = data;
   }
 
-  const bots = await getUserBots();
+  const [bots, marketData] = await Promise.all([
+    getUserBots(),
+    getExtendedMarketData(),
+  ]);
+
+  // Derive performance bars from BTC 7-day sparkline
+  const btcData = marketData.find(a => a.symbol.toUpperCase() === "BTC");
+  const rawPrices = btcData?.sparkline_in_7d?.price ?? [];
+  // Sample down to ~12 bars for the chart
+  const step = Math.max(1, Math.floor(rawPrices.length / 12));
+  const sampled = rawPrices.filter((_, i) => i % step === 0).slice(-12);
+  const minP = Math.min(...sampled);
+  const maxP = Math.max(...sampled);
+  const range = maxP - minP || 1;
+  const livePerfBars = sampled.length > 0
+    ? sampled.map(p => Math.round(((p - minP) / range) * 85) + 10) // 10–95% range
+    : [40, 60, 30, 80, 95, 50, 70, 40, 65, 85, 35, 55];
   const runningBots = bots.filter((b) => b.status === "running");
   const totalProfit = bots.reduce((acc, b) => acc + (b.total_profit ?? 0), 0);
   const avgProfitPct = bots.length > 0
@@ -166,10 +183,10 @@ export default async function BotPage() {
             </div>
           </div>
           <div className="h-32 flex items-end justify-between gap-1">
-            {perfBars.map((h, i) => (
+            {livePerfBars.map((h, i) => (
               <div
                 key={i}
-                className={`w-full ${h >= 85 ? "bg-primary" : "bg-primary/20"} rounded-t-sm`}
+                className={`w-full ${h >= 85 ? "bg-primary" : "bg-primary/20"} rounded-t-sm transition-all duration-500`}
                 style={{ height: `${h}%` }}
               />
             ))}
