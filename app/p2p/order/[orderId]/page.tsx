@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { P2PChat } from "@/components/p2p-chat";
 import { createClient } from "@/utils/supabase/server";
@@ -6,6 +7,7 @@ import { TradeActions } from "./trade-actions";
 
 type Props = {
   params: { orderId: string };
+  searchParams: { view?: string };
 };
 
 const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
@@ -25,7 +27,7 @@ function timeLeftFromCreatedAt(createdAt: string, windowMinutes: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-export default async function OrderPage({ params }: Props) {
+export default async function OrderPage({ params, searchParams }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -62,10 +64,52 @@ export default async function OrderPage({ params }: Props) {
     (user.email ? user.email.split("@")[0] : "Account Holder");
   const referenceCode = trade.id.replace(/-/g, "").slice(0, 18);
   const methodLabel = trade.p2p_orders.payment_method || "Bank Transfer";
+  const isChatView = searchParams.view === "chat";
 
   return (
     <AppShell currentPath="/p2p">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {isChatView ? (
+          <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-3">
+            <div className="mb-3 flex items-center gap-3 border-b border-outline-variant/10 pb-3">
+              <Link href={`/p2p/order/${trade.id}`} className="material-symbols-outlined text-on-surface-variant">
+                arrow_back
+              </Link>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high text-sm font-bold uppercase">
+                {(counterparty?.username ?? "U").slice(0, 1)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-lg font-bold uppercase">{counterparty?.username ?? "Unknown"}</p>
+                <p className="text-xs text-on-surface-variant">Online</p>
+              </div>
+            </div>
+
+            <div className="mb-3 flex items-center justify-between rounded-sm bg-surface-container-high px-3 py-2">
+              <div>
+                <p className="text-sm font-semibold">{isBuyer ? "Pending Payment Confirmation" : "Awaiting Buyer Payment"}</p>
+                <p className="text-xs text-on-surface-variant">{isBuyer ? `Buy ${trade.p2p_orders.asset} with ${trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} ${trade.p2p_orders.fiat}` : "Monitor payment before releasing funds"}</p>
+              </div>
+              <Link href={`/p2p/order/${trade.id}`} className="text-sm font-bold text-primary">View</Link>
+            </div>
+
+            <div className="mb-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+              Never release cryptocurrency before payment is confirmed in your account.
+            </div>
+
+            <div className="mb-3 rounded-xl bg-surface-container-high p-3 text-sm text-on-surface-variant">
+              <p>
+                Trade started. Order: {trade.id.slice(0, 10)} | {isBuyer ? "BUY" : "SELL"} {trade.asset_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.asset}
+              </p>
+              <p>
+                Amount: {trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.fiat} | Method: {methodLabel}
+              </p>
+            </div>
+
+            <div className="h-[56vh]">
+              <P2PChat tradeId={trade.id} currentUserId={user.id} />
+            </div>
+          </div>
+        ) : (
         <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-4">
           <div className="mb-5 flex items-center justify-between">
             <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
@@ -85,7 +129,7 @@ export default async function OrderPage({ params }: Props) {
                 </div>
                 <p className="text-xl font-bold uppercase">{counterparty?.username ?? "Unknown"}</p>
               </div>
-              <span className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary-container">Chat</span>
+              <Link href={`/p2p/order/${trade.id}?view=chat`} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary-container">Chat</Link>
             </div>
           </div>
 
@@ -129,6 +173,7 @@ export default async function OrderPage({ params }: Props) {
             />
           </div>
         </div>
+        )}
 
         <div className="hidden md:block">
         {/* Header */}
