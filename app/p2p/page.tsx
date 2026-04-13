@@ -24,7 +24,11 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(diffH / 24)}d ago`;
 }
 
-export default async function P2PPage() {
+type Props = {
+  searchParams: { tab?: string; asset?: string; fiat?: string };
+};
+
+export default async function P2PPage({ searchParams }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -39,8 +43,12 @@ export default async function P2PPage() {
     profile = data;
   }
 
-  // Fetch live orders (default: sell orders for buyers to see)
-  const orders = await getActiveOrders("sell", "USDT", "USD");
+  // Determine the current tab. "buy" means the user wants to buy crypto, so we need to show them "sell" ads.
+  const currentTab = searchParams.tab === "sell" ? "sell" : "buy";
+  const adTypeToFetch = currentTab === "buy" ? "sell" : "buy";
+
+  // Fetch live orders
+  const orders = await getActiveOrders(adTypeToFetch, "USDT", "USD");
 
   // Fetch recent settlements
   const settlements = await getRecentSettlements(5);
@@ -74,12 +82,12 @@ export default async function P2PPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 bg-surface-container-low p-1 rounded-sm border border-outline-variant/10">
-            <button className="px-6 py-2 bg-surface-bright text-on-surface font-label text-xs font-bold uppercase tracking-widest">
+            <Link href="?tab=buy" className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "buy" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
               Buy
-            </button>
-            <button className="px-6 py-2 text-on-surface-variant hover:text-on-surface font-label text-xs font-bold uppercase tracking-widest">
+            </Link>
+            <Link href="?tab=sell" className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "sell" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
               Sell
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -195,9 +203,9 @@ export default async function P2PPage() {
                     </div>
                     <Link
                       className="bg-gradient-to-br from-primary to-primary-container px-6 py-2 text-on-primary-container font-label text-xs font-black uppercase tracking-widest rounded-sm active:scale-95 transition-transform"
-                      href={`/p2p/buy?order=${order.id}&merchant=${encodeURIComponent(username)}&price=${order.price}&asset=${order.asset}&fiat=${order.fiat}&available=${order.total_amount}&min=${order.min_limit}&max=${order.max_limit}&method=${encodeURIComponent(order.payment_method)}`}
+                      href={`/p2p/${currentTab}?order=${order.id}&merchant=${encodeURIComponent(username)}&price=${order.price}&asset=${order.asset}&fiat=${order.fiat}&available=${order.total_amount}&min=${order.min_limit}&max=${order.max_limit}&method=${encodeURIComponent(order.payment_method)}`}
                     >
-                      Buy {order.asset}
+                      {currentTab === "buy" ? "Buy" : "Sell"} {order.asset}
                     </Link>
                   </div>
                 </div>
