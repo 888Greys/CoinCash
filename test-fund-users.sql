@@ -1,15 +1,12 @@
 -- Test funding for two users so P2P buy/sell can be exercised quickly.
 -- Run in Supabase SQL Editor.
 
--- Target users from your recent p2p_orders rows:
--- dfcfb25-c08c-46b1-8132-7aa15a714417
--- c0a2cd7a-8d01-4e10-9ad8-b725f50fdfc4
-
 with target_users as (
-  select unnest(array[
-    'dfcfb25-c08c-46b1-8132-7aa15a714417'::uuid,
-    'c0a2cd7a-8d01-4e10-9ad8-b725f50fdfc4'::uuid
-  ]) as user_id
+  -- Picks the two most recent ad posters automatically.
+  select distinct on (o.user_id) o.user_id
+  from public.p2p_orders o
+  order by o.user_id, o.created_at desc
+  limit 2
 ), balances as (
   -- USD is useful for wallet UI testing.
   -- USDT/BTC are required for escrow when taking sell/buy ads on these assets.
@@ -30,8 +27,5 @@ do update set
 -- Verify
 select user_id, currency, balance, locked_balance
 from public.wallets
-where user_id in (
-  'dfcfb25-c08c-46b1-8132-7aa15a714417'::uuid,
-  'c0a2cd7a-8d01-4e10-9ad8-b725f50fdfc4'::uuid
-)
+where user_id in (select user_id from target_users)
 order by user_id, currency;
