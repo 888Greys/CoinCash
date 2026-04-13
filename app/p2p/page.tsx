@@ -61,7 +61,7 @@ export default async function P2PPage({ searchParams }: Props) {
   const currentTab = searchParams.tab === "sell" ? "sell" : "buy";
   const adTypeToFetch = currentTab === "buy" ? "sell" : "buy";
 
-  const currentAsset = searchParams.asset || "USDT";
+  const currentAsset = searchParams.asset || "ALL";
   const currentFiat = searchParams.fiat || "ALL";
   const toast = searchParams.myAdToast;
 
