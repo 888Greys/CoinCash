@@ -40,18 +40,24 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
     setErrorState(null);
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const result = await sendOtpAction(formData);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const result = await sendOtpAction(formData);
 
-    if (!result.success) {
-      setErrorState(result.error ?? "Failed to send OTP");
+      if (!result.success) {
+        setErrorState(result.error ?? "Failed to send OTP");
+        setLoading(false);
+        return;
+      }
+
+      setEmail(result.email!);
+      setStep("otp");
       setLoading(false);
-      return;
+    } catch (err: any) {
+      console.error("SendOTP error:", err);
+      setErrorState("Connection timed out. Please try again.");
+      setLoading(false);
     }
-
-    setEmail(result.email!);
-    setStep("otp");
-    setLoading(false);
   };
 
   const handleVerifyOtp = async (e: React.FormEvent<HTMLFormElement>) => {
