@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { releaseTradeAction } from "../../actions";
+import { releaseTradeAction, markTradePaidAction } from "../../actions";
 
 type TradeActionsProps = {
   tradeId: string;
@@ -33,6 +33,23 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller }: TradeAction
     router.refresh();
   };
 
+  const handleMarkPaid = async () => {
+    if (!confirm("Have you successfully transferred the payment to the seller's account?")) return;
+
+    setLoading(true);
+    setError(null);
+
+    const result = await markTradePaidAction(tradeId);
+
+    if (!result.success) {
+      setError(result.error ?? "Failed to mark as paid");
+      setLoading(false);
+      return;
+    }
+
+    router.refresh();
+  };
+
   if (status === "released" || status === "cancelled") {
     return null;
   }
@@ -53,6 +70,7 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller }: TradeAction
             Please complete the payment using the specified method, then click the button below to notify the seller.
           </p>
           <button
+            onClick={handleMarkPaid}
             disabled={loading}
             className="w-full py-4 bg-tertiary text-on-tertiary font-headline font-bold uppercase tracking-widest text-sm rounded-sm active:scale-[0.98] transition-all disabled:opacity-50"
           >

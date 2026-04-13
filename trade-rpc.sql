@@ -81,8 +81,8 @@ BEGIN
   -- Lock trade row
   SELECT * INTO v_trade FROM p2p_trades WHERE id = p_trade_id FOR UPDATE;
   
-  IF NOT FOUND OR v_trade.status != 'pending' THEN
-    RETURN json_build_object('success', false, 'error', 'Trade not pendng or not found');
+  IF NOT FOUND OR (v_trade.status != 'pending' AND v_trade.status != 'paid') THEN
+    RETURN json_build_object('success', false, 'error', 'Trade not pending or paid, or not found');
   END IF;
 
   -- Only seller can release

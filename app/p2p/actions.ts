@@ -253,3 +253,28 @@ export async function getRecentSettlements(limit: number = 5) {
 
   return data ?? [];
 }
+
+// ─── Mark Trade as Paid (Buyer notifies Seller) ─────────────────────────
+export async function markTradePaidAction(tradeId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  // Update trade status to paid
+  // Verify user is actually the buyer
+  const { error } = await supabase
+    .from("p2p_trades")
+    .update({ status: 'paid' })
+    .eq('id', tradeId)
+    .eq('buyer_id', user.id);
+
+  if (error) {
+    console.error("markTradePaid error:", error.message);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
