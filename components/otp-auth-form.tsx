@@ -158,6 +158,7 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
               </button>
             </div>
             <p className="text-xs text-on-surface-variant">Code sent to <strong className="text-on-surface">{email}</strong></p>
+            <p className="text-[10px] text-on-surface-variant/60 mt-1">Check your inbox and spam folder. Code may take up to 60 seconds.</p>
             <div className="ghost-border bg-surface-container-lowest transition-all mt-2">
               <input
                 className="w-full border-none bg-transparent px-4 py-4 font-body tracking-[0.3em] font-mono text-center text-lg text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
@@ -177,6 +178,25 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
             disabled={loading}
           >
             {loading ? "Verifying..." : "Verify & Enter"}
+          </button>
+
+          <button
+            type="button"
+            onClick={async () => {
+              setErrorState(null);
+              const fd = new FormData();
+              fd.append("identifier", email);
+              const result = await sendOtpAction(fd);
+              if (result.success) {
+                setErrorState(null);
+                alert("New code sent! Check your email.");
+              } else {
+                setErrorState(result.error ?? "Failed to resend");
+              }
+            }}
+            className="w-full text-center text-xs text-primary hover:underline py-2"
+          >
+            Didn't receive the code? Resend
           </button>
         </form>
       )}

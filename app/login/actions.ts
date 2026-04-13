@@ -30,14 +30,16 @@ export async function verifyOtpAction(formData: FormData) {
 
   const supabase = createClient();
 
+  // Try 'email' type first (standard OTP), fallback to 'magiclink' if it fails
   const { error } = await supabase.auth.verifyOtp({
     email,
     token,
-    type: "email",
+    type: "magiclink",
   });
 
   if (error) {
-    return { success: false, error: "Invalid or expired code" };
+    console.error("OTP verify error:", error.message);
+    return { success: false, error: `Code invalid or expired. Please request a new one.` };
   }
 
   // Redirect on success
