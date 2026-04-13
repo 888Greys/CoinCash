@@ -7,7 +7,7 @@ import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from
 import { createClient } from "@/utils/supabase/server";
 import { getExtendedMarketData, generateSvgSparkline } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
-import { fetchCryptoNews } from "@/lib/rss-parser";
+import { fetchCryptoNews, fetchLearningFeed } from "@/lib/rss-parser";
 import { P2PExpressWidget } from "@/components/p2p-express-widget";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -22,12 +22,6 @@ const MARKET_CARD_META: Record<string, { logo: string; color: string; borderColo
 const gainers = [
   { symbol: "SOL", name: "Solana", icon: "bolt", logo: "/icons/sol.svg", iconColor: "text-primary", price: "114.24", change: "+12.4%" },
   { symbol: "AVAX", name: "Avalanche", icon: "hive", logo: "/icons/avax.svg", iconColor: "text-secondary", price: "38.91", change: "+8.7%" },
-];
-
-const academyLinks = [
-  { title: "What is Bitcoin Halving?", duration: "4 min read", level: "Beginner", icon: "school" },
-  { title: "Understanding Zero-Knowledge Proofs", duration: "8 min read", level: "Advanced", icon: "enhanced_encryption" },
-  { title: "How to use the Grid Trading Bot", duration: "6 min read", level: "Intermediate", icon: "smart_toy" },
 ];
 
 type WalletRow = { currency: string; balance: number };
@@ -50,9 +44,10 @@ export default async function HomePage() {
   let walletIds: string[] = [];
 
   // Fetch Global Non-Auth Data in Parallel
-  const [extendedMarket, liveNews, p2pRes] = await Promise.all([
+  const [extendedMarket, liveNews, learningFeed, p2pRes] = await Promise.all([
     getExtendedMarketData(),
     fetchCryptoNews(),
+    fetchLearningFeed(),
     supabase.from("p2p_orders").select("*").eq("type", "sell").eq("asset", "USDT").eq("fiat", "KES").eq("status", "active").order("price", { ascending: true }).limit(1).single()
   ]);
 
@@ -333,27 +328,56 @@ export default async function HomePage() {
           )}
         </section>
 
-        {/* CoinCash Academy */}
-        <section className="space-y-3 pb-24">
+        {/* Learn and Tutorials Feed */}
+        <section className="space-y-4 pb-24">
           <div className="flex justify-between items-center px-1">
             <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
-              CoinCash Academy
+              Learn and Tutorials
             </h2>
+            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">Updated live</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {academyLinks.map((lesson) => (
-              <div key={lesson.title} className="bg-surface-container-highest p-5 rounded-lg border border-transparent hover:border-primary/30 transition-colors group cursor-pointer relative overflow-hidden">
-                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <span className="material-symbols-outlined text-8xl text-on-surface">{lesson.icon}</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+            {learningFeed.slice(0, 3).map((lesson) => (
+              <a
+                href={lesson.link}
+                target={lesson.link.startsWith("/") ? undefined : "_blank"}
+                rel={lesson.link.startsWith("/") ? undefined : "noopener noreferrer"}
+                key={`${lesson.title}-${lesson.pubDate}`}
+                className="bg-surface-container-highest p-5 rounded-lg border border-outline-variant/10 hover:border-primary/30 transition-all duration-200 group cursor-pointer relative overflow-hidden hover:-translate-y-0.5"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                  <span className="material-symbols-outlined text-8xl text-on-surface">{lesson.format === "Video" ? "play_circle" : "article"}</span>
                 </div>
-                <span className="inline-block px-2 py-0.5 bg-surface-container-low border border-outline-variant/10 text-on-surface-variant text-[9px] font-bold uppercase tracking-widest rounded-sm mb-3">
-                  {lesson.level}
+                <div className="relative z-10 flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block px-2 py-0.5 bg-surface-container-low border border-outline-variant/10 text-on-surface-variant text-[9px] font-bold uppercase tracking-widest rounded-sm">
+                      {lesson.level}
+                    </span>
+                    <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-widest rounded-sm">
+                      {lesson.format}
+                    </span>
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-on-surface-variant">
+                    {new Date(lesson.pubDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <h3 className="relative z-10 font-headline font-bold text-[15px] leading-snug mb-3 pr-7 group-hover:text-primary transition-colors">
+                  {lesson.title}
+                </h3>
+                <div className="relative z-10 text-[10px] text-on-surface-variant flex items-center justify-between gap-2">
+                  <span className="inline-block px-2 py-0.5 bg-surface-container-low border border-outline-variant/10 text-on-surface-variant text-[9px] font-bold uppercase tracking-widest rounded-sm">
+                    {lesson.source}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">schedule</span>
+                    {lesson.duration}
+                  </span>
+                </div>
+                <span className="material-symbols-outlined text-sm absolute top-5 right-5 text-on-surface-variant group-hover:text-primary transition-colors">
+                  north_east
                 </span>
-                <h3 className="font-bold text-sm leading-snug mb-2 pr-4">{lesson.title}</h3>
-                <p className="text-[10px] text-on-surface-variant flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[12px]">schedule</span> {lesson.duration}
-                </p>
-              </div>
+              </a>
             ))}
           </div>
         </section>

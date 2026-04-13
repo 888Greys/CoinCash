@@ -18,6 +18,16 @@ export type NewsItem = {
   contentSnippet?: string;
 };
 
+export type TutorialItem = {
+  title: string;
+  link: string;
+  pubDate: string;
+  source: string;
+  level: "Beginner" | "Intermediate" | "Advanced";
+  format: "Video" | "Guide";
+  duration: string;
+};
+
 export async function fetchCryptoNews(): Promise<NewsItem[]> {
   try {
     // Coindesk RSS feed is reliable for crypto news
@@ -64,5 +74,103 @@ function fallbackNews(): NewsItem[] {
       source: "Regulation",
       image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCDabwGP1q41DhaMxlaazRAlkl-Gl8WHPVLIrSir5TczabYDC_MKeTofyCF9vpM3NKAV3EUG1eYqZKQQ8rhQtxHBhWwNFjP9kOzyCzEZs2M5yeDGlBwY_bnkvJSxCW-0-9UtYmTkeQcC5nm-rVZn26KC-jpBIyxYvmEEVXVbjL2PnBNx6ZnIB2yEkW_tnYw1fPQGaXKNvJS_a6gbPXq2NWm95z7aH-dYfn-2celsCMuLC9fK9a-XjSDKGTACqeawT3lgUUQUGqFvBk"
     }
+  ];
+}
+
+function estimateDuration(text: string): string {
+  const words = text.trim().split(/\s+/).length;
+  const mins = Math.max(3, Math.round(words / 180));
+  return `${mins} min ${mins <= 6 ? "read" : "watch"}`;
+}
+
+function inferLevel(title: string): TutorialItem["level"] {
+  const lower = title.toLowerCase();
+  if (lower.includes("advanced") || lower.includes("strategy") || lower.includes("derivatives")) return "Advanced";
+  if (lower.includes("guide") || lower.includes("trading") || lower.includes("analysis")) return "Intermediate";
+  return "Beginner";
+}
+
+function inferFormat(link: string, title: string): TutorialItem["format"] {
+  const merged = `${link} ${title}`.toLowerCase();
+  if (merged.includes("youtube") || merged.includes("youtu.be") || merged.includes("video")) return "Video";
+  return "Guide";
+}
+
+export async function fetchLearningFeed(): Promise<TutorialItem[]> {
+  const feeds = [
+    { url: "https://www.coindesk.com/arc/outboundfeeds/rss/", source: "CoinDesk Learn" },
+    { url: "https://cointelegraph.com/rss/tag/education", source: "Cointelegraph" },
+  ];
+
+  try {
+    const collected: TutorialItem[] = [];
+
+    for (const feedSource of feeds) {
+      try {
+        const feed = await parser.parseURL(feedSource.url);
+        const mapped = feed.items.slice(0, 4).map((item) => {
+          const title = item.title || "Crypto tutorial";
+          const snippet = item.contentSnippet || item.content || "";
+          const format = inferFormat(item.link || "", title);
+
+          return {
+            title,
+            link: item.link || "#",
+            pubDate: item.pubDate || new Date().toISOString(),
+            source: feedSource.source,
+            level: inferLevel(title),
+            format,
+            duration: estimateDuration(snippet || title),
+          } satisfies TutorialItem;
+        });
+
+        collected.push(...mapped);
+      } catch {
+        // Continue to next source if one feed is unavailable.
+      }
+    }
+
+    if (collected.length > 0) {
+      return collected
+        .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+        .slice(0, 6);
+    }
+
+    return fallbackLearningFeed();
+  } catch (error) {
+    console.error("Failed to fetch learning feed:", error);
+    return fallbackLearningFeed();
+  }
+}
+
+function fallbackLearningFeed(): TutorialItem[] {
+  return [
+    {
+      title: "How to Place Your First P2P Trade Safely",
+      link: "/p2p",
+      pubDate: new Date().toISOString(),
+      source: "CoinCash Guides",
+      level: "Beginner",
+      format: "Guide",
+      duration: "4 min read",
+    },
+    {
+      title: "Reading Market Structure Before Entering a Trade",
+      link: "/markets",
+      pubDate: new Date(Date.now() - 3600000).toISOString(),
+      source: "CoinCash Academy",
+      level: "Intermediate",
+      format: "Guide",
+      duration: "6 min read",
+    },
+    {
+      title: "Managing Risk with Funding and Spot Wallet Transfers",
+      link: "/assets",
+      pubDate: new Date(Date.now() - 7200000).toISOString(),
+      source: "CoinCash Academy",
+      level: "Advanced",
+      format: "Guide",
+      duration: "5 min read",
+    },
   ];
 }
