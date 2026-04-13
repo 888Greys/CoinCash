@@ -15,6 +15,11 @@ const MARKET_CARD_META: Record<string, { logo: string; color: string; borderColo
   BTC:  { logo: "/icons/btc.svg",  color: "text-primary",   borderColor: "border-primary/40" },
   ETH:  { logo: "/icons/eth.svg",  color: "text-secondary", borderColor: "border-secondary/40" },
   BNB:  { logo: "/icons/bnb.svg",  color: "text-[#f3ba2f]", borderColor: "border-[#f3ba2f]/40" },
+  SOL:  { logo: "/icons/sol.svg",  color: "text-primary",   borderColor: "border-primary/40" },
+  AVAX: { logo: "/icons/avax.svg", color: "text-secondary", borderColor: "border-secondary/40" },
+  LINK: { logo: "/icons/link.svg", color: "text-secondary", borderColor: "border-secondary/40" },
+  USDT: { logo: "/icons/usdt.svg", color: "text-primary",   borderColor: "border-primary/40" },
+  USDC: { logo: "/icons/usdc.svg", color: "text-secondary", borderColor: "border-secondary/40" },
 };
 
 // Removed static newsItems
@@ -96,11 +101,9 @@ export default async function HomePage() {
   
   const bestP2POrder = p2pRes.data;
 
-  // Build featured market cards from live extended data (BTC, ETH, BNB only)
-  const FEATURED = ["BTC", "ETH", "BNB"];
+  // Build ticker cards from top live market data.
   const dynamicMarketCards = extendedMarket
-    .filter(a => FEATURED.includes(a.symbol.toUpperCase()))
-    .sort((a, b) => FEATURED.indexOf(a.symbol.toUpperCase()) - FEATURED.indexOf(b.symbol.toUpperCase()))
+    .slice(0, 10)
     .map(asset => {
       const symbol = asset.symbol.toUpperCase();
       const meta = MARKET_CARD_META[symbol] ?? { logo: "", color: "text-primary", borderColor: "border-primary/40" };
@@ -108,6 +111,7 @@ export default async function HomePage() {
       return {
         symbol,
         logo: meta.logo,
+        hasLogo: Boolean(meta.logo),
         color: meta.color,
         borderColor: meta.borderColor,
         price: asset.current_price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 }),
@@ -210,7 +214,13 @@ export default async function HomePage() {
                   {dynamicMarketCards.map((card) => (
                     <div key={`${card.symbol}-${loop}`} className={`w-[140px] shrink-0 bg-surface-container-low p-4 rounded-lg border-b-2 ${card.borderColor}`}>
                       <div className="flex items-center gap-2 mb-3">
-                        <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
+                        {card.hasLogo ? (
+                          <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
+                        ) : (
+                          <div className="h-5 w-5 rounded-full bg-surface-container-high flex items-center justify-center text-[9px] font-bold">
+                            {card.symbol.slice(0, 2)}
+                          </div>
+                        )}
                         <span className="font-headline font-bold text-sm">{card.symbol}</span>
                       </div>
                       <div className="space-y-1">
