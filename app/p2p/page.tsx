@@ -66,7 +66,11 @@ export default async function P2PPage({ searchParams }: Props) {
   const toast = searchParams.myAdToast;
 
   // Fetch live orders
-  const orders = await getActiveOrders(adTypeToFetch, currentAsset, currentFiat);
+  const filteredOrders = await getActiveOrders(adTypeToFetch, currentAsset, currentFiat);
+  const shouldFallbackToAll = filteredOrders.length === 0 && (currentAsset !== "ALL" || currentFiat !== "ALL");
+  const orders = shouldFallbackToAll
+    ? await getActiveOrders(adTypeToFetch, "ALL", "ALL")
+    : filteredOrders;
 
   // Fetch recent settlements
   const settlements = await getRecentSettlements(5);
@@ -281,10 +285,16 @@ export default async function P2PPage({ searchParams }: Props) {
         </section>
 
         {/* Merchant Cards Grid */}
+        {shouldFallbackToAll && orders.length > 0 && (
+          <div className="mb-4 rounded-sm border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
+            No offers were found for {currentAsset}/{currentFiat}. Showing all available offers instead.
+          </div>
+        )}
+
         {orders.length === 0 ? (
           <EmptyState
             title="No active orders yet"
-            description="Be the first merchant to post an ad and start matching with verified peers."
+            description={`No ${adTypeToFetch.toUpperCase()} ads found for ${currentAsset}/${currentFiat}. Try switching asset or fiat to ALL.`}
             icon="storefront"
             actionLabel="Post an Ad"
             actionHref="/p2p/post-ad"

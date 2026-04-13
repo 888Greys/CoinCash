@@ -22,7 +22,7 @@ export type P2POrderWithProfile = {
   profiles: {
     username: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 };
 
 export type TradeWithDetails = {
@@ -55,10 +55,7 @@ export async function getActiveOrders(
 
   let query = supabase
     .from("p2p_orders")
-    .select(`
-      *,
-      profiles:user_id ( username, avatar_url )
-    `)
+    .select("*")
     .eq("status", "active")
     .eq("type", type)
     .order("price", { ascending: type === "sell" })
@@ -79,7 +76,35 @@ export async function getActiveOrders(
     return [];
   }
 
-  return (data ?? []) as P2POrderWithProfile[];
+  const orders = (data ?? []) as Array<Omit<P2POrderWithProfile, "profiles">>;
+
+  // Keep order book visible even if profile read policy is restricted.
+  const userIds = Array.from(new Set(orders.map((o) => o.user_id).filter(Boolean)));
+  if (userIds.length === 0) {
+    return orders.map((o) => ({ ...o, profiles: null }));
+  }
+
+  const { data: profileRows, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, username, avatar_url")
+    .in("id", userIds);
+
+  if (profileError) {
+    console.warn("getActiveOrders profile lookup warning:", profileError.message);
+    return orders.map((o) => ({ ...o, profiles: null }));
+  }
+
+  const profileMap = new Map(
+    (profileRows ?? []).map((p) => [
+      p.id,
+      { username: p.username ?? null, avatar_url: p.avatar_url ?? null },
+    ])
+  );
+
+  return orders.map((o) => ({
+    ...o,
+    profiles: profileMap.get(o.user_id) ?? null,
+  }));
 }
 
 // ─── Get Single Order ────────────────────────────────────────────────────
