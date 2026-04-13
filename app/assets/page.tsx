@@ -308,7 +308,7 @@ export default async function AssetsPage() {
             <div className="relative z-10 p-6 flex flex-col justify-center h-full">
               <p className="font-headline text-lg font-bold leading-tight">Master the Volatility</p>
               <p className="font-body text-xs text-on-surface-variant mt-2 max-w-xs">
-                Leverage our high-speed execution engine for futures and margin trading.
+                Access advanced charting tools and margin trading to navigate fast-moving markets with confidence.
               </p>
               <Link
                 className="mt-4 text-primary font-label text-[10px] font-bold tracking-widest uppercase flex items-center gap-1"

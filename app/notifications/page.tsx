@@ -223,10 +223,10 @@ export default async function NotificationsPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3">
           <div>
             <h1 className="font-headline text-2xl font-bold tracking-tight uppercase leading-none mb-1">
-              System Logs
+              Activity Center
             </h1>
             <p className="font-label text-on-surface-variant text-[10px] uppercase tracking-[0.1em] font-medium">
-              Real-time terminal protocol monitor
+              Real-time activity logs
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -243,7 +243,7 @@ export default async function NotificationsPage() {
         {/* Filter Tabs */}
         <div className="flex gap-1 mb-6 overflow-x-auto pb-1 no-scrollbar border-b border-outline-variant/10">
           <button className="text-primary border-b-2 border-primary px-4 py-2 font-label text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
-            All Logs
+            All Activity
           </button>
           <button className="text-on-surface-variant hover:text-on-surface px-4 py-2 font-label text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors">
             Trades
@@ -253,11 +253,11 @@ export default async function NotificationsPage() {
           </button>
         </div>
 
-        {/* Log Feed */}
+        {/* Activity Feed */}
         {allNotifications.length === 0 ? (
           <div className="bg-surface-container-low p-12 text-center border border-outline-variant/10 rounded-sm">
             <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 mb-4 block">notifications_off</span>
-            <p className="text-sm text-on-surface-variant">No activity yet. Start trading to see your logs here.</p>
+            <p className="text-sm text-on-surface-variant">No activity yet. Start trading to see updates here.</p>
           </div>
         ) : (
           <div className="space-y-[1px] bg-outline-variant/10 rounded-sm overflow-hidden border border-outline-variant/10">
@@ -295,20 +295,20 @@ export default async function NotificationsPage() {
           </div>
         )}
 
-        {/* Terminal Status Footer */}
+        {/* System Status Footer */}
         <div className="mt-8 mb-8 p-3 bg-surface-container-lowest border border-outline-variant/10 rounded-sm flex items-center justify-between font-body text-[9px] uppercase tracking-wider text-on-surface-variant">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-              <span>SYSTEM_STABLE</span>
+              <span>System healthy</span>
             </div>
             <div className="hidden sm:flex items-center gap-4 border-l border-outline-variant/10 pl-4">
-              <span>PING: 14MS</span>
-              <span>BUFFER: 0.002MS</span>
+              <span>Latency: 14 ms</span>
+              <span>Sync delay: 0.002 ms</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline">NODE: FRA-MAIN-01</span>
+            <span className="hidden sm:inline">Region: Frankfurt</span>
             <span className="text-on-surface font-bold">LIVE</span>
           </div>
         </div>
