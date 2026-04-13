@@ -146,7 +146,10 @@ export async function createOrder(formData: FormData) {
     return { success: false, error: error.message };
   }
 
-  redirect("/p2p");
+  // Marketplace shows opposite-side ads (buyers see sell offers, sellers see buy offers).
+  // Redirect to the tab where the newly created ad will actually be listed.
+  const visibleTab = type === "buy" ? "sell" : "buy";
+  redirect(`/p2p?tab=${visibleTab}&asset=${encodeURIComponent(asset)}&fiat=${encodeURIComponent(fiat)}`);
 }
 
 // ─── Take an Order (Initiates Trade + Escrow Lock) ───────────────────────
