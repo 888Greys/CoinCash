@@ -29,6 +29,19 @@ type Props = {
   searchParams: { tab?: string; asset?: string; fiat?: string };
 };
 
+type MyAdRow = {
+  id: string;
+  type: "buy" | "sell";
+  asset: string;
+  fiat: string;
+  price: number;
+  total_amount: number;
+  min_limit: number;
+  max_limit: number;
+  status: string;
+  created_at: string;
+};
+
 export default async function P2PPage({ searchParams }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -56,6 +69,20 @@ export default async function P2PPage({ searchParams }: Props) {
 
   // Fetch recent settlements
   const settlements = await getRecentSettlements(5);
+  let myAds: MyAdRow[] = [];
+
+  if (user) {
+    const { data: ownOrders } = await supabase
+      .from("p2p_orders")
+      .select("id, type, asset, fiat, price, total_amount, min_limit, max_limit, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(6);
+
+    if (ownOrders) {
+      myAds = ownOrders as MyAdRow[];
+    }
+  }
 
   const formattedSettlements = settlements.map((s: any, i: number) => ({
     text: `${s.p2p_orders?.type === "buy" ? "BUY" : "SELL"} ${Number(s.asset_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} ${s.p2p_orders?.asset ?? "USDT"}`,
@@ -149,6 +176,77 @@ export default async function P2PPage({ searchParams }: Props) {
             SEARCH
           </button>
         </form>
+
+        {/* My Ads */}
+        <section className="mb-8 space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
+              My Ads
+            </h2>
+            <Link href="/p2p/post-ad" className="text-primary text-xs uppercase tracking-tighter font-bold">
+              Post New Ad
+            </Link>
+          </div>
+
+          {!user ? (
+            <EmptyState
+              title="Sign in to manage ads"
+              description="Your posted buy and sell ads will appear here for quick access."
+              icon="badge"
+              actionLabel="Go to Login"
+              actionHref="/login"
+            />
+          ) : myAds.length === 0 ? (
+            <EmptyState
+              title="No ads posted yet"
+              description="Create your first buy or sell ad to start matching with peers."
+              icon="post_add"
+              actionLabel="Post an Ad"
+              actionHref="/p2p/post-ad"
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {myAds.map((ad) => {
+                const oppositeTab = ad.type === "buy" ? "sell" : "buy";
+                return (
+                  <div key={ad.id} className="bg-surface-container-low border border-outline-variant/10 p-4 rounded-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-sm ${ad.type === "buy" ? "bg-secondary/10 text-secondary" : "bg-primary/10 text-primary"}`}>
+                        {ad.type} ad
+                      </span>
+                      <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-sm ${ad.status === "active" ? "bg-primary/10 text-primary" : "bg-surface-container-highest text-on-surface-variant"}`}>
+                        {ad.status}
+                      </span>
+                    </div>
+
+                    <p className="font-headline text-lg font-black mb-1">
+                      {ad.price.toFixed(3)} <span className="text-xs font-medium text-on-surface-variant">{ad.fiat}</span>
+                    </p>
+                    <p className="text-xs text-on-surface-variant mb-3">
+                      {Number(ad.total_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} {ad.asset} available
+                    </p>
+
+                    <div className="text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">
+                      Limit: {ad.min_limit.toLocaleString()} - {ad.max_limit.toLocaleString()} {ad.fiat}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-on-surface-variant">
+                        Visible in <span className="text-on-surface font-semibold">{oppositeTab === "buy" ? "Buy" : "Sell"}</span> tab
+                      </span>
+                      <Link
+                        href={`/p2p?tab=${oppositeTab}&asset=${encodeURIComponent(ad.asset)}&fiat=${encodeURIComponent(ad.fiat)}`}
+                        className="text-primary text-[10px] font-bold uppercase tracking-widest"
+                      >
+                        Open
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {/* Merchant Cards Grid */}
         {orders.length === 0 ? (
