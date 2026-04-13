@@ -1,86 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
-
-type Merchant = {
-  name: string;
-  verified: boolean;
-  online: boolean;
-  trustScore: string;
-  price: string;
-  speed: string;
-  available: string;
-  limit: string;
-  methods: string[];
-};
-
-const merchants: Merchant[] = [
-  {
-    name: "KINETIC_ALPHA",
-    verified: true,
-    online: true,
-    trustScore: "100% (2.4k)",
-    price: "1.041",
-    speed: "~1.2 MIN",
-    available: "85,240.00 USDT",
-    limit: "$500 - $15,000",
-    methods: ["Zelle", "Wise"],
-  },
-  {
-    name: "CRYPTO_BEAST_99",
-    verified: false,
-    online: true,
-    trustScore: "98.2% (1.1k)",
-    price: "1.042",
-    speed: "~3.5 MIN",
-    available: "12,000.00 USDT",
-    limit: "$100 - $5,000",
-    methods: ["Bank Transfer"],
-  },
-  {
-    name: "ZEN_EXCHANGE",
-    verified: true,
-    online: false,
-    trustScore: "99.8% (5.8k)",
-    price: "1.045",
-    speed: "~0.8 MIN",
-    available: "450,112.00 USDT",
-    limit: "$1,000 - $100,000",
-    methods: ["Swift", "Sepa"],
-  },
-  {
-    name: "GLOBAL_LINK",
-    verified: false,
-    online: true,
-    trustScore: "97.4% (890)",
-    price: "1.047",
-    speed: "~2.1 MIN",
-    available: "5,400.00 USDT",
-    limit: "$50 - $2,000",
-    methods: ["Revolut"],
-  },
-  {
-    name: "ORBIT_P2P",
-    verified: true,
-    online: true,
-    trustScore: "99.1% (3.4k)",
-    price: "1.048",
-    speed: "~1.5 MIN",
-    available: "102,400.00 USDT",
-    limit: "$1,000 - $15,000",
-    methods: ["Wire", "Cash"],
-  },
-  {
-    name: "NOMAD_TRADES",
-    verified: false,
-    online: false,
-    trustScore: "96.8% (420)",
-    price: "1.049",
-    speed: "~5.0 MIN",
-    available: "3,500.00 USDT",
-    limit: "$20 - $500",
-    methods: ["AirTM"],
-  },
-];
+import { createClient } from "@/utils/supabase/server";
+import { getActiveOrders, getRecentSettlements, type P2POrderWithProfile } from "./actions";
 
 const stats = [
   { label: "24h Vol (USDT)", value: "1.48M", color: "" },
@@ -89,15 +10,52 @@ const stats = [
   { label: "Trust Score Avg.", value: "98.4%", color: "" },
 ];
 
-const settlements = [
-  { text: "BUY 2,400.00 USDT", actor: "KINETIC_ALPHA", time: "Just Now", active: true },
-  { text: "SELL 15,000.00 USDT", actor: "ZEN_EXCHANGE", time: "2m ago", active: false },
-  { text: "BUY 500.00 USDT", actor: "ORBIT_P2P", time: "4m ago", active: false },
-];
+function timeAgo(dateStr: string) {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diffMin = Math.floor((now - then) / 60000);
+  if (diffMin < 1) return "Just Now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `${diffH}h ago`;
+  return `${Math.floor(diffH / 24)}d ago`;
+}
 
-export default function P2PPage() {
+export default async function P2PPage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Fetch profile for nav
+  let profile = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", user.id)
+      .single();
+    profile = data;
+  }
+
+  // Fetch live orders (default: sell orders for buyers to see)
+  const orders = await getActiveOrders("sell", "USDT", "USD");
+
+  // Fetch recent settlements
+  const settlements = await getRecentSettlements(5);
+
+  const formattedSettlements = settlements.map((s: any, i: number) => ({
+    text: `${s.p2p_orders?.type === "buy" ? "BUY" : "SELL"} ${Number(s.asset_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} ${s.p2p_orders?.asset ?? "USDT"}`,
+    actor: s.buyer?.username || s.seller?.username || "Unknown",
+    time: timeAgo(s.created_at),
+    active: i === 0,
+  }));
+
+  // Fallback if no settlements yet
+  const displaySettlements = formattedSettlements.length > 0 ? formattedSettlements : [
+    { text: "No settlements yet", actor: "—", time: "—", active: false },
+  ];
+
   return (
-    <AppShell currentPath="/p2p">
+    <AppShell currentPath="/p2p" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 md:px-8 pt-6 max-w-7xl mx-auto">
         {/* Sub-Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -164,71 +122,86 @@ export default function P2PPage() {
         </div>
 
         {/* Merchant Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {merchants.map((m) => (
-            <div key={m.name} className="bg-surface-container-low p-4 group hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
-              {/* Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 ${m.online ? "bg-primary shadow-[0_0_8px_rgba(92,253,128,0.5)]" : "bg-on-surface-variant"} rounded-full`} />
-                  <h3 className="font-label text-sm font-bold tracking-tight">{m.name}</h3>
-                  {m.verified && (
-                    <span className="material-symbols-outlined text-primary text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      verified
-                    </span>
-                  )}
-                </div>
-                <div className="text-right">
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Trust Score</span>
-                  <span className="block font-headline text-xs font-bold text-primary">{m.trustScore}</span>
-                </div>
-              </div>
+        {orders.length === 0 ? (
+          <div className="bg-surface-container-low p-12 text-center space-y-4 mb-8">
+            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">storefront</span>
+            <p className="text-sm text-on-surface-variant">No active orders yet. Be the first to post an ad!</p>
+            <Link
+              href="/p2p/post-ad"
+              className="inline-block mt-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-label text-xs font-bold uppercase tracking-widest rounded-sm"
+            >
+              Post an Ad
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {orders.map((order) => {
+              const username = order.profiles?.username ?? "Unknown";
+              const isOnline = true; // Could be determined by last_seen
+              const verified = true; // Could be a profile field
 
-              {/* Price / Speed */}
-              <div className="flex items-center justify-between mb-4 border-b border-outline-variant/5 pb-4">
-                <div>
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Price</span>
-                  <span className="block font-headline text-2xl font-black">
-                    {m.price} <span className="text-xs font-normal text-on-surface-variant">USD</span>
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Speed</span>
-                  <span className="block font-label text-xs font-bold">{m.speed}</span>
-                </div>
-              </div>
+              return (
+                <div key={order.id} className="bg-surface-container-low p-4 group hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 ${isOnline ? "bg-primary shadow-[0_0_8px_rgba(92,253,128,0.5)]" : "bg-on-surface-variant"} rounded-full`} />
+                      <h3 className="font-label text-sm font-bold tracking-tight">{username.toUpperCase()}</h3>
+                      {verified && (
+                        <span className="material-symbols-outlined text-primary text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          verified
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Available / Limit */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <span className="block font-label text-[9px] text-on-surface-variant uppercase tracking-tighter">Available</span>
-                  <span className="block font-headline text-sm font-medium">{m.available}</span>
-                </div>
-                <div className="text-right">
-                  <span className="block font-label text-[9px] text-on-surface-variant uppercase tracking-tighter">Limit</span>
-                  <span className="block font-headline text-sm font-medium">{m.limit}</span>
-                </div>
-              </div>
+                  {/* Price / Available */}
+                  <div className="flex items-center justify-between mb-4 border-b border-outline-variant/5 pb-4">
+                    <div>
+                      <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Price</span>
+                      <span className="block font-headline text-2xl font-black">
+                        {order.price.toFixed(3)} <span className="text-xs font-normal text-on-surface-variant">{order.fiat}</span>
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Methods + Action */}
-              <div className="flex items-center gap-2">
-                <div className="flex-grow flex gap-1 overflow-hidden">
-                  {m.methods.map((method) => (
-                    <span key={method} className="px-2 py-1 bg-surface-container-highest text-[9px] font-bold uppercase text-on-surface-variant">
-                      {method}
-                    </span>
-                  ))}
+                  {/* Available / Limit */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <span className="block font-label text-[9px] text-on-surface-variant uppercase tracking-tighter">Available</span>
+                      <span className="block font-headline text-sm font-medium">
+                        {order.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {order.asset}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block font-label text-[9px] text-on-surface-variant uppercase tracking-tighter">Limit</span>
+                      <span className="block font-headline text-sm font-medium">
+                        ${order.min_limit.toLocaleString()} - ${order.max_limit.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Methods + Action */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-grow flex gap-1 overflow-hidden">
+                      {order.payment_method.split(",").map((method) => (
+                        <span key={method} className="px-2 py-1 bg-surface-container-highest text-[9px] font-bold uppercase text-on-surface-variant">
+                          {method.trim()}
+                        </span>
+                      ))}
+                    </div>
+                    <Link
+                      className="bg-gradient-to-br from-primary to-primary-container px-6 py-2 text-on-primary-container font-label text-xs font-black uppercase tracking-widest rounded-sm active:scale-95 transition-transform"
+                      href={`/p2p/buy?order=${order.id}&merchant=${encodeURIComponent(username)}&price=${order.price}&asset=${order.asset}&fiat=${order.fiat}&available=${order.total_amount}&min=${order.min_limit}&max=${order.max_limit}&method=${encodeURIComponent(order.payment_method)}`}
+                    >
+                      Buy {order.asset}
+                    </Link>
+                  </div>
                 </div>
-                <Link
-                  className="bg-gradient-to-br from-primary to-primary-container px-6 py-2 text-on-primary-container font-label text-xs font-black uppercase tracking-widest rounded-sm active:scale-95 transition-transform"
-                  href="/p2p/buy"
-                >
-                  Buy USDT
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Bottom Panels */}
         <div className="mt-8 flex flex-col md:flex-row gap-4 mb-8">
@@ -239,7 +212,7 @@ export default function P2PPage() {
               Settlement Activity
             </h4>
             <div className="space-y-3">
-              {settlements.map((s, i) => (
+              {displaySettlements.map((s, i) => (
                 <div
                   key={i}
                   className={`flex justify-between items-center text-[11px] font-label border-l-2 pl-3 py-1 ${
@@ -259,7 +232,7 @@ export default function P2PPage() {
           <div className="w-full md:w-80 bg-surface-container-low p-6 relative overflow-hidden">
             <h4 className="font-headline text-sm font-bold uppercase tracking-widest mb-4">Security Advisory</h4>
             <p className="text-[11px] font-label text-on-surface-variant leading-relaxed mb-4">
-              KINETIC handles all escrow settlements. Never release assets until you have verified the receipt of funds
+              CoinCash handles all escrow settlements. Never release assets until you have verified the receipt of funds
               in your account. Support will NEVER ask for your password or OTP.
             </p>
             <Link

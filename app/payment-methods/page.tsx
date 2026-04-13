@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { createClient } from "@/utils/supabase/server";
 
 const paymentMethods = [
   {
@@ -25,9 +26,18 @@ const paymentMethods = [
   },
 ];
 
-export default function PaymentMethodsPage() {
+export default async function PaymentMethodsPage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let profile: { username: string | null; avatar_url: string | null } | null = null;
+  if (user) {
+    const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
+    profile = data;
+  }
+  const displayName = profile?.username?.toUpperCase() || user?.email?.split("@")[0]?.toUpperCase() || "USER";
+
   return (
-    <AppShell currentPath="/payment-methods">
+    <AppShell currentPath="/payment-methods" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-6 max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <section className="space-y-2">
@@ -124,7 +134,7 @@ export default function PaymentMethodsPage() {
           <span className="material-symbols-outlined text-error text-xl">info</span>
           <p className="text-[11px] text-on-error-container leading-tight">
             For security reasons, you cannot change the Account Name. All payment methods must match your KYC verified
-            name <span className="font-bold underline">JAMES OMINO</span>. Unauthorized account linkage will lead to
+            name <span className="font-bold underline">{displayName}</span>. Unauthorized account linkage will lead to
             permanent suspension.
           </p>
         </div>

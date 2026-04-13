@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { createClient } from "@/utils/supabase/server";
 
 type LogItem = {
   tag: string;
@@ -62,9 +63,16 @@ const logs: LogItem[] = [
   },
 ];
 
-export default function NotificationsPage() {
+export default async function NotificationsPage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let profile = null;
+  if (user) {
+    const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
+    profile = data;
+  }
   return (
-    <AppShell currentPath="/notifications">
+    <AppShell currentPath="/notifications" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-6 max-w-5xl mx-auto">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3">

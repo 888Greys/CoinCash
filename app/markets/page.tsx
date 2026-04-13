@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { getMockData, MarketRow } from "@/lib/mock-api";
+import { createClient } from "@/utils/supabase/server";
 
 const sparklines = {
   btcDown: "M0,15 L10,18 L20,12 L30,22 L40,15 L50,18 L60,10 L70,12 L80,15",
@@ -110,10 +111,18 @@ const spotlightCards = [
 ];
 
 export default async function MarketsPage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let profile = null;
+  if (user) {
+    const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
+    profile = data;
+  }
+
   const asyncMarketData = await getMockData<MarketRow[]>("markets", 1500);
 
   return (
-    <AppShell currentPath="/markets">
+    <AppShell currentPath="/markets" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 md:px-8 pt-6 max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">

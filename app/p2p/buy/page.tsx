@@ -1,18 +1,68 @@
+"use client";
+
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { useRouter, useSearchParams } from "next/navigation";
+import { takeOrder } from "../actions";
 
 export default function BuyPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // These would ideally come from a server fetch, but for now we use search params
+  // with the expectation that the linking page embeds key data
+  const orderId = searchParams.get("order");
+  const merchantName = searchParams.get("merchant") || "Merchant";
+  const orderPrice = Number(searchParams.get("price") || "1.041");
+  const orderAsset = searchParams.get("asset") || "USDT";
+  const orderFiat = searchParams.get("fiat") || "USD";
+  const available = searchParams.get("available") || "0";
+  const minLimit = searchParams.get("min") || "100";
+  const maxLimit = searchParams.get("max") || "2,500";
+  const paymentMethod = searchParams.get("method") || "Bank Transfer";
+
+  const [payAmount, setPayAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const receiveAmount = payAmount ? (Number(payAmount) / orderPrice).toFixed(2) : "";
+
+  const handleBuy = async () => {
+    if (!orderId || !receiveAmount) return;
+    setLoading(true);
+    setError(null);
+
+    const result = await takeOrder(orderId, Number(receiveAmount));
+
+    if (!result.success) {
+      setError(result.error ?? "Trade failed");
+      setLoading(false);
+      return;
+    }
+
+    // Redirect to trade order page
+    router.push(`/p2p/order/${result.tradeId}`);
+  };
+
   return (
     <AppShell currentPath="/p2p">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Transaction Breadcrumb */}
         <div className="flex items-center gap-2 text-on-surface-variant mb-2">
-          <span className="material-symbols-outlined text-sm">arrow_back</span>
+          <button onClick={() => router.back()}>
+            <span className="material-symbols-outlined text-sm hover:text-primary transition-colors">arrow_back</span>
+          </button>
           <span className="font-label text-xs uppercase tracking-[0.1em]">
-            P2P Markets / USDT Buy
+            P2P Markets / {orderAsset} Buy
           </span>
         </div>
 
-        {/* Kinetic Monolith Layout */}
+        {error && (
+          <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-12 gap-1">
           {/* LEFT COLUMN: Merchant & Status */}
           <div className="md:col-span-4 bg-surface-container-low p-6 flex flex-col justify-between">
@@ -24,7 +74,7 @@ export default function BuyPage() {
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold tracking-tight text-on-surface">Kinetic_Alpha</h2>
+                  <h2 className="text-lg font-bold tracking-tight text-on-surface">{merchantName}</h2>
                   <div className="flex items-center gap-2">
                     <span className="bg-primary/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
                       Verified Merchant
@@ -36,33 +86,15 @@ export default function BuyPage() {
               <div className="space-y-6">
                 <div className="space-y-1">
                   <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    Merchant Statistics
-                  </p>
-                  <div className="flex justify-between items-end border-b border-outline-variant/10 pb-2">
-                    <span className="text-xs text-on-surface/80">Completion Rate</span>
-                    <span className="text-sm font-bold text-primary">99.8%</span>
-                  </div>
-                  <div className="flex justify-between items-end border-b border-outline-variant/10 pb-2">
-                    <span className="text-xs text-on-surface/80">Avg. Release</span>
-                    <span className="text-sm font-bold text-on-surface">1.42 min</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
                     Trade Conditions
                   </p>
                   <div className="flex items-center gap-2 text-xs py-1">
-                    <span className="material-symbols-outlined text-[14px] text-primary">
-                      check_circle
-                    </span>
+                    <span className="material-symbols-outlined text-[14px] text-primary">check_circle</span>
                     <span>No 3rd party payments</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs py-1">
-                    <span className="material-symbols-outlined text-[14px] text-primary">
-                      check_circle
-                    </span>
-                    <span>Zelle Instant only</span>
+                    <span className="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+                    <span>{paymentMethod} only</span>
                   </div>
                 </div>
               </div>
@@ -70,7 +102,7 @@ export default function BuyPage() {
 
             <div className="mt-8 pt-8 border-t border-outline-variant/10">
               <p className="text-[10px] leading-relaxed text-on-surface-variant uppercase tracking-tighter">
-                Encrypted Trade Terminal<br />Session: TRD-992-ALPHA
+                Encrypted Trade Terminal<br />Order: {orderId?.slice(0, 8) ?? "—"}
               </p>
             </div>
           </div>
@@ -84,15 +116,17 @@ export default function BuyPage() {
                   Exchange Rate
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-headline font-bold text-primary">1.041</span>
-                  <span className="text-sm text-on-surface-variant uppercase font-medium">USD / USDT</span>
+                  <span className="text-3xl font-headline font-bold text-primary">{orderPrice.toFixed(3)}</span>
+                  <span className="text-sm text-on-surface-variant uppercase font-medium">{orderFiat} / {orderAsset}</span>
                 </div>
               </div>
               <div className="text-right">
                 <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
                   Available Liquidity
                 </p>
-                <p className="text-lg font-medium text-on-surface">4,520.00 USDT</p>
+                <p className="text-lg font-medium text-on-surface">
+                  {Number(available).toLocaleString("en-US", { minimumFractionDigits: 2 })} {orderAsset}
+                </p>
               </div>
             </div>
 
@@ -104,19 +138,26 @@ export default function BuyPage() {
                   <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
                     I want to pay
                   </label>
-                  <span className="text-[10px] text-on-surface-variant">Min: 100.00 / Max: 2,500.00</span>
+                  <span className="text-[10px] text-on-surface-variant">Min: {minLimit} / Max: {maxLimit}</span>
                 </div>
                 <div className="relative flex items-center bg-surface-container-lowest border border-outline-variant/15 focus-within:border-primary/40 transition-all px-4 py-4">
                   <input
                     className="bg-transparent border-none focus:ring-0 text-2xl font-bold w-full text-on-surface placeholder:text-on-surface-variant/30"
                     placeholder="0.00"
                     type="number"
+                    value={payAmount}
+                    onChange={(e) => setPayAmount(e.target.value)}
+                    disabled={loading}
                   />
                   <div className="flex items-center gap-3 pl-4 border-l border-outline-variant/15">
-                    <span className="font-bold text-sm tracking-widest">USD</span>
-                    <div className="bg-surface-bright px-2 py-1 text-[10px] font-bold text-primary cursor-pointer hover:bg-primary hover:text-on-primary transition-colors">
+                    <span className="font-bold text-sm tracking-widest">{orderFiat}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPayAmount(maxLimit.replace(/,/g, ""))}
+                      className="bg-surface-bright px-2 py-1 text-[10px] font-bold text-primary cursor-pointer hover:bg-primary hover:text-on-primary transition-colors"
+                    >
                       MAX
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -131,10 +172,11 @@ export default function BuyPage() {
                     className="bg-transparent border-none focus:ring-0 text-2xl font-bold w-full text-on-surface-variant"
                     placeholder="0.00"
                     readOnly
-                    type="number"
+                    type="text"
+                    value={receiveAmount}
                   />
                   <div className="flex items-center gap-3 pl-4 border-l border-outline-variant/15">
-                    <span className="font-bold text-sm tracking-widest">USDT</span>
+                    <span className="font-bold text-sm tracking-widest">{orderAsset}</span>
                     <span className="material-symbols-outlined text-on-surface-variant">
                       currency_exchange
                     </span>
@@ -142,18 +184,18 @@ export default function BuyPage() {
                 </div>
               </div>
 
-              {/* Payment Method Select */}
+              {/* Payment Method */}
               <div className="space-y-2">
                 <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
                   Payment Method
                 </label>
                 <div className="bg-surface-container-low p-4 flex items-center justify-between border border-primary/20">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-[#6b21a8]/20 flex items-center justify-center rounded-sm">
-                      <span className="text-xs font-black italic text-[#a855f7]">Zelle</span>
+                    <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-sm">
+                      <span className="material-symbols-outlined text-primary">account_balance</span>
                     </div>
                     <div>
-                      <p className="text-sm font-bold uppercase tracking-wider">Zelle Instant Transfer</p>
+                      <p className="text-sm font-bold uppercase tracking-wider">{paymentMethod}</p>
                       <p className="text-[10px] text-on-surface-variant uppercase">0.00 Fee • Immediate Settlement</p>
                     </div>
                   </div>
@@ -162,8 +204,12 @@ export default function BuyPage() {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg uppercase tracking-[0.2em] shadow-[0_8px_30px_rgba(2,201,83,0.15)] active:scale-[0.98] transition-all">
-                BUY USDT
+              <button
+                onClick={handleBuy}
+                disabled={loading || !payAmount || !orderId}
+                className="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg uppercase tracking-[0.2em] shadow-[0_8px_30px_rgba(2,201,83,0.15)] active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {loading ? "Processing..." : `BUY ${orderAsset}`}
               </button>
               <div className="flex items-center justify-center gap-2 text-[10px] text-on-surface-variant uppercase font-medium tracking-widest">
                 <span className="material-symbols-outlined text-sm">lock</span>
@@ -173,7 +219,7 @@ export default function BuyPage() {
           </div>
         </div>
 
-        {/* Terms & Details (Bento Sub-Section) */}
+        {/* Terms & Details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
           <div className="bg-surface-container-low p-6">
             <h3 className="font-label text-[10px] uppercase tracking-widest text-primary mb-4">Merchant Terms</h3>
@@ -200,20 +246,13 @@ export default function BuyPage() {
               </ul>
             </div>
           </div>
-          <div className="bg-surface-container-low overflow-hidden relative group">
-            <img
-              alt="Security Data"
-              className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale group-hover:grayscale-0 transition-all duration-700"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDn-le0guEQNoyvc1UNYzuFKMydef1VaNUmy-irjpsgxk73Vn2yvgM0_u5BvdYXOsQ3pcjfgFqPpRvqJ4N0PWfg_xKWIZQEJHxlmdfXu5EQnQ7YvHMkTpH2TCug7EZGpyMd81WVMNIGdRi8Sr26LmjavVWXoSpddg37QqBDM9JhtRx6mX14UCxwJ9R7oPEAf5vOPxxYP0JqXg5EK4r4Jr_FqjMJ3hWTYGjiFJnsF0rhR6_JoU8rko3rCvk_GhSYqf5rdn2X4NA5VPk"
-            />
-            <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-surface-container-low to-transparent">
-              <p className="font-headline font-bold text-xl leading-tight text-white z-10">
-                100% SECURE<br />LIQUIDITY
-              </p>
-              <p className="text-[10px] uppercase tracking-widest text-primary font-bold z-10 mt-1">
-                Protocol Verified
-              </p>
-            </div>
+          <div className="bg-surface-container-low overflow-hidden relative p-6 flex flex-col justify-end">
+            <p className="font-headline font-bold text-xl leading-tight text-on-surface">
+              100% SECURE<br />LIQUIDITY
+            </p>
+            <p className="text-[10px] uppercase tracking-widest text-primary font-bold mt-1">
+              Protocol Verified
+            </p>
           </div>
         </div>
       </div>

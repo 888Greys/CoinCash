@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance } from "@/components/portfolio-balance";
+import { createClient } from "@/utils/supabase/server";
 
 const botTypes = [
   {
@@ -63,9 +64,17 @@ const activeBots = [
 
 const perfBars = [40, 60, 30, 80, 95, 50, 70, 40, 65, 85, 35, 55];
 
-export default function BotPage() {
+export default async function BotPage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let profile = null;
+  if (user) {
+    const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
+    profile = data;
+  }
+
   return (
-    <AppShell currentPath="/bot">
+    <AppShell currentPath="/bot" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-6 max-w-4xl mx-auto space-y-6">
         {/* Portfolio Overview */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">

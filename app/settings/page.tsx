@@ -1,9 +1,17 @@
 import { AppShell } from "@/components/app-shell";
 import { logoutAction } from "@/app/login/actions";
+import { createClient } from "@/utils/supabase/server";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let profile = null;
+  if (user) {
+    const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
+    profile = data;
+  }
   return (
-    <AppShell currentPath="/settings">
+    <AppShell currentPath="/settings" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-6 max-w-4xl mx-auto space-y-8">
         {/* Header Section */}
         <section className="mb-10">

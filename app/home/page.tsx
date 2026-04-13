@@ -58,34 +58,64 @@ const gainers = [
   { symbol: "AVAX", name: "Avalanche", icon: "hive", iconColor: "text-secondary", price: "38.91", change: "+8.7%" },
 ];
 
-const recentTransactions = [
-  { id: "TX-1092", type: "Deposit", status: "Completed", amount: "+0.150 BTC", date: "Today, 14:32", icon: "south_west", color: "text-primary", bg: "bg-primary/10" },
-  { id: "TX-1091", type: "Trade", status: "Completed", amount: "-1,200 USDT", date: "Yesterday, 09:15", icon: "swap_horiz", color: "text-secondary", bg: "bg-secondary/10" },
-  { id: "TX-1090", type: "Withdrawal", status: "Pending", amount: "-0.50 ETH", date: "Oct 12, 18:45", icon: "north_east", color: "text-error", bg: "bg-error/10" },
-  { id: "TX-1089", type: "P2P Buy", status: "Completed", amount: "+450.00 USDT", date: "Oct 10, 11:20", icon: "group", color: "text-primary", bg: "bg-primary/10" },
-];
-
 const academyLinks = [
   { title: "What is Bitcoin Halving?", duration: "4 min read", level: "Beginner", icon: "school" },
   { title: "Understanding Zero-Knowledge Proofs", duration: "8 min read", level: "Advanced", icon: "enhanced_encryption" },
   { title: "How to use the Grid Trading Bot", duration: "6 min read", level: "Intermediate", icon: "smart_toy" },
 ];
 
+type WalletRow = { currency: string; balance: number };
+type TxRow = {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  reference: string | null;
+  created_at: string;
+};
+
 export default async function HomePage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   let liveUsdtBalance = 0;
+  let profile: { username: string | null; avatar_url: string | null } | null = null;
+  let recentTransactions: TxRow[] = [];
+  let walletIds: string[] = [];
 
   if (user) {
+    // Fetch profile
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", user.id)
+      .single();
+    profile = profileData;
+
+    // Fetch wallets
     const { data: wallets } = await supabase
       .from("wallets")
-      .select("currency, balance")
+      .select("id, currency, balance")
       .eq("user_id", user.id);
       
     if (wallets) {
-      const usdt = wallets.find(w => w.currency === 'USDT');
+      const usdt = wallets.find((w: any) => w.currency === 'USDT');
       if (usdt) liveUsdtBalance = Number(usdt.balance);
+      walletIds = wallets.map((w: any) => w.id);
+    }
+
+    // Fetch recent transactions
+    if (walletIds.length > 0) {
+      const { data: txData } = await supabase
+        .from("transactions")
+        .select("id, type, amount, status, reference, created_at")
+        .in("wallet_id", walletIds)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      
+      if (txData) {
+        recentTransactions = txData as TxRow[];
+      }
     }
   }
 
@@ -93,8 +123,15 @@ export default async function HomePage() {
   const btcRate = 52340.12;
   const liveBtc = liveUsdtBalance / btcRate;
 
+  const txIcons: Record<string, { icon: string; color: string; bg: string }> = {
+    deposit: { icon: "south_west", color: "text-primary", bg: "bg-primary/10" },
+    withdrawal: { icon: "north_east", color: "text-error", bg: "bg-error/10" },
+    trade_buy: { icon: "swap_horiz", color: "text-secondary", bg: "bg-secondary/10" },
+    trade_sell: { icon: "swap_horiz", color: "text-tertiary", bg: "bg-tertiary/10" },
+  };
+
   return (
-    <AppShell currentPath="/home">
+    <AppShell currentPath="/home" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-4 max-w-5xl mx-auto space-y-6">
         {/* Hero Portfolio Section */}
         <section className="bg-surface-container-low rounded-lg p-6 relative overflow-hidden">
@@ -242,35 +279,48 @@ export default async function HomePage() {
             <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
               Recent Transactions
             </h2>
-            <button className="text-primary text-xs uppercase tracking-tighter font-bold flex items-center gap-1">
+            <Link href="/assets" className="text-primary text-xs uppercase tracking-tighter font-bold flex items-center gap-1">
               History <span className="material-symbols-outlined text-sm">history</span>
-            </button>
+            </Link>
           </div>
-          <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 divide-y divide-outline-variant/10">
-            {recentTransactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full ${tx.bg} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                    <span className={`material-symbols-outlined ${tx.color} text-xl`}>{tx.icon}</span>
+          {recentTransactions.length === 0 ? (
+            <div className="bg-surface-container-low rounded-lg p-6 text-center border border-outline-variant/10">
+              <p className="text-xs text-on-surface-variant">No transactions yet. Start trading on the <Link href="/p2p" className="text-primary font-bold">P2P Terminal</Link>.</p>
+            </div>
+          ) : (
+            <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 divide-y divide-outline-variant/10">
+              {recentTransactions.map((tx) => {
+                const conf = txIcons[tx.type] ?? { icon: "receipt", color: "text-on-surface-variant", bg: "bg-surface-container-high" };
+                const isPositive = tx.type === "deposit" || tx.type === "trade_buy";
+
+                return (
+                  <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full ${conf.bg} flex items-center justify-center transition-transform group-hover:scale-110`}>
+                        <span className={`material-symbols-outlined ${conf.color} text-xl`}>{conf.icon}</span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm tracking-tight capitalize">{tx.type.replace("_", " ")}</p>
+                        <p className="text-[10px] text-on-surface-variant flex items-center gap-1">
+                          {tx.status === "pending" && <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse" />}
+                          <span className="capitalize">{tx.status}</span> • {new Date(tx.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-bold text-sm font-mono ${isPositive ? 'text-primary' : 'text-on-surface'}`}>
+                        {isPositive ? "+" : "-"}{Math.abs(tx.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      </p>
+                      {tx.reference && <p className="text-[9px] uppercase tracking-widest text-on-surface-variant">{tx.reference}</p>}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-sm tracking-tight">{tx.type}</p>
-                    <p className="text-[10px] text-on-surface-variant flex items-center gap-1">
-                      {tx.status === "Pending" && <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse" />}
-                      {tx.status} • {tx.date}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`font-bold text-sm font-mono ${tx.amount.startsWith('+') ? 'text-primary' : 'text-on-surface'}`}>{tx.amount}</p>
-                  <p className="text-[9px] uppercase tracking-widest text-on-surface-variant">{tx.id}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
-        {/* Learn & Earn / Academy */}
+        {/* CoinCash Academy */}
         <section className="space-y-3 pb-24">
           <div className="flex justify-between items-center px-1">
             <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
