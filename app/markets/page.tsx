@@ -96,7 +96,7 @@ export default async function MarketsPage() {
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h1 className="font-headline text-3xl font-bold text-on-surface mb-2">
-              MARKET_OVERVIEW
+              Market Overview
             </h1>
             <div className="flex items-center gap-4 text-on-surface-variant font-label text-[10px] uppercase tracking-widest">
               <span>Global Vol: {globalVol}</span>

@@ -75,10 +75,7 @@ export default async function P2PPage({ searchParams }: Props) {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
             <h1 className="font-headline text-4xl font-bold tracking-tighter mb-2">
-              P2P TERMINAL{" "}
-              <span className="text-primary text-sm font-label uppercase tracking-widest bg-primary/10 px-2 py-1 ml-2">
-                PRO MODE
-              </span>
+              P2P Marketplace
             </h1>
             <p className="text-on-surface-variant font-label text-xs uppercase tracking-[0.2em]">
               Liquid peer-to-peer exchange for high-frequency settlement

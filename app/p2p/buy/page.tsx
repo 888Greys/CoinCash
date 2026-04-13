@@ -102,7 +102,7 @@ export default function BuyPage() {
 
             <div className="mt-8 pt-8 border-t border-outline-variant/10">
               <p className="text-[10px] leading-relaxed text-on-surface-variant uppercase tracking-tighter">
-                Encrypted Trade Terminal<br />Order: {orderId?.slice(0, 8) ?? "—"}
+                Secure Trade Room<br />Order: {orderId?.slice(0, 8) ?? "—"}
               </p>
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function BuyPage() {
               </button>
               <div className="flex items-center justify-center gap-2 text-[10px] text-on-surface-variant uppercase font-medium tracking-widest">
                 <span className="material-symbols-outlined text-sm">lock</span>
-                Secured by Escrow Terminal
+                Secured by Escrow
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function BuyPage() {
               1. Must be the account owner. <br />
               2. No memo required in transfer. <br />
               3. Release occurs within 2 minutes of payment confirmation. <br />
-              4. Any fraud attempts will be reported to the terminal moderator.
+              4. Any fraud attempts will be reported to customer support.
             </p>
           </div>
           <div className="bg-surface-container-low p-6 flex flex-col justify-between">
