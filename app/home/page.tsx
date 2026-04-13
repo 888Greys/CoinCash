@@ -7,6 +7,8 @@ import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
+import { fetchCryptoNews } from "@/lib/rss-parser";
+import { P2PExpressWidget } from "@/components/p2p-express-widget";
 
 export const metadata: Metadata = { title: "Dashboard" };
 const marketCards = [
@@ -45,22 +47,7 @@ const marketCards = [
   },
 ];
 
-const newsItems = [
-  {
-    tag: "Market Trends",
-    tagColor: "bg-primary/10 text-primary",
-    time: "2m ago",
-    title: "Whale Alert: Over $200M BTC transferred to major exchanges",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBkbd7zfg4nMXZArP8UKA7v54FugeaM4-TGqlwL_yGLaVM2j6D9UAmKcNdfG_cwkHkLnMxuPdo3vU5PNMiPBXy-aw979WwefDkJt3THO2deWOkCh6CK-n1icSaH-67y9dRVuyBlQxv9GhCXfZRKqcgWJwn45FRj0WDTzYfdwZ4Y9NpUU5IYoHGsHFJrcnS88gp6i60ejK3iVxucSqNTr_uVG7CP8ikJ0wtEXvl6AVqPrU3c8Buy3E15GeA30GOGLsULTIf5ZRG5up8",
-  },
-  {
-    tag: "Regulation",
-    tagColor: "bg-secondary/10 text-secondary",
-    time: "45m ago",
-    title: "SEC approves new framework for digital asset transparency",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCDabwGP1q41DhaMxlaazRAlkl-Gl8WHPVLIrSir5TczabYDC_MKeTofyCF9vpM3NKAV3EUG1eYqZKQQ8rhQtxHBhWwNFjP9kOzyCzEZs2M5yeDGlBwY_bnkvJSxCW-0-9UtYmTkeQcC5nm-rVZn26KC-jpBIyxYvmEEVXVbjL2PnBNx6ZnIB2yEkW_tnYw1fPQGaXKNvJS_a6gbPXq2NWm95z7aH-dYfn-2celsCMuLC9fK9a-XjSDKGTACqeawT3lgUUQUGqFvBk",
-  },
-];
+// Removed static newsItems
 
 const gainers = [
   { symbol: "SOL", name: "Solana", icon: "bolt", logo: "/icons/sol.svg", iconColor: "text-primary", price: "114.24", change: "+12.4%" },
@@ -92,24 +79,26 @@ export default async function HomePage() {
   let recentTransactions: TxRow[] = [];
   let walletIds: string[] = [];
 
+  // Fetch Global Non-Auth Data in Parallel
+  const [livePrices, liveNews, p2pRes] = await Promise.all([
+    getLivePrices(),
+    fetchCryptoNews(),
+    supabase.from("p2p_orders").select("*").eq("type", "sell").eq("asset", "USDT").eq("fiat", "KES").eq("status", "active").order("price", { ascending: true }).limit(1).single()
+  ]);
+
   if (user) {
     // Ensure wallets exist immediately on login
     await ensureUserWallets(user.id);
 
-    // Fetch profile
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", user.id)
-      .single();
-    profile = profileData;
+    // Fetch auth-dependent data in parallel
+    const [profileRes, walletsRes] = await Promise.all([
+      supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single(),
+      supabase.from("wallets").select("id, currency, balance").eq("user_id", user.id)
+    ]);
+    
+    profile = profileRes.data;
+    const wallets = walletsRes.data;
 
-    // Fetch wallets
-    const { data: wallets } = await supabase
-      .from("wallets")
-      .select("id, currency, balance")
-      .eq("user_id", user.id);
-      
     if (wallets) {
       const usdt = wallets.find((w: any) => w.currency === 'USDT');
       if (usdt) liveUsdtBalance = Number(usdt.balance);
@@ -131,9 +120,16 @@ export default async function HomePage() {
     }
   }
 
-  const livePrices = await getLivePrices();
   const btcRate = livePrices.BTC || 52340.12;
   const liveBtc = liveUsdtBalance / btcRate;
+  
+  const bestP2POrder = p2pRes.data;
+
+  // Map dynamic prices
+  const dynamicMarketCards = marketCards.map(card => ({
+    ...card,
+    price: livePrices[card.symbol] ? livePrices[card.symbol].toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : card.price
+  }));
 
   const txIcons: Record<string, { icon: string; color: string; bg: string }> = {
     deposit: { icon: "south_west", color: "text-primary", bg: "bg-primary/10" },
@@ -202,7 +198,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-            {marketCards.map((card) => (
+            {dynamicMarketCards.map((card) => (
               <div key={card.symbol} className={`min-w-[140px] bg-surface-container-low p-4 rounded-lg border-b-2 ${card.borderColor}`}>
                 <div className="flex items-center gap-2 mb-3">
                   {card.logo ? (
@@ -213,7 +209,7 @@ export default async function HomePage() {
                   <span className="font-headline font-bold text-sm">{card.symbol}</span>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-on-surface-variant">{card.price}</p>
+                  <p className="text-xs text-on-surface-variant font-mono font-bold">${card.price}</p>
                   <p className={`text-[10px] font-bold ${card.changeColor}`}>{card.change}</p>
                 </div>
                 <div className="mt-3 h-8 w-full flex items-end">
@@ -237,21 +233,23 @@ export default async function HomePage() {
             </button>
           </div>
           <div className="space-y-3">
-            {newsItems.map((item) => (
-              <article key={item.title} className="bg-surface-container rounded-lg p-4 flex gap-4 border border-outline-variant/10 active:bg-surface-container-high transition-colors">
+            {liveNews.map((item, i) => (
+              <a href={item.link} target="_blank" rel="noopener noreferrer" key={i} className="bg-surface-container rounded-lg p-4 flex gap-4 border border-outline-variant/10 hover:bg-surface-container-high transition-colors group">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className={`${item.tagColor} text-[9px] px-1.5 py-0.5 rounded font-bold uppercase`}>
-                      {item.tag}
+                    <span className={`bg-primary/10 text-primary text-[9px] px-1.5 py-0.5 rounded font-bold uppercase`}>
+                      {item.source}
                     </span>
-                    <span className="text-[10px] text-on-surface-variant">{item.time}</span>
+                    <span className="text-[10px] text-on-surface-variant">
+                      {new Date(item.pubDate).toLocaleDateString()}
+                    </span>
                   </div>
-                  <h3 className="text-sm font-semibold leading-tight text-on-surface">{item.title}</h3>
+                  <h3 className="text-sm font-semibold leading-tight text-on-surface group-hover:text-primary transition-colors">{item.title}</h3>
                 </div>
                 <div className="w-20 h-20 rounded-lg bg-surface-container-high flex-shrink-0 overflow-hidden">
-                  <img alt="News thumbnail" className="w-full h-full object-cover grayscale opacity-80" src={item.image} />
+                  <img alt="News thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src={item.image} />
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         </section>
@@ -261,30 +259,17 @@ export default async function HomePage() {
 
         {/* P2P Express Buy Widget */}
         <section className="space-y-3 pb-4">
-          <div className="bg-surface-container-low rounded-lg p-5 border border-outline-variant/10 relative overflow-hidden">
-            {/* Background design */}
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
-            
-            <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-on-surface mb-1 relative z-10 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-sm">flash_on</span>
-              P2P Express Buy
-            </h2>
-            <p className="text-[10px] text-on-surface-variant mb-4 relative z-10">Best Match: ~134.50 KES/USDT</p>
-            
-            <div className="flex gap-2 relative z-10">
-              <div className="flex-1 bg-surface-container-highest rounded-sm flex items-center px-3 border border-outline-variant/20 focus-within:border-primary/50">
-                <span className="text-sm font-bold text-on-surface-variant mr-2">KES</span>
-                <input 
-                  type="number" 
-                  placeholder="5000" 
-                  className="w-full bg-transparent outline-none py-3 text-sm font-headline font-bold"
-                />
-              </div>
-              <button className="bg-primary hover:bg-primary/90 text-on-primary font-bold px-6 rounded-sm uppercase text-xs tracking-widest active:scale-95 transition-transform shadow-lg shadow-primary/20">
-                Buy USDT
-              </button>
-            </div>
-          </div>
+          <P2PExpressWidget 
+            bestPrice={bestP2POrder?.price ?? null}
+            fiat={bestP2POrder?.fiat ?? "KES"}
+            asset={bestP2POrder?.asset ?? "USDT"}
+            orderId={bestP2POrder?.id ?? null}
+            merchantName={bestP2POrder?.profiles?.username ?? null}
+            minLimit={bestP2POrder?.min_limit ?? 0}
+            maxLimit={bestP2POrder?.max_limit ?? 0}
+            paymentMethod={bestP2POrder?.payment_method ?? null}
+            totalAmount={bestP2POrder?.total_amount ?? 0}
+          />
         </section>
 
         {/* Promotional / Ecosystem Banners */}
