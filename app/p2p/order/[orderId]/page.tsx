@@ -170,6 +170,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               status={trade.status}
               isBuyer={isBuyer}
               isSeller={isSeller}
+              currentUserId={user.id}
             />
           </div>
         </div>
@@ -248,6 +249,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               status={trade.status}
               isBuyer={isBuyer}
               isSeller={isSeller}
+              currentUserId={user.id}
             />
 
             {/* Trade Terms */}

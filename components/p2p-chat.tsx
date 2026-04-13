@@ -145,6 +145,12 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
     }
   };
 
+  const parseProofUrl = (content: string) => {
+    if (!content.startsWith("Payment proof uploaded: ")) return null;
+    const url = content.replace("Payment proof uploaded: ", "").trim();
+    return url.startsWith("http") ? url : null;
+  };
+
   return (
     <div className="flex flex-col h-full bg-surface-container-lowest border border-outline-variant/15 rounded-xl overflow-hidden">
       <div className="bg-surface-container-low p-4 border-b border-outline-variant/10">
@@ -189,6 +195,7 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
             ) : (
               messages.map((msg) => {
                 const isMe = msg.sender_id === currentUserId;
+                const proofUrl = parseProofUrl(msg.content);
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
@@ -196,7 +203,25 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
                         ? 'bg-primary text-on-primary rounded-tr-sm' 
                         : 'bg-surface-container-high text-on-surface rounded-tl-sm'
                     }`}>
-                      {msg.content}
+                      {proofUrl ? (
+                        <div className="space-y-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider">Payment Proof</p>
+                          <a href={proofUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border border-outline-variant/25">
+                            <img src={proofUrl} alt="Payment proof" className="max-h-48 w-full object-cover" />
+                          </a>
+                          <a
+                            href={proofUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] underline"
+                          >
+                            View full proof
+                            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                          </a>
+                        </div>
+                      ) : (
+                        msg.content
+                      )}
                       <div className={`text-[9px] mt-1 opacity-60 ${isMe ? 'text-right' : 'text-left'}`}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
