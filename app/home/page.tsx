@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
+import { MarketMovers } from "@/components/market-movers";
 import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
@@ -165,30 +166,25 @@ export default async function HomePage() {
             <span className="text-xs text-on-surface-variant font-mono">≈ <PortfolioBtcEquivalent liveBtc={liveBtc} /> BTC</span>
             <ToggleVisibilityButton />
           </div>
-          {/* Quick Actions Grid */}
-          <div className="grid grid-cols-4 gap-2">
+          {/* Quick Actions Grid Expanded */}
+          <div className="grid grid-cols-5 gap-2 mt-6">
             {[
-              { icon: "add_circle", label: "Deposit" },
-              { icon: "logout", label: "Withdraw" },
-              { icon: "swap_horiz", label: "Buy/Sell", highlight: true },
-              { icon: "card_giftcard", label: "Referral" },
+              { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10" },
+              { icon: "currency_exchange", label: "Convert", color: "text-secondary", bg: "bg-secondary/10" },
+              { icon: "swap_horiz", label: "P2P Trading", color: "text-on-surface", bg: "bg-surface-container-high", route: "/p2p" },
+              { icon: "send", label: "Transfer", color: "text-on-surface", bg: "bg-surface-container-high" },
+              { icon: "savings", label: "Earn", color: "text-tertiary", bg: "bg-tertiary/10" },
             ].map((action) => (
-              <button key={action.label} className="flex flex-col items-center justify-center gap-2 group">
-                <div className={`w-12 h-12 rounded flex items-center justify-center transition-all ${
-                  action.highlight
-                    ? "bg-primary shadow-lg shadow-primary/20"
-                    : "bg-surface-container-high border border-outline-variant/10 group-hover:bg-primary/10 group-hover:border-primary/30"
-                }`}>
-                  <span className={`material-symbols-outlined ${action.highlight ? "text-on-primary font-bold" : "text-primary"}`}>
+              <Link href={action.route || "#"} key={action.label} className="flex flex-col items-center justify-start gap-2 group">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 group-active:scale-95 ${action.bg}`}>
+                  <span className={`material-symbols-outlined ${action.color}`}>
                     {action.icon}
                   </span>
                 </div>
-                <span className={`text-[10px] uppercase tracking-wider font-semibold ${
-                  action.highlight ? "text-primary" : "text-on-surface-variant group-hover:text-primary"
-                }`}>
+                <span className="text-[9px] uppercase font-bold text-on-surface-variant group-hover:text-on-surface text-center leading-tight">
                   {action.label}
                 </span>
-              </button>
+              </Link>
             ))}
           </div>
         </section>
@@ -258,35 +254,55 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Top Gainers */}
+        {/* Market Movers Tabs component replacing static gainers */}
+        <MarketMovers />
+
+        {/* P2P Express Buy Widget */}
         <section className="space-y-3 pb-4">
-          <div className="flex justify-between items-center px-1">
-            <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
-              Top Gainers (24h)
+          <div className="bg-surface-container-low rounded-lg p-5 border border-outline-variant/10 relative overflow-hidden">
+            {/* Background design */}
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+            
+            <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-on-surface mb-1 relative z-10 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-sm">flash_on</span>
+              P2P Express Buy
             </h2>
-          </div>
-          <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 divide-y divide-outline-variant/10">
-            {gainers.map((g) => (
-              <div key={g.symbol} className="flex items-center justify-between p-4 active:bg-surface-container transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${g.logo ? 'bg-transparent' : 'bg-surface-container-high'}`}>
-                    {g.logo ? (
-                      <Image src={g.logo} alt={g.symbol} width={24} height={24} unoptimized />
-                    ) : (
-                      <span className={`material-symbols-outlined ${g.iconColor} text-xl`}>{g.icon}</span>
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm">{g.symbol}</p>
-                    <p className="text-[10px] text-on-surface-variant">{g.name}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-sm">{g.price}</p>
-                  <p className="text-[10px] font-bold text-primary">{g.change}</p>
-                </div>
+            <p className="text-[10px] text-on-surface-variant mb-4 relative z-10">Best Match: ~134.50 KES/USDT</p>
+            
+            <div className="flex gap-2 relative z-10">
+              <div className="flex-1 bg-surface-container-highest rounded-sm flex items-center px-3 border border-outline-variant/20 focus-within:border-primary/50">
+                <span className="text-sm font-bold text-on-surface-variant mr-2">KES</span>
+                <input 
+                  type="number" 
+                  placeholder="5000" 
+                  className="w-full bg-transparent outline-none py-3 text-sm font-headline font-bold"
+                />
               </div>
-            ))}
+              <button className="bg-primary hover:bg-primary/90 text-on-primary font-bold px-6 rounded-sm uppercase text-xs tracking-widest active:scale-95 transition-transform shadow-lg shadow-primary/20">
+                Buy USDT
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Promotional / Ecosystem Banners */}
+        <section className="pb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="bg-gradient-to-br from-surface-container-low to-primary/10 rounded-lg p-5 border border-primary/20 relative overflow-hidden group cursor-pointer">
+            <div className="relative z-10 w-2/3">
+              <span className="inline-block px-2 py-0.5 bg-primary/20 text-primary text-[9px] font-bold rounded-sm uppercase tracking-widest mb-2">Rewards</span>
+              <h3 className="font-headline font-bold text-lg leading-tight mb-2">Invite Friends, Earn 40%</h3>
+              <p className="text-[10px] text-on-surface-variant leading-relaxed">Share your referral link and earn commissions on their trading fees for life.</p>
+            </div>
+            <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-primary/10 group-hover:scale-110 transition-transform duration-500 pointer-events-none">groups</span>
+          </div>
+
+          <div className="bg-gradient-to-br from-surface-container-low to-secondary/10 rounded-lg p-5 border border-secondary/20 relative overflow-hidden group cursor-pointer">
+            <div className="relative z-10 w-2/3">
+              <span className="inline-block px-2 py-0.5 bg-secondary/20 text-secondary text-[9px] font-bold rounded-sm uppercase tracking-widest mb-2">Academy</span>
+              <h3 className="font-headline font-bold text-lg leading-tight mb-2">Master Grid Trading</h3>
+              <p className="text-[10px] text-on-surface-variant leading-relaxed">Learn how to capture market volatility automatically with our new trading bots.</p>
+            </div>
+            <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-secondary/10 group-hover:scale-110 transition-transform duration-500 pointer-events-none">smart_toy</span>
           </div>
         </section>
 
