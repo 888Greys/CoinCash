@@ -1,69 +1,12 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import Image from "next/image";
-import { getLivePrices } from "@/lib/price-api";
+import { getExtendedMarketData, formatCompactNumber, generateSvgSparkline } from "@/lib/price-api";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = { title: "Markets" };
-const sparklines = {
-  btcDown: "M0,15 L10,18 L20,12 L30,22 L40,15 L50,18 L60,10 L70,12 L80,15",
-  ethUp: "M0,25 L10,22 L20,24 L30,12 L40,15 L50,5 L60,10 L70,8 L80,2",
-  solUp: "M0,30 L10,25 L20,28 L30,15 L40,20 L50,8 L60,12 L70,2 L80,5",
-  avaxDown: "M0,5 L10,8 L20,4 L30,15 L40,12 L50,25 L60,20 L70,30 L80,28",
-  linkUp: "M0,15 L10,14 L20,16 L30,12 L40,14 L50,11 L60,13 L70,10 L80,9",
-};
 
-type MarketAsset = {
-  symbol: string;
-  name: string;
-  price: string;
-  change: string;
-  changePositive: boolean;
-  volume: string;
-  marketCap: string;
-  sparkline: string;
-  color: string;
-};
-
-// Static layout definitions, prices injected dynamically
-const marketLayout = [
-  { symbol: "BTC", name: "Bitcoin", logo: "/icons/btc.svg", change: "-0.42%", isPositive: false, volume: "$28.4B", marketCap: "$842.1B", sparkline: sparklines.btcDown, color: "text-primary" },
-  { symbol: "ETH", name: "Ethereum", logo: "/icons/eth.svg", change: "+2.18%", isPositive: true, volume: "$14.2B", marketCap: "$278.4B", sparkline: sparklines.ethUp, color: "text-tertiary" },
-  { symbol: "SOL", name: "Solana", logo: "/icons/sol.svg", change: "+14.2%", isPositive: true, volume: "$4.8B", marketCap: "$48.9B", sparkline: sparklines.solUp, color: "text-secondary" },
-  { symbol: "AVAX", name: "Avalanche", logo: "/icons/avax.svg", change: "-3.82%", isPositive: false, volume: "$842M", marketCap: "$12.5B", sparkline: sparklines.avaxDown, color: "text-error" },
-  { symbol: "USDT", name: "Tether USD", logo: "/icons/usdt.svg", change: "+0.01%", isPositive: true, volume: "$50.2B", marketCap: "$99.1B", sparkline: sparklines.linkUp, color: "text-[#26A17B]" },
-  { symbol: "BNB", name: "Binance Coin", logo: "/icons/bnb.svg", change: "+4.12%", isPositive: true, volume: "$1.2B", marketCap: "$42.1B", sparkline: sparklines.solUp, color: "text-[#f3ba2f]" },
-];
-
-const spotlightCards = [
-  {
-    label: "Top Gainer",
-    badge: "+14.2%",
-    badgeColor: "text-primary",
-    pair: "SOL/USDT",
-    price: "$114.82",
-    sparkline: sparklines.solUp,
-    strokeColor: "stroke-primary",
-  },
-  {
-    label: "High Volume",
-    badge: "$4.2B",
-    badgeColor: "text-on-surface",
-    pair: "BTC/USDT",
-    price: "$42,912.40",
-    sparkline: sparklines.btcDown,
-    strokeColor: "stroke-on-surface-variant",
-  },
-  {
-    label: "New Listing",
-    badge: "Active",
-    badgeColor: "text-tertiary",
-    pair: "TIA/USDT",
-    price: "$18.45",
-    sparkline: "M0,28 L10,20 L20,22 L30,10 L40,12 L50,5 L60,8 L70,1 L80,3",
-    strokeColor: "stroke-tertiary",
-  },
-];
+const SPOTLIGHT_FALLBACK = "M0,28 L10,20 L20,22 L30,10 L40,12 L50,5 L60,8 L70,1 L80,3";
 
 export default async function MarketsPage() {
   const supabase = createClient();
@@ -74,13 +17,77 @@ export default async function MarketsPage() {
     profile = data;
   }
 
-  const livePrices = await getLivePrices();
+  const extendedData = await getExtendedMarketData();
 
   // Map live prices onto our static visual layout
-  const marketDataDynamic = marketLayout.map(asset => ({
-    ...asset,
-    price: livePrices[asset.symbol] ? `$${livePrices[asset.symbol].toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"
-  }));
+  const marketDataDynamic = extendedData.map(asset => {
+    let symbolStr = asset.symbol.toUpperCase();
+    if (symbolStr === "AVALANCHE-2") symbolStr = "AVAX";
+    
+    // Presentation overrides
+    const presentationMap: Record<string, any> = {
+      BTC: { logo: "/icons/btc.svg", color: "text-primary" },
+      ETH: { logo: "/icons/eth.svg", color: "text-tertiary" },
+      SOL: { logo: "/icons/sol.svg", color: "text-secondary" },
+      AVAX: { logo: "/icons/avax.svg", color: "text-error" },
+      USDT: { logo: "/icons/usdt.svg", color: "text-[#26A17B]" },
+      BNB: { logo: "/icons/bnb.svg", color: "text-[#f3ba2f]" },
+    };
+    
+    const style = presentationMap[symbolStr] || { logo: "", color: "text-primary" };
+    
+    return {
+      symbol: symbolStr,
+      name: asset.name,
+      logo: style.logo,
+      price: `$${asset.current_price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`,
+      change: `${asset.price_change_percentage_24h >= 0 ? '+' : ''}${asset.price_change_percentage_24h.toFixed(2)}%`,
+      isPositive: asset.price_change_percentage_24h >= 0,
+      volume: `$${formatCompactNumber(asset.total_volume)}`,
+      marketCap: `$${formatCompactNumber(asset.market_cap)}`,
+      sparkline: generateSvgSparkline(asset.sparkline_in_7d?.price || []),
+      color: style.color,
+      raw_change: asset.price_change_percentage_24h || 0,
+      raw_volume: asset.total_volume || 0,
+    };
+  });
+
+  // Calculate Spotlights
+  const topGainer = [...marketDataDynamic].sort((a, b) => b.raw_change - a.raw_change)[0];
+  const highVolume = [...marketDataDynamic].sort((a, b) => b.raw_volume - a.raw_volume)[0];
+  
+  const spotlightCards = [
+    {
+      label: "Top Gainer",
+      badge: topGainer?.change || "+0%",
+      badgeColor: topGainer?.isPositive ? "text-primary" : "text-error",
+      pair: `${topGainer?.symbol || "N/A"}/USD`,
+      price: topGainer?.price || "$0.00",
+      sparkline: topGainer?.sparkline || SPOTLIGHT_FALLBACK,
+      strokeColor: topGainer?.isPositive ? "stroke-primary" : "stroke-error",
+    },
+    {
+      label: "High Volume",
+      badge: highVolume?.volume || "$0",
+      badgeColor: "text-on-surface",
+      pair: `${highVolume?.symbol || "N/A"}/USD`,
+      price: highVolume?.price || "$0.00",
+      sparkline: highVolume?.sparkline || SPOTLIGHT_FALLBACK,
+      strokeColor: "stroke-on-surface-variant",
+    },
+    {
+      label: "New Listing",
+      badge: "Active",
+      badgeColor: "text-tertiary",
+      pair: "TIA/USD",
+      price: "$18.45",
+      sparkline: SPOTLIGHT_FALLBACK,
+      strokeColor: "stroke-tertiary",
+    },
+  ];
+
+  const globalVolRaw = Object.values(extendedData).reduce((acc, curr) => acc + (curr.total_volume || 0), 0);
+  const globalVol = `$${formatCompactNumber(globalVolRaw)}`;
 
   return (
     <AppShell currentPath="/markets" user={user ? { email: user.email, ...profile } : null}>
@@ -92,7 +99,7 @@ export default async function MarketsPage() {
               MARKET_OVERVIEW
             </h1>
             <div className="flex items-center gap-4 text-on-surface-variant font-label text-[10px] uppercase tracking-widest">
-              <span>Global Vol: $84.2B</span>
+              <span>Global Vol: {globalVol}</span>
               <span className="w-1 h-1 bg-outline-variant rounded-full" />
               <span>BTC Dom: 52.4%</span>
               <span className="w-1 h-1 bg-outline-variant rounded-full" />
