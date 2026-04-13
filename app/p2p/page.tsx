@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
+import { EmptyState } from "@/components/empty-state";
 import { createClient } from "@/utils/supabase/server";
 import { getActiveOrders, getRecentSettlements, type P2POrderWithProfile } from "./actions";
 
@@ -148,16 +149,14 @@ export default async function P2PPage({ searchParams }: Props) {
 
         {/* Merchant Cards Grid */}
         {orders.length === 0 ? (
-          <div className="bg-surface-container-low p-12 text-center space-y-4 mb-8">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">storefront</span>
-            <p className="text-sm text-on-surface-variant">No active orders yet. Be the first to post an ad!</p>
-            <Link
-              href="/p2p/post-ad"
-              className="inline-block mt-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-label text-xs font-bold uppercase tracking-widest rounded-sm"
-            >
-              Post an Ad
-            </Link>
-          </div>
+          <EmptyState
+            title="No active orders yet"
+            description="Be the first merchant to post an ad and start matching with verified peers."
+            icon="storefront"
+            actionLabel="Post an Ad"
+            actionHref="/p2p/post-ad"
+            className="mb-8"
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {orders.map((order) => {

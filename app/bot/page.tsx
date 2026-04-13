@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getUserBots } from "@/app/actions/bots";
 import { getExtendedMarketData } from "@/lib/price-api";
 import { BotCard, CreateBotButton } from "@/components/bot-controls";
+import { EmptyState } from "@/components/empty-state";
 
 export const metadata: Metadata = { title: "Trading Bots" };
 
@@ -151,12 +152,12 @@ export default async function BotPage() {
           </div>
 
           {bots.length === 0 ? (
-            <div className="bg-surface-container-low p-12 text-center space-y-3 rounded">
-              <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">smart_toy</span>
-              <p className="text-sm text-on-surface-variant">
-                No bots yet. Use the marketplace above to create your first bot!
-              </p>
-            </div>
+            <EmptyState
+              title="No bots deployed yet"
+              description="Use the marketplace above to launch your first automation strategy and track performance in real time."
+              icon="smart_toy"
+              className="rounded"
+            />
           ) : (
             <div className="space-y-3">
               {bots.map((bot) => (

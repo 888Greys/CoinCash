@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
+import { EmptyState } from "@/components/empty-state";
 import { WalletActionDrawer } from "@/components/wallet-action-drawer";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
@@ -141,10 +142,12 @@ export default async function AssetsPage() {
           </div>
 
           {wallets.length === 0 ? (
-            <div className="p-12 text-center space-y-3">
-              <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">account_balance_wallet</span>
-              <p className="text-sm text-on-surface-variant">No wallets found. Wallets are created automatically on signup.</p>
-            </div>
+            <EmptyState
+              title="Wallets are setting up"
+              description="Wallets are created automatically during onboarding. Refresh in a moment to load your asset balances."
+              icon="account_balance_wallet"
+              className="border-0 rounded-none"
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -223,13 +226,14 @@ export default async function AssetsPage() {
           </div>
 
           {transactions.length === 0 ? (
-            <div className="bg-surface-container-low rounded-sm p-8 text-center space-y-3 border border-outline-variant/10">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant/30">receipt_long</span>
-              <p className="text-sm text-on-surface-variant">No transactions yet. Start trading to see your history.</p>
-              <Link href="/p2p" className="inline-block mt-2 px-6 py-2 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest rounded hover:bg-primary/20 transition-colors">
-                Go to P2P
-              </Link>
-            </div>
+            <EmptyState
+              title="No transactions yet"
+              description="Your transaction history will appear here after your first deposit, trade, or transfer."
+              icon="receipt_long"
+              actionLabel="Go to P2P"
+              actionHref="/p2p"
+              className="p-8"
+            />
           ) : (
             <div className="bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/10 divide-y divide-outline-variant/10">
               {transactions.map((tx) => {
