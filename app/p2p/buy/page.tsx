@@ -22,6 +22,11 @@ export default function BuyPage() {
   const maxLimit = searchParams.get("max") || "2,500";
   const paymentMethod = searchParams.get("method") || "Bank Transfer";
 
+  const parseNum = (v: string) => Number(String(v).replace(/,/g, "")) || 0;
+  const availableNum = parseNum(available);
+  const minLimitNum = parseNum(minLimit);
+  const maxLimitNum = parseNum(maxLimit);
+
   const [payAmount, setPayAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +35,30 @@ export default function BuyPage() {
   const touchDeltaY = useRef(0);
   const canSwipeClose = useRef(false);
 
-  const receiveAmount = payAmount ? (Number(payAmount) / orderPrice).toFixed(2) : "";
+  const payAmountNum = Number(payAmount || 0);
+  const receiveAmountNum = payAmountNum > 0 ? payAmountNum / orderPrice : 0;
+  const receiveAmount = payAmountNum > 0 ? receiveAmountNum.toFixed(6) : "";
+  const maxPayByInventory = availableNum * orderPrice;
+  const effectiveMaxPay = Math.min(maxLimitNum, maxPayByInventory);
+  const outOfRange = payAmountNum > 0 && (payAmountNum < minLimitNum || payAmountNum > effectiveMaxPay);
 
   const handleBuy = async () => {
     if (!orderId || !receiveAmount) return;
+
+    if (outOfRange) {
+      setError(`Amount must be between ${minLimitNum.toLocaleString()} and ${effectiveMaxPay.toLocaleString()} ${orderFiat}`);
+      return;
+    }
+
+    if (receiveAmountNum > availableNum) {
+      setError(`Order has only ${availableNum.toLocaleString()} ${orderAsset} available.`);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const result = await takeOrder(orderId, Number(receiveAmount));
+    const result = await takeOrder(orderId, receiveAmountNum);
 
     if (!result.success) {
       setError(result.error ?? "Trade failed");
@@ -121,7 +142,7 @@ export default function BuyPage() {
                 <span className="text-2xl font-bold">{orderFiat}</span>
                 <button
                   type="button"
-                  onClick={() => setPayAmount(maxLimit.replace(/,/g, ""))}
+                  onClick={() => setPayAmount(String(effectiveMaxPay))}
                   className="ml-3 text-lg font-bold text-primary"
                 >
                   Max
@@ -129,7 +150,7 @@ export default function BuyPage() {
               </div>
             </div>
             <p className="text-sm text-on-surface-variant">
-              Enter value above {Number(minLimit).toLocaleString("en-US")} {orderFiat}
+              Enter value between {minLimitNum.toLocaleString("en-US")} and {effectiveMaxPay.toLocaleString("en-US")} {orderFiat}
             </p>
           </div>
 
@@ -156,7 +177,7 @@ export default function BuyPage() {
           <div className="sticky bottom-2 pt-3">
             <button
               onClick={handleBuy}
-              disabled={loading || !payAmount || !orderId}
+              disabled={loading || !payAmount || !orderId || outOfRange}
               className="w-full rounded-xl bg-primary py-4 text-center text-xl font-black text-on-primary-container disabled:opacity-50"
             >
               {loading ? "Processing..." : "Place Order"}
@@ -254,7 +275,7 @@ export default function BuyPage() {
                     <span className="font-bold text-sm tracking-widest">{orderFiat}</span>
                     <button
                       type="button"
-                      onClick={() => setPayAmount(maxLimit.replace(/,/g, ""))}
+                      onClick={() => setPayAmount(String(effectiveMaxPay))}
                       className="bg-surface-bright px-2 py-1 text-[10px] font-bold text-primary cursor-pointer hover:bg-primary hover:text-on-primary transition-colors"
                     >
                       MAX
@@ -307,7 +328,7 @@ export default function BuyPage() {
               <div className="-mx-8 mt-2 px-8 py-3 bg-surface/95 backdrop-blur border-t border-outline-variant/10 sticky bottom-0 md:static md:m-0 md:p-0 md:bg-transparent md:border-0">
                 <button
                   onClick={handleBuy}
-                  disabled={loading || !payAmount || !orderId}
+                  disabled={loading || !payAmount || !orderId || outOfRange}
                   className="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg uppercase tracking-[0.2em] shadow-[0_8px_30px_rgba(2,201,83,0.15)] active:scale-[0.98] transition-all disabled:opacity-50"
                 >
                   {loading ? "Processing..." : `BUY ${orderAsset}`}

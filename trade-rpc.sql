@@ -11,6 +11,7 @@ DECLARE
   v_seller_wallet RECORD;
   v_trade_id UUID;
   v_fiat_amount NUMERIC;
+  v_remaining NUMERIC;
 BEGIN
   -- Lock the order row
   SELECT * INTO v_order FROM p2p_orders WHERE id = p_order_id FOR UPDATE;
@@ -19,8 +20,20 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Order not available');
   END IF;
 
+  IF p_asset_amount <= 0 THEN
+    RETURN json_build_object('success', false, 'error', 'Invalid trade amount');
+  END IF;
+
+  IF p_asset_amount > v_order.total_amount THEN
+    RETURN json_build_object('success', false, 'error', 'Order has insufficient available amount');
+  END IF;
+
   -- Calculate fiat amount
   v_fiat_amount := p_asset_amount * v_order.price;
+
+  IF v_fiat_amount < v_order.min_limit OR v_fiat_amount > v_order.max_limit THEN
+    RETURN json_build_object('success', false, 'error', 'Trade amount is outside merchant min/max limits');
+  END IF;
 
   -- Determine who is buyer and seller
   IF v_order.type = 'sell' THEN
@@ -28,6 +41,10 @@ BEGIN
     -- We must lock the ad poster's (seller's) crypto.
     SELECT * INTO v_seller_wallet FROM wallets 
       WHERE user_id = v_order.user_id AND currency = v_order.asset FOR UPDATE;
+
+    IF NOT FOUND THEN
+      RETURN json_build_object('success', false, 'error', 'Seller wallet not found for this asset');
+    END IF;
       
     IF v_seller_wallet.balance < p_asset_amount THEN
       RETURN json_build_object('success', false, 'error', 'Seller has insufficient balance');
@@ -50,6 +67,10 @@ BEGIN
     SELECT * INTO v_seller_wallet FROM wallets 
       WHERE user_id = p_taker_id AND currency = v_order.asset FOR UPDATE;
 
+    IF NOT FOUND THEN
+      RETURN json_build_object('success', false, 'error', 'Your wallet for this asset was not found');
+    END IF;
+
     IF v_seller_wallet.balance < p_asset_amount THEN
       RETURN json_build_object('success', false, 'error', 'You have insufficient balance to sell');
     END IF;
@@ -63,6 +84,14 @@ BEGIN
     VALUES (p_order_id, v_order.user_id, p_taker_id, p_asset_amount, v_fiat_amount)
     RETURNING id INTO v_trade_id;
   END IF;
+
+  -- Reduce available ad inventory and auto-complete ad if exhausted.
+  v_remaining := v_order.total_amount - p_asset_amount;
+  UPDATE p2p_orders
+  SET
+    total_amount = v_remaining,
+    status = CASE WHEN v_remaining <= 0 THEN 'completed' ELSE status END
+  WHERE id = p_order_id;
 
   RETURN json_build_object('success', true, 'trade_id', v_trade_id);
 END;
