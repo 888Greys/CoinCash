@@ -14,6 +14,7 @@ type TradeActionsProps = {
 export function TradeActions({ tradeId, status, isBuyer, isSeller }: TradeActionsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [merchantCalled, setMerchantCalled] = useState(false);
   const router = useRouter();
 
   const handleRelease = async () => {
@@ -69,12 +70,21 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller }: TradeAction
           <p className="text-xs text-on-surface-variant leading-relaxed">
             Please complete the payment using the specified method, then click the button below to notify the seller.
           </p>
+          <label className="flex items-start gap-2 rounded-sm border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+            <input
+              type="checkbox"
+              checked={merchantCalled}
+              onChange={(e) => setMerchantCalled(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>I have called/chatted the merchant and confirmed payment instructions.</span>
+          </label>
           <button
             onClick={handleMarkPaid}
-            disabled={loading}
+            disabled={loading || !merchantCalled}
             className="w-full py-4 bg-tertiary text-on-tertiary font-headline font-bold uppercase tracking-widest text-sm rounded-sm active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            {loading ? "Processing..." : "I've Paid — Notify Seller"}
+            {loading ? "Processing..." : "Upload Payment Proof"}
           </button>
         </div>
       )}

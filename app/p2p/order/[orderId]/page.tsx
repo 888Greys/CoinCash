@@ -16,6 +16,15 @@ const statusConfig: Record<string, { label: string; color: string; icon: string 
   cancelled: { label: "CANCELLED", color: "text-on-surface-variant bg-surface-container-high border-outline-variant/30", icon: "cancel" },
 };
 
+function timeLeftFromCreatedAt(createdAt: string, windowMinutes: number) {
+  const created = new Date(createdAt).getTime();
+  const expiry = created + windowMinutes * 60_000;
+  const remainingMs = Math.max(0, expiry - Date.now());
+  const minutes = Math.floor(remainingMs / 60_000);
+  const seconds = Math.floor((remainingMs % 60_000) / 1000);
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 export default async function OrderPage({ params }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -47,10 +56,81 @@ export default async function OrderPage({ params }: Props) {
   const isSeller = trade.seller_id === user.id;
   const counterparty = isBuyer ? trade.seller : trade.buyer;
   const status = statusConfig[trade.status] ?? statusConfig.pending;
+  const tradeTimer = timeLeftFromCreatedAt(trade.created_at, 15);
+  const payerName =
+    (user.user_metadata?.full_name as string | undefined) ??
+    (user.email ? user.email.split("@")[0] : "Account Holder");
+  const referenceCode = trade.id.replace(/-/g, "").slice(0, 18);
+  const methodLabel = trade.p2p_orders.payment_method || "Bank Transfer";
 
   return (
     <AppShell currentPath="/p2p">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-4">
+          <div className="mb-5 flex items-center justify-between">
+            <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+            <span className="text-sm font-bold text-error">Cancel Order</span>
+          </div>
+
+          <h1 className="font-headline text-4xl font-black tracking-tight">Payment</h1>
+          <p className="mt-1 text-lg text-on-surface-variant">
+            Pay the seller within <span className="font-bold text-on-surface">{tradeTimer}</span>
+          </p>
+
+          <div className="mt-5 rounded-xl border border-outline-variant/20 bg-surface p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-container-high text-lg font-bold uppercase">
+                  {(counterparty?.username ?? "U").slice(0, 1)}
+                </div>
+                <p className="text-xl font-bold uppercase">{counterparty?.username ?? "Unknown"}</p>
+              </div>
+              <span className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary-container">Chat</span>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <p className="text-3xl font-semibold">Transfer via: {methodLabel}</p>
+            <div className="space-y-4 text-on-surface">
+              <div>
+                <p className="text-sm text-on-surface-variant">You Pay</p>
+                <p className="text-4xl font-black tracking-tight">
+                  {trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.fiat}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-on-surface-variant">Merchant Payment Method</p>
+                <p className="text-2xl font-semibold">{methodLabel}</p>
+              </div>
+              <div>
+                <p className="text-sm text-on-surface-variant">Your account name</p>
+                <p className="text-2xl font-semibold">{payerName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-on-surface-variant">Ref Message</p>
+                <p className="text-2xl font-semibold">{referenceCode}</p>
+              </div>
+            </div>
+            <p className="pt-2 text-xl text-on-surface-variant">
+              Tap the button below to upload payment proof for seller confirmation.
+            </p>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-error/40 bg-error/10 px-4 py-3">
+            <p className="text-base font-bold text-error">CALL THE MERCHANT BEFORE MAKING PAYMENT</p>
+          </div>
+
+          <div className="mt-4">
+            <TradeActions
+              tradeId={trade.id}
+              status={trade.status}
+              isBuyer={isBuyer}
+              isSeller={isSeller}
+            />
+          </div>
+        </div>
+
+        <div className="hidden md:block">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -164,6 +244,7 @@ export default async function OrderPage({ params }: Props) {
               <P2PChat tradeId={trade.id} currentUserId={user.id} />
             </div>
           </div>
+        </div>
         </div>
       </div>
     </AppShell>
