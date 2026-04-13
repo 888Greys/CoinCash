@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
+
+export const metadata: Metadata = { title: "Notifications" };
 
 type NotificationItem = {
   tag: string;

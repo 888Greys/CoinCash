@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getActiveOrders, getRecentSettlements, type P2POrderWithProfile } from "./actions";
+
+export const metadata: Metadata = { title: "P2P Trading" };
 
 const stats = [
   { label: "24h Vol (USDT)", value: "1.48M", color: "" },

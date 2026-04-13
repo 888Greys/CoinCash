@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getPaymentMethods } from "@/app/actions/payment-methods";
 import { PaymentMethodsList } from "@/components/payment-methods-list";
+
+export const metadata: Metadata = { title: "Payment Methods" };
 
 export default async function PaymentMethodsPage() {
   const supabase = createClient();

@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
+
+export const metadata: Metadata = { title: "Trading Bots" };
 
 const botTypes = [
   {

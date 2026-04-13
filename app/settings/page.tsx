@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { logoutAction } from "@/app/login/actions";
 import { createClient } from "@/utils/supabase/server";
+
+export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   const supabase = createClient();

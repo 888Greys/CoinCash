@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import Image from "next/image";
 import { getLivePrices } from "@/lib/price-api";
 import { createClient } from "@/utils/supabase/server";
 
+export const metadata: Metadata = { title: "Markets" };
 const sparklines = {
   btcDown: "M0,15 L10,18 L20,12 L30,22 L40,15 L50,18 L60,10 L70,12 L80,15",
   ethUp: "M0,25 L10,22 L20,24 L30,12 L40,15 L50,5 L60,10 L70,8 L80,2",
