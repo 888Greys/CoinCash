@@ -25,6 +25,12 @@ do update set
   locked_balance = excluded.locked_balance;
 
 -- Verify
+with target_users as (
+  select distinct on (o.user_id) o.user_id
+  from public.p2p_orders o
+  order by o.user_id, o.created_at desc
+  limit 2
+)
 select user_id, currency, balance, locked_balance
 from public.wallets
 where user_id in (select user_id from target_users)
