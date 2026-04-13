@@ -213,12 +213,19 @@ export async function updateOrder(formData: FormData) {
 }
 
 // ─── Toggle Own Ad Status ───────────────────────────────────────────────
-export async function setOrderStatus(orderId: string, nextStatus: "active" | "cancelled") {
+export async function setOrderStatus(
+  orderId: string,
+  nextStatus: "active" | "cancelled",
+  tab: "buy" | "sell",
+  asset: string,
+  fiat: string
+) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const base = `/p2p?tab=${encodeURIComponent(tab)}&asset=${encodeURIComponent(asset)}&fiat=${encodeURIComponent(fiat)}`;
 
   if (!user) {
-    return;
+    redirect(`${base}&myAdToast=auth_error`);
   }
 
   const { error } = await supabase
@@ -229,10 +236,11 @@ export async function setOrderStatus(orderId: string, nextStatus: "active" | "ca
 
   if (error) {
     console.error("setOrderStatus error:", error.message);
-    return;
+    redirect(`${base}&myAdToast=update_error`);
   }
 
   revalidatePath("/p2p");
+  redirect(`${base}&myAdToast=${nextStatus === "active" ? "activated" : "paused"}`);
 }
 
 // ─── Take an Order (Initiates Trade + Escrow Lock) ───────────────────────

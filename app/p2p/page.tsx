@@ -26,7 +26,7 @@ function timeAgo(dateStr: string) {
 }
 
 type Props = {
-  searchParams: { tab?: string; asset?: string; fiat?: string };
+  searchParams: { tab?: string; asset?: string; fiat?: string; myAdToast?: string };
 };
 
 type MyAdRow = {
@@ -63,6 +63,7 @@ export default async function P2PPage({ searchParams }: Props) {
 
   const currentAsset = searchParams.asset || "USDT";
   const currentFiat = searchParams.fiat || "USD";
+  const toast = searchParams.myAdToast;
 
   // Fetch live orders
   const orders = await getActiveOrders(adTypeToFetch, currentAsset, currentFiat);
@@ -188,6 +189,19 @@ export default async function P2PPage({ searchParams }: Props) {
             </Link>
           </div>
 
+          {toast && (
+            <div className={`rounded-sm border px-3 py-2 text-xs ${
+              toast === "activated" || toast === "paused"
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-error/30 bg-error/10 text-error"
+            }`}>
+              {toast === "activated" && "Ad activated successfully."}
+              {toast === "paused" && "Ad paused successfully."}
+              {toast === "auth_error" && "Please sign in again to manage your ads."}
+              {toast === "update_error" && "Unable to update ad status. Please try again."}
+            </div>
+          )}
+
           {!user ? (
             <EmptyState
               title="Sign in to manage ads"
@@ -241,7 +255,7 @@ export default async function P2PPage({ searchParams }: Props) {
                         >
                           Edit
                         </Link>
-                        <form action={setOrderStatus.bind(null, ad.id, ad.status === "active" ? "cancelled" : "active") }>
+                        <form action={setOrderStatus.bind(null, ad.id, ad.status === "active" ? "cancelled" : "active", currentTab, currentAsset, currentFiat)}>
                           <button
                             type="submit"
                             className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary"
