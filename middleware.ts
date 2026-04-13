@@ -41,6 +41,8 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname === '/' || 
     request.nextUrl.pathname === '/login' || 
     request.nextUrl.pathname === '/register' ||
+    request.nextUrl.pathname.startsWith('/auth/') ||
+    request.nextUrl.pathname.startsWith('/api/') ||
     request.nextUrl.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/i);
 
   if (!isPublicPath && !user) {
