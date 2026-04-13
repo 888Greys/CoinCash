@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { OTPAuthForm } from "@/components/otp-auth-form";
 
 type RegisterPageProps = {
   searchParams?: {
@@ -124,154 +125,13 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
-                type="button"
-              >
-                <span className="text-sm text-[#4285F4]">G</span>
-                <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface transition-colors group-hover:text-primary">
-                  Google
-                </span>
-              </button>
-              <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
-                type="button"
-              >
-                <span className="text-sm text-[#229ED9]">T</span>
-                <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface transition-colors group-hover:text-primary">
-                  Telegram
-                </span>
-              </button>
-            </div>
+            {errorState === "terms" && (
+              <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 mb-4 block">
+                Please agree to Terms and Privacy Policy to continue.
+              </p>
+            )}
 
-            <div className="relative flex items-center py-4">
-              <div className="flex-grow border-t border-outline-variant/20" />
-              <span className="mx-4 flex-shrink font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                OR
-              </span>
-              <div className="flex-grow border-t border-outline-variant/20" />
-            </div>
-
-            <form action={registerAction} className="space-y-6">
-              {errorState === "terms" && (
-                <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                  Please agree to Terms and Privacy Policy to continue.
-                </p>
-              )}
-              {errorState === "nomatch" && (
-                <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
-                  Password and confirm password do not match.
-                </p>
-              )}
-              {errorState === "failed" && (
-                <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
-                  Registration failed. Email might already be in use.
-                </p>
-              )}
-
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label
-                    className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                    htmlFor="register-identifier"
-                  >
-                    Email or Phone
-                  </label>
-                  <div className="ghost-border bg-surface-container-lowest transition-all">
-                    <input
-                      className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
-                      id="register-identifier"
-                      name="identifier"
-                      placeholder="terminal@coincash.io"
-                      required
-                      type="text"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-end justify-between">
-                    <label
-                      className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                      htmlFor="register-password"
-                    >
-                      Password
-                    </label>
-                    <span className="text-[10px] font-bold uppercase tracking-tighter text-primary">
-                      Security: Strong
-                    </span>
-                  </div>
-                  <div className="ghost-border bg-surface-container-lowest transition-all">
-                    <input
-                      className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
-                      id="register-password"
-                      name="password"
-                      placeholder="••••••••••••"
-                      required
-                      type="password"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label
-                    className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                    htmlFor="register-password-confirm"
-                  >
-                    Confirm Password
-                  </label>
-                  <div className="ghost-border bg-surface-container-lowest transition-all">
-                    <input
-                      className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
-                      id="register-password-confirm"
-                      name="confirmPassword"
-                      placeholder="••••••••••••"
-                      required
-                      type="password"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 items-center">
-                  <input
-                    className="h-4 w-4 rounded-sm border-outline-variant bg-surface-container-low text-primary focus:ring-0"
-                    id="terms"
-                    name="terms"
-                    type="checkbox"
-                  />
-                </div>
-                <label className="text-xs leading-relaxed text-on-surface-variant" htmlFor="terms">
-                  I agree to the{" "}
-                  <Link className="text-primary hover:underline" href="/login">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link className="text-primary hover:underline" href="/login">
-                    Privacy Policy
-                  </Link>
-                  . I understand that digital asset trading involves significant risk.
-                </label>
-              </div>
-
-              <button
-                className="kinetic-gradient w-full rounded-lg py-4 font-label text-sm font-bold uppercase tracking-[0.2em] text-on-primary-container shadow-lg shadow-primary/10 transition-all active:scale-[0.98]"
-                type="submit"
-              >
-                Create Account
-              </button>
-
-              <div className="flex justify-between gap-3 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
-                <Link className="transition-colors hover:text-primary" href="/markets">
-                  View Markets
-                </Link>
-                <Link className="transition-colors hover:text-primary" href="/p2p/buy">
-                  Buy USDT
-                </Link>
-              </div>
-            </form>
+            <OTPAuthForm mode="register" />
 
             <p className="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
               Already have an account?{" "}

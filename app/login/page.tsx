@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { loginAction } from "./actions";
 import { LoginOverlay } from "@/components/login-overlay";
+import { OTPAuthForm } from "@/components/otp-auth-form";
 
 type LoginPageProps = {
   searchParams?: {
@@ -92,140 +92,20 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
-                type="button"
-              >
-                <span className="text-sm text-[#4285F4]">G</span>
-                <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface transition-colors group-hover:text-primary">
-                  Google
-                </span>
-              </button>
-              <button
-                className="group flex items-center justify-center gap-3 rounded-lg bg-surface-container-high px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-bright"
-                type="button"
-              >
-                <span className="text-sm text-[#229ED9]">T</span>
-                <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface transition-colors group-hover:text-primary">
-                  Telegram
-                </span>
-              </button>
-            </div>
+            <LoginOverlay />
+            
+            {justRegistered && (
+              <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary mb-4 block">
+                Account created. You can log in now.
+              </p>
+            )}
+            {errorState === "auth_required" && (
+              <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 mb-4 block">
+                Authentication required. Please log in first.
+              </p>
+            )}
 
-            <div className="relative flex items-center py-4">
-              <div className="flex-grow border-t border-outline-variant/20" />
-              <span className="mx-4 flex-shrink font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                OR
-              </span>
-              <div className="flex-grow border-t border-outline-variant/20" />
-            </div>
-
-            <form action={loginAction} className="space-y-6">
-              <LoginOverlay />
-              
-              {justRegistered && (
-                <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
-                  Account created. You can log in now.
-                </p>
-              )}
-              {errorState === "invalid" && (
-                <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
-                  Wrong email or password. Try again.
-                </p>
-              )}
-              {errorState === "auth_required" && (
-                <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                  Authentication required. Please log in first.
-                </p>
-              )}
-              {errorState === "config" && (
-                <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                  Dev login is not configured. Set DEV_LOGIN_EMAIL and DEV_LOGIN_PASSWORD.
-                </p>
-              )}
-
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label
-                    className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                    htmlFor="login-identifier"
-                  >
-                    Email or Phone
-                  </label>
-                  <div className="ghost-border bg-surface-container-lowest transition-all">
-                    <input
-                      className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
-                      id="login-identifier"
-                      name="identifier"
-                      placeholder="you@example.com"
-                      required
-                      type="text"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-end justify-between">
-                    <label
-                      className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                      htmlFor="login-password"
-                    >
-                      Password
-                    </label>
-                    <Link
-                      className="text-[10px] font-bold uppercase tracking-tighter text-primary"
-                      href="/login"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="ghost-border bg-surface-container-lowest transition-all">
-                    <input
-                      className="w-full border-none bg-transparent px-4 py-4 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
-                      id="login-password"
-                      name="password"
-                      placeholder="••••••••••••"
-                      required
-                      type="password"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 text-xs text-on-surface-variant">
-                <label className="flex items-center gap-2" htmlFor="remember-login">
-                  <input
-                    className="h-4 w-4 rounded-sm border-outline-variant bg-surface-container-low text-primary focus:ring-0"
-                    id="remember-login"
-                    type="checkbox"
-                  />
-                  <span className="inline-flex items-center gap-2">
-                    Remember me
-                    <span className="auth-live-dot h-1.5 w-1.5 rounded-full bg-primary" />
-                  </span>
-                </label>
-                <Link className="text-primary hover:underline" href="/login">
-                  Need help?
-                </Link>
-              </div>
-
-              <button
-                className="kinetic-gradient w-full rounded-lg py-4 font-label text-sm font-bold uppercase tracking-[0.2em] text-on-primary-container shadow-lg shadow-primary/10 transition-all active:scale-[0.98]"
-                type="submit"
-              >
-                Log In
-              </button>
-
-              <div className="flex justify-between gap-3 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
-                <Link className="transition-colors hover:text-primary" href="/login?error=auth_required">
-                  View Markets
-                </Link>
-                <Link className="transition-colors hover:text-primary" href="/login?error=auth_required">
-                  Buy USDT
-                </Link>
-              </div>
-            </form>
+            <OTPAuthForm mode="login" />
 
             <p className="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
               New to CoinCash?{" "}
