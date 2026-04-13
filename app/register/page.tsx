@@ -11,6 +11,7 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
   async function registerAction(formData: FormData) {
     "use server";
 
+    const email = String(formData.get("identifier") ?? "").trim().toLowerCase();
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
     const agreedToTerms = formData.get("terms") === "on";
@@ -21,6 +22,18 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
 
     if (password !== confirmPassword) {
       redirect("/register?error=nomatch");
+    }
+
+    const { createClient } = await import("@/utils/supabase/server");
+    const supabase = createClient();
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      redirect("/register?error=failed");
     }
 
     redirect("/login?registered=1");
@@ -149,6 +162,11 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
               {errorState === "nomatch" && (
                 <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
                   Password and confirm password do not match.
+                </p>
+              )}
+              {errorState === "failed" && (
+                <p className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                  Registration failed. Email might already be in use.
                 </p>
               )}
 

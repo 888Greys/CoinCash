@@ -1,33 +1,30 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 
 export async function loginAction(formData: FormData) {
-  const identifier = String(formData.get("identifier") ?? "")
+  const email = String(formData.get("identifier") ?? "")
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
 
-  const devEmail = process.env.DEV_LOGIN_EMAIL?.trim().toLowerCase();
-  const devPassword = process.env.DEV_LOGIN_PASSWORD;
+  const supabase = createClient();
 
-  // Artificial delay to show off the splash screen seamlessly
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  if (!devEmail || !devPassword) {
-    redirect("/login?error=config");
+  if (error) {
+    redirect("/login?error=invalid");
   }
 
-  if (identifier === devEmail && password === devPassword) {
-    cookies().set('auth_session', 'true', { path: '/' });
-    redirect("/home");
-  }
-
-  redirect("/login?error=invalid");
+  redirect("/home");
 }
 
 export async function logoutAction() {
-  cookies().delete('auth_session');
+  const supabase = createClient();
+  await supabase.auth.signOut();
   redirect("/login");
 }

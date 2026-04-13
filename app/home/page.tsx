@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
+import { createClient } from "@/utils/supabase/server";
 
 const marketCards = [
   {
@@ -70,7 +71,28 @@ const academyLinks = [
   { title: "How to use the Grid Trading Bot", duration: "6 min read", level: "Intermediate", icon: "smart_toy" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let liveUsdtBalance = 0;
+
+  if (user) {
+    const { data: wallets } = await supabase
+      .from("wallets")
+      .select("currency, balance")
+      .eq("user_id", user.id);
+      
+    if (wallets) {
+      const usdt = wallets.find(w => w.currency === 'USDT');
+      if (usdt) liveUsdtBalance = Number(usdt.balance);
+    }
+  }
+
+  // Assuming BTC is $50,000 for a mock equivalent calculation, or fetch a real price
+  const btcRate = 52340.12;
+  const liveBtc = liveUsdtBalance / btcRate;
+
   return (
     <AppShell currentPath="/home">
       <div className="px-4 pt-4 max-w-5xl mx-auto space-y-6">
@@ -85,16 +107,16 @@ export default function HomePage() {
                 Total Balance (USD)
               </span>
               <h1 className="font-headline text-4xl font-bold tracking-tight text-on-surface">
-                <PortfolioBalance />
+                $<PortfolioBalance liveBalance={liveUsdtBalance} />
               </h1>
             </div>
             <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded text-primary">
               <span className="material-symbols-outlined text-sm">trending_up</span>
-              <span className="text-xs font-bold font-headline">+5.24%</span>
+              <span className="text-xs font-bold font-headline">+0.00%</span>
             </div>
           </div>
           <div className="flex items-center gap-2 mb-8">
-            <span className="text-xs text-on-surface-variant font-mono">≈ <PortfolioBtcEquivalent /> BTC</span>
+            <span className="text-xs text-on-surface-variant font-mono">≈ <PortfolioBtcEquivalent liveBtc={liveBtc} /> BTC</span>
             <ToggleVisibilityButton />
           </div>
           {/* Quick Actions Grid */}

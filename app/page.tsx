@@ -7,10 +7,10 @@ export default function RootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Show splash screen for 4 seconds, then go to login
+    // Show splash screen for 2 seconds, then go to login for a snappier experience
     const timer = window.setTimeout(() => {
       router.push("/login");
-    }, 4000);
+    }, 2000);
 
     return () => {
       window.clearTimeout(timer);

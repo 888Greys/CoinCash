@@ -2,20 +2,22 @@
 
 import { useAppStore } from "@/lib/store";
 
-export function PortfolioBalance() {
+export function PortfolioBalance({ liveBalance }: { liveBalance?: number }) {
   const { totalBalance, hideBalances } = useAppStore();
+  const displayVal = liveBalance ?? totalBalance;
 
   const formattedBalance = hideBalances
     ? "********"
-    : totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    : displayVal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return <>{formattedBalance}</>;
 }
 
-export function PortfolioBtcEquivalent() {
+export function PortfolioBtcEquivalent({ liveBtc }: { liveBtc?: number }) {
   const { btcEquivalent, hideBalances } = useAppStore();
+  const displayVal = liveBtc ?? btcEquivalent;
 
-  const formattedBtc = hideBalances ? "******" : btcEquivalent.toFixed(6);
+  const formattedBtc = hideBalances ? "******" : displayVal.toFixed(6);
 
   return <>{formattedBtc}</>;
 }
