@@ -197,29 +197,41 @@ export default async function HomePage() {
               View Markets
             </Link>
           </div>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-            {dynamicMarketCards.map((card) => (
-              <div key={card.symbol} className={`min-w-[140px] bg-surface-container-low p-4 rounded-lg border-b-2 ${card.borderColor}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
-                  <span className="font-headline font-bold text-sm">{card.symbol}</span>
+          <div className="relative overflow-hidden rounded-lg">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#0b0e11] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[#0b0e11] to-transparent" />
+
+            <div
+              className="market-ticker-track pb-2"
+              style={{ animationDuration: `${Math.max(14, dynamicMarketCards.length * 5)}s` }}
+            >
+              {[0, 1].map((loop) => (
+                <div key={loop} className="market-ticker-group" aria-hidden={loop === 1}>
+                  {dynamicMarketCards.map((card) => (
+                    <div key={`${card.symbol}-${loop}`} className={`w-[140px] shrink-0 bg-surface-container-low p-4 rounded-lg border-b-2 ${card.borderColor}`}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
+                        <span className="font-headline font-bold text-sm">{card.symbol}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-on-surface-variant font-mono font-bold">${card.price}</p>
+                        <p className={`text-[10px] font-bold ${card.changeColor}`}>{card.change}</p>
+                      </div>
+                      <div className="mt-3 h-8 w-full flex items-end">
+                        <svg
+                          className={`w-full h-full fill-none ${card.isPositive ? "stroke-primary" : "stroke-error"} opacity-80`}
+                          preserveAspectRatio="none"
+                          strokeWidth="1.5"
+                          viewBox="0 0 100 20"
+                        >
+                          <path d={card.sparkline} />
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-on-surface-variant font-mono font-bold">${card.price}</p>
-                  <p className={`text-[10px] font-bold ${card.changeColor}`}>{card.change}</p>
-                </div>
-                <div className="mt-3 h-8 w-full flex items-end">
-                  <svg
-                    className={`w-full h-full fill-none ${card.isPositive ? "stroke-primary" : "stroke-error"} opacity-80`}
-                    preserveAspectRatio="none"
-                    strokeWidth="1.5"
-                    viewBox="0 0 100 20"
-                  >
-                    <path d={card.sparkline} />
-                  </svg>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
