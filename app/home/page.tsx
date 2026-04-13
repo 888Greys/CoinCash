@@ -5,47 +5,17 @@ import { AppShell } from "@/components/app-shell";
 import { MarketMovers } from "@/components/market-movers";
 import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
-import { getLivePrices } from "@/lib/price-api";
+import { getExtendedMarketData, generateSvgSparkline } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
 import { fetchCryptoNews } from "@/lib/rss-parser";
 import { P2PExpressWidget } from "@/components/p2p-express-widget";
 
 export const metadata: Metadata = { title: "Dashboard" };
-const marketCards = [
-  {
-    symbol: "BTC",
-    icon: "currency_bitcoin",
-    logo: "/icons/btc.svg",
-    color: "text-primary",
-    borderColor: "border-primary/40",
-    price: "52,340.12",
-    change: "+2.1%",
-    changeColor: "text-primary",
-    sparkline: "M0 15 L20 12 L40 16 L60 8 L80 12 L100 5",
-  },
-  {
-    symbol: "ETH",
-    icon: "token",
-    logo: "/icons/eth.svg",
-    color: "text-secondary",
-    borderColor: "border-secondary/40",
-    price: "2,912.45",
-    change: "+1.4%",
-    changeColor: "text-secondary",
-    sparkline: "M0 18 L20 15 L40 10 L60 14 L80 8 L100 4",
-  },
-  {
-    symbol: "BNB",
-    icon: "database",
-    logo: "/icons/bnb.svg",
-    color: "text-error",
-    borderColor: "border-error/40",
-    price: "384.21",
-    change: "-0.8%",
-    changeColor: "text-error",
-    sparkline: "M0 5 L20 8 L40 12 L60 10 L80 15 L100 18",
-  },
-];
+const MARKET_CARD_META: Record<string, { logo: string; color: string; borderColor: string }> = {
+  BTC:  { logo: "/icons/btc.svg",  color: "text-primary",   borderColor: "border-primary/40" },
+  ETH:  { logo: "/icons/eth.svg",  color: "text-secondary", borderColor: "border-secondary/40" },
+  BNB:  { logo: "/icons/bnb.svg",  color: "text-[#f3ba2f]", borderColor: "border-[#f3ba2f]/40" },
+};
 
 // Removed static newsItems
 
@@ -80,11 +50,17 @@ export default async function HomePage() {
   let walletIds: string[] = [];
 
   // Fetch Global Non-Auth Data in Parallel
-  const [livePrices, liveNews, p2pRes] = await Promise.all([
-    getLivePrices(),
+  const [extendedMarket, liveNews, p2pRes] = await Promise.all([
+    getExtendedMarketData(),
     fetchCryptoNews(),
     supabase.from("p2p_orders").select("*").eq("type", "sell").eq("asset", "USDT").eq("fiat", "KES").eq("status", "active").order("price", { ascending: true }).limit(1).single()
   ]);
+
+  // Build a quick symbol→price map for wallet calculations
+  const livePrices: Record<string, number> = {};
+  for (const asset of extendedMarket) {
+    livePrices[asset.symbol.toUpperCase()] = asset.current_price;
+  }
 
   if (user) {
     // Ensure wallets exist immediately on login
@@ -125,11 +101,27 @@ export default async function HomePage() {
   
   const bestP2POrder = p2pRes.data;
 
-  // Map dynamic prices
-  const dynamicMarketCards = marketCards.map(card => ({
-    ...card,
-    price: livePrices[card.symbol] ? livePrices[card.symbol].toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : card.price
-  }));
+  // Build featured market cards from live extended data (BTC, ETH, BNB only)
+  const FEATURED = ["BTC", "ETH", "BNB"];
+  const dynamicMarketCards = extendedMarket
+    .filter(a => FEATURED.includes(a.symbol.toUpperCase()))
+    .sort((a, b) => FEATURED.indexOf(a.symbol.toUpperCase()) - FEATURED.indexOf(b.symbol.toUpperCase()))
+    .map(asset => {
+      const symbol = asset.symbol.toUpperCase();
+      const meta = MARKET_CARD_META[symbol] ?? { logo: "", color: "text-primary", borderColor: "border-primary/40" };
+      const isPositive = asset.price_change_percentage_24h >= 0;
+      return {
+        symbol,
+        logo: meta.logo,
+        color: meta.color,
+        borderColor: meta.borderColor,
+        price: asset.current_price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 }),
+        change: `${isPositive ? "+" : ""}${asset.price_change_percentage_24h.toFixed(2)}%`,
+        changeColor: isPositive ? "text-primary" : "text-error",
+        sparkline: generateSvgSparkline(asset.sparkline_in_7d?.price ?? [], 100, 20),
+        isPositive,
+      };
+    });
 
   const txIcons: Record<string, { icon: string; color: string; bg: string }> = {
     deposit: { icon: "south_west", color: "text-primary", bg: "bg-primary/10" },
@@ -201,11 +193,7 @@ export default async function HomePage() {
             {dynamicMarketCards.map((card) => (
               <div key={card.symbol} className={`min-w-[140px] bg-surface-container-low p-4 rounded-lg border-b-2 ${card.borderColor}`}>
                 <div className="flex items-center gap-2 mb-3">
-                  {card.logo ? (
-                    <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
-                  ) : (
-                    <span className={`material-symbols-outlined ${card.color} text-xl`}>{card.icon}</span>
-                  )}
+                  <Image src={card.logo} alt={card.symbol} width={20} height={20} unoptimized />
                   <span className="font-headline font-bold text-sm">{card.symbol}</span>
                 </div>
                 <div className="space-y-1">
@@ -213,8 +201,13 @@ export default async function HomePage() {
                   <p className={`text-[10px] font-bold ${card.changeColor}`}>{card.change}</p>
                 </div>
                 <div className="mt-3 h-8 w-full flex items-end">
-                  <svg className={`w-full h-full ${card.color}`} preserveAspectRatio="none" viewBox="0 0 100 20">
-                    <path d={card.sparkline} fill="none" stroke="currentColor" strokeWidth="2" />
+                  <svg
+                    className={`w-full h-full fill-none ${card.isPositive ? "stroke-primary" : "stroke-error"} opacity-80`}
+                    preserveAspectRatio="none"
+                    strokeWidth="1.5"
+                    viewBox="0 0 100 20"
+                  >
+                    <path d={card.sparkline} />
                   </svg>
                 </div>
               </div>
