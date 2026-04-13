@@ -146,10 +146,9 @@ export async function createOrder(formData: FormData) {
     return { success: false, error: error.message };
   }
 
-  // Marketplace shows opposite-side ads (buyers see sell offers, sellers see buy offers).
-  // Redirect to the tab where the newly created ad will actually be listed.
-  const visibleTab = type === "buy" ? "sell" : "buy";
-  redirect(`/p2p?tab=${visibleTab}&asset=${encodeURIComponent(asset)}&fiat=${encodeURIComponent(fiat)}`);
+  // Keep users in their selected intent tab after posting, while marketplace still
+  // shows opposite-side orders under each tab.
+  redirect(`/p2p?tab=${encodeURIComponent(type)}&asset=${encodeURIComponent(asset)}&fiat=${encodeURIComponent(fiat)}`);
 }
 
 // ─── Take an Order (Initiates Trade + Escrow Lock) ───────────────────────

@@ -120,7 +120,7 @@ export default function PostAdPage() {
                           : "bg-surface-container-highest border-outline-variant/20 text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
-                      <span className="material-symbols-outlined text-sm">download</span> I WANT TO BUY
+                      <span className="material-symbols-outlined text-sm">download</span> POST BUY AD
                     </button>
                     <button
                       type="button"
@@ -131,9 +131,12 @@ export default function PostAdPage() {
                           : "bg-surface-container-highest border-outline-variant/20 text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
-                      <span className="material-symbols-outlined text-sm">upload</span> I WANT TO SELL
+                      <span className="material-symbols-outlined text-sm">upload</span> POST SELL AD
                     </button>
                   </div>
+                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Buy ads are shown to users in the Sell tab. Sell ads are shown in the Buy tab.
+                  </p>
                 </div>
                 <div className="space-y-4">
                   <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Cryptocurrency Asset</label>

@@ -90,6 +90,9 @@ export default async function P2PPage({ searchParams }: Props) {
               Sell
             </Link>
           </div>
+          <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+            {currentTab === "buy" ? "Showing seller offers" : "Showing buyer offers"}
+          </p>
         </div>
 
         {/* Marketplace Stats Grid */}
