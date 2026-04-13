@@ -47,8 +47,11 @@ export default async function P2PPage({ searchParams }: Props) {
   const currentTab = searchParams.tab === "sell" ? "sell" : "buy";
   const adTypeToFetch = currentTab === "buy" ? "sell" : "buy";
 
+  const currentAsset = searchParams.asset || "USDT";
+  const currentFiat = searchParams.fiat || "USD";
+
   // Fetch live orders
-  const orders = await getActiveOrders(adTypeToFetch, "USDT", "USD");
+  const orders = await getActiveOrders(adTypeToFetch, currentAsset, currentFiat);
 
   // Fetch recent settlements
   const settlements = await getRecentSettlements(5);
@@ -82,10 +85,10 @@ export default async function P2PPage({ searchParams }: Props) {
             </p>
           </div>
           <div className="flex items-center gap-2 bg-surface-container-low p-1 rounded-sm border border-outline-variant/10">
-            <Link href="?tab=buy" className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "buy" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
+            <Link href={`?tab=buy&asset=${currentAsset}&fiat=${currentFiat}`} className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "buy" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
               Buy
             </Link>
-            <Link href="?tab=sell" className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "sell" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
+            <Link href={`?tab=sell&asset=${currentAsset}&fiat=${currentFiat}`} className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "sell" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
               Sell
             </Link>
           </div>
@@ -104,22 +107,34 @@ export default async function P2PPage({ searchParams }: Props) {
           ))}
         </div>
 
-        {/* Filter Bar */}
-        <div className="flex flex-wrap items-center gap-4 mb-6 py-4 border-y border-outline-variant/10">
-          <div className="relative group min-w-[140px]">
-            <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-primary font-bold uppercase tracking-tighter">Asset</span>
-            <div className="bg-surface-container-lowest border border-outline-variant/20 px-3 py-2 flex items-center justify-between cursor-pointer">
-              <span className="font-headline font-bold text-sm">USDT</span>
-              <span className="material-symbols-outlined text-xs">expand_more</span>
+        {/* Filter Form */}
+        <form method="GET" className="flex flex-wrap items-center gap-4 mb-6 py-4 border-y border-outline-variant/10">
+          <input type="hidden" name="tab" value={currentTab} />
+          
+          <div className="relative min-w-[140px]">
+            <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-primary font-bold uppercase tracking-tighter z-10">Asset</span>
+            <div className="relative bg-surface-container-lowest border border-outline-variant/20 flex items-center cursor-pointer">
+              <select name="asset" defaultValue={currentAsset} className="w-full bg-transparent px-3 py-2 font-headline font-bold text-sm outline-none appearance-none cursor-pointer z-10">
+                <option value="USDT" className="bg-surface text-on-surface">USDT</option>
+                <option value="BTC" className="bg-surface text-on-surface">BTC</option>
+                <option value="ETH" className="bg-surface text-on-surface">ETH</option>
+              </select>
+              <span className="material-symbols-outlined text-xs absolute right-3 pointer-events-none z-0">expand_more</span>
             </div>
           </div>
-          <div className="relative group min-w-[140px]">
-            <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-on-surface-variant font-bold uppercase tracking-tighter">Fiat</span>
-            <div className="bg-surface-container-lowest border border-outline-variant/20 px-3 py-2 flex items-center justify-between cursor-pointer">
-              <span className="font-headline font-bold text-sm">USD</span>
-              <span className="material-symbols-outlined text-xs text-on-surface-variant">expand_more</span>
-            </div>
+
+          <div className="relative min-w-[140px]">
+            <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-on-surface-variant font-bold uppercase tracking-tighter z-10">Fiat</span>
+            <div className="relative bg-surface-container-lowest border border-outline-variant/20 flex items-center cursor-pointer">
+              <select name="fiat" defaultValue={currentFiat} className="w-full bg-transparent px-3 py-2 font-headline font-bold text-sm outline-none appearance-none cursor-pointer z-10 text-on-surface">
+                <option value="USD" className="bg-surface text-on-surface">USD</option>
+                <option value="KES" className="bg-surface text-on-surface">KES</option>
+                <option value="UGX" className="bg-surface text-on-surface">UGX</option>
+              </select>
+              <span className="material-symbols-outlined text-xs text-on-surface-variant absolute right-3 pointer-events-none z-0">expand_more</span>
+             </div>
           </div>
+
           <div className="relative group flex-grow">
             <span className="absolute top-0 left-3 -translate-y-1/2 bg-surface px-1 text-[9px] text-on-surface-variant font-bold uppercase tracking-tighter">Payment Method</span>
             <div className="bg-surface-container-lowest border border-outline-variant/20 px-3 py-2 flex items-center justify-between cursor-pointer">
@@ -127,10 +142,12 @@ export default async function P2PPage({ searchParams }: Props) {
               <span className="material-symbols-outlined text-xs text-on-surface-variant">filter_list</span>
             </div>
           </div>
-          <button className="bg-primary/10 text-primary p-2 border border-primary/20 hover:bg-primary/20 transition-all">
-            <span className="material-symbols-outlined">refresh</span>
+          
+          <button type="submit" className="bg-primary/10 text-primary p-2 border border-primary/20 hover:bg-primary/20 transition-all flex items-center gap-1.5 px-4 rounded-sm font-label text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+            <span className="material-symbols-outlined text-sm">search</span>
+            SEARCH
           </button>
-        </div>
+        </form>
 
         {/* Merchant Cards Grid */}
         {orders.length === 0 ? (
