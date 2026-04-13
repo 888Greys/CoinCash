@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { PortfolioBalance, PortfolioBtcEquivalent, ToggleVisibilityButton } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
+import { getLivePrices } from "@/lib/price-api";
 
 const marketCards = [
   {
@@ -119,8 +120,8 @@ export default async function HomePage() {
     }
   }
 
-  // Assuming BTC is $50,000 for a mock equivalent calculation, or fetch a real price
-  const btcRate = 52340.12;
+  const livePrices = await getLivePrices();
+  const btcRate = livePrices.BTC || 52340.12;
   const liveBtc = liveUsdtBalance / btcRate;
 
   const txIcons: Record<string, { icon: string; color: string; bg: string }> = {

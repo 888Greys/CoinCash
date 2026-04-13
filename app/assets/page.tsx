@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
+import { getLivePrices } from "@/lib/price-api";
 
 type Wallet = {
   id: string;
@@ -27,12 +28,8 @@ const currencyMeta: Record<string, { icon: string; color: string; name: string; 
   UGX:  { icon: "payments", color: "text-tertiary", name: "Uganda Shilling", letter: "G" },
 };
 
-// Simple USD conversion rates (hardcoded for now)
-const usdRates: Record<string, number> = {
-  USDT: 1,
-  BTC: 52340,
-  ETH: 2912,
-  BNB: 384,
+// Simple local fallback conversions for fiat which aren't on CoinGecko core endpoint
+const fiatRates: Record<string, number> = {
   KES: 0.0078,
   UGX: 0.00027,
 };
@@ -42,8 +39,10 @@ function getCurrencyInfo(currency: string) {
 }
 
 export default async function AssetsPage() {
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const livePrices = await getLivePrices();
 
   let wallets: Wallet[] = [];
   let transactions: Transaction[] = [];
@@ -68,7 +67,7 @@ export default async function AssetsPage() {
     if (walletData) {
       wallets = walletData as Wallet[];
       totalUsdValue = wallets.reduce((sum, w) => {
-        const rate = usdRates[w.currency] ?? 0;
+        const rate = livePrices[w.currency] ?? fiatRates[w.currency] ?? 0;
         return sum + (w.balance + w.locked_balance) * rate;
       }, 0);
     }
@@ -88,8 +87,8 @@ export default async function AssetsPage() {
       }
     }
   }
-
-  const btcRate = usdRates.BTC;
+  // Ensure we don't divide by zero if BTC isn't loaded
+  const btcRate = livePrices.BTC || 52340.12;
   const totalBtc = totalUsdValue / btcRate;
 
   return (
@@ -164,7 +163,7 @@ export default async function AssetsPage() {
                 <tbody className="font-body text-sm">
                   {wallets.map((wallet) => {
                     const info = getCurrencyInfo(wallet.currency);
-                    const rate = usdRates[wallet.currency] ?? 0;
+                    const rate = livePrices[wallet.currency] ?? fiatRates[wallet.currency] ?? 0;
                     const usdValue = (wallet.balance + wallet.locked_balance) * rate;
                     const totalBalance = wallet.balance + wallet.locked_balance;
 
