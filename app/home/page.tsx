@@ -174,14 +174,14 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Featured Markets */}
+        {/* Market Snapshot */}
         <section className="space-y-3">
           <div className="flex justify-between items-center px-1">
             <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
-              Featured Markets
+              Market Snapshot
             </h2>
             <Link className="text-primary text-xs uppercase tracking-tighter font-bold" href="/markets">
-              See All
+              View Markets
             </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
@@ -210,14 +210,14 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Market News */}
+        {/* Market Briefing */}
         <section className="space-y-3">
           <div className="flex justify-between items-center px-1">
             <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
-              Latest Market News
+              Market Briefing
             </h2>
             <button className="text-on-surface-variant text-xs uppercase tracking-tighter font-bold flex items-center gap-1 hover:text-primary transition-colors">
-              View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              More Headlines <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
           </div>
           <div className="space-y-3">
@@ -288,12 +288,12 @@ export default async function HomePage() {
               Recent Transactions
             </h2>
             <Link href="/assets" className="text-primary text-xs uppercase tracking-tighter font-bold flex items-center gap-1">
-              History <span className="material-symbols-outlined text-sm">history</span>
+              View History <span className="material-symbols-outlined text-sm">history</span>
             </Link>
           </div>
           {recentTransactions.length === 0 ? (
             <div className="bg-surface-container-low rounded-lg p-6 text-center border border-outline-variant/10">
-              <p className="text-xs text-on-surface-variant">No transactions yet. Start trading on the <Link href="/p2p" className="text-primary font-bold">P2P Terminal</Link>.</p>
+              <p className="text-xs text-on-surface-variant">No transactions yet. Start trading on the <Link href="/p2p" className="text-primary font-bold">P2P Marketplace</Link>.</p>
             </div>
           ) : (
             <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 divide-y divide-outline-variant/10">
@@ -328,11 +328,11 @@ export default async function HomePage() {
           )}
         </section>
 
-        {/* Learn and Tutorials Feed */}
+        {/* Learning Hub */}
         <section className="space-y-4 pb-24">
           <div className="flex justify-between items-center px-1">
             <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">
-              Learn and Tutorials
+              Learning Hub
             </h2>
             <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">Updated live</span>
           </div>
