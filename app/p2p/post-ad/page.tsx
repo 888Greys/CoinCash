@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { createOrder } from "../actions";
+import { createOrder, updateOrder } from "../actions";
+import { createClient } from "@/utils/supabase/client";
 
 const assetOptions = [
   { value: "USDT", label: "USDT (Tether USD)" },
@@ -20,6 +22,10 @@ const fiatOptions = [
 const paymentOptions = ["Bank Transfer", "M-Pesa", "Zelle", "Wise", "Cash", "Revolut"];
 
 export default function PostAdPage() {
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
+  const isEditMode = !!editId;
+
   const [type, setType] = useState<"buy" | "sell">("buy");
   const [asset, setAsset] = useState("USDT");
   const [fiat, setFiat] = useState("USD");
@@ -31,6 +37,7 @@ export default function PostAdPage() {
   const [terms, setTerms] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const calculatedPrice = (Number(priceMargin) / 100).toFixed(3);
 
@@ -39,6 +46,54 @@ export default function PostAdPage() {
       prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method]
     );
   };
+
+  useEffect(() => {
+    async function loadOrderForEdit(orderId: string) {
+      setLoadingEdit(true);
+      setError(null);
+
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Please sign in to edit ads.");
+        setLoadingEdit(false);
+        return;
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from("p2p_orders")
+        .select("id, type, asset, fiat, price, total_amount, min_limit, max_limit, payment_method, terms")
+        .eq("id", orderId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (fetchError || !data) {
+        setError("Unable to load this ad for editing.");
+        setLoadingEdit(false);
+        return;
+      }
+
+      setType((data.type as "buy" | "sell") ?? "buy");
+      setAsset(data.asset ?? "USDT");
+      setFiat(data.fiat ?? "USD");
+      setPriceMargin(String(Number(data.price ?? 0) * 100));
+      setTotalAmount(String(data.total_amount ?? ""));
+      setMinLimit(String(data.min_limit ?? ""));
+      setMaxLimit(String(data.max_limit ?? ""));
+      setSelectedPayments(
+        String(data.payment_method ?? "")
+          .split(",")
+          .map((p) => p.trim())
+          .filter(Boolean)
+      );
+      setTerms(data.terms ?? "");
+      setLoadingEdit(false);
+    }
+
+    if (editId) {
+      loadOrderForEdit(editId);
+    }
+  }, [editId]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -54,12 +109,15 @@ export default function PostAdPage() {
     formData.append("max_limit", maxLimit);
     formData.append("payment_method", selectedPayments.join(", "));
     formData.append("terms", terms);
+    if (editId) {
+      formData.append("order_id", editId);
+    }
 
-    const result = await createOrder(formData);
+    const result = isEditMode ? await updateOrder(formData) : await createOrder(formData);
 
     // If redirect happens, we won't reach here
     if (result && !result.success) {
-      setError(result.error ?? "Failed to create order");
+      setError(result.error ?? (isEditMode ? "Failed to update order" : "Failed to create order"));
       setLoading(false);
     }
   };
@@ -70,8 +128,12 @@ export default function PostAdPage() {
         {/* Breadcrumb / Progress */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
           <div>
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface mb-2">CREATE_NEW_AD</h2>
-            <p className="text-on-surface-variant text-sm uppercase tracking-[0.1em]">Configuring Merchant Liquidity Node</p>
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface mb-2">
+              {isEditMode ? "EDIT_AD" : "CREATE_NEW_AD"}
+            </h2>
+            <p className="text-on-surface-variant text-sm uppercase tracking-[0.1em]">
+              {isEditMode ? "Updating Merchant Offer" : "Configuring Merchant Offer"}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-center">
@@ -90,6 +152,12 @@ export default function PostAdPage() {
             </div>
           </div>
         </div>
+
+        {loadingEdit && (
+          <div className="rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant mb-6">
+            Loading ad details...
+          </div>
+        )}
 
         {error && (
           <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 mb-6">
@@ -291,10 +359,10 @@ export default function PostAdPage() {
             <div className="flex justify-end pt-4">
               <button
                 onClick={handleSubmit}
-                disabled={loading || !totalAmount || !minLimit || !maxLimit}
+                disabled={loading || loadingEdit || !totalAmount || !minLimit || !maxLimit}
                 className="px-10 py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-extrabold font-headline uppercase tracking-widest text-sm rounded-sm active:scale-95 transition-all shadow-lg shadow-primary/10 disabled:opacity-50"
               >
-                {loading ? "Publishing..." : "Publish Ad To Market"}
+                {loading ? (isEditMode ? "Saving..." : "Publishing...") : (isEditMode ? "Save Ad Changes" : "Publish Ad To Market")}
               </button>
             </div>
           </div>

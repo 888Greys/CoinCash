@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 // ─── Types ───────────────────────────────────────────────────────────────
@@ -149,6 +150,89 @@ export async function createOrder(formData: FormData) {
   // Keep users in their selected intent tab after posting, while marketplace still
   // shows opposite-side orders under each tab.
   redirect(`/p2p?tab=${encodeURIComponent(type)}&asset=${encodeURIComponent(asset)}&fiat=${encodeURIComponent(fiat)}`);
+}
+
+// ─── Update Existing P2P Order ──────────────────────────────────────────
+export async function updateOrder(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const orderId = String(formData.get("order_id") ?? "").trim();
+  const type = String(formData.get("type") ?? "buy");
+  const asset = String(formData.get("asset") ?? "USDT");
+  const fiat = String(formData.get("fiat") ?? "USD");
+  const price = Number(formData.get("price") ?? 0);
+  const total_amount = Number(formData.get("total_amount") ?? 0);
+  const min_limit = Number(formData.get("min_limit") ?? 0);
+  const max_limit = Number(formData.get("max_limit") ?? 0);
+  const payment_method = String(formData.get("payment_method") ?? "");
+  const terms = String(formData.get("terms") ?? "") || null;
+
+  if (!orderId) {
+    return { success: false, error: "Missing order ID" };
+  }
+
+  if (price <= 0 || total_amount <= 0 || min_limit <= 0 || max_limit <= 0) {
+    return { success: false, error: "All numeric fields must be positive" };
+  }
+  if (min_limit > max_limit) {
+    return { success: false, error: "Min limit cannot exceed max limit" };
+  }
+  if (!payment_method) {
+    return { success: false, error: "Payment method is required" };
+  }
+
+  const { error } = await supabase
+    .from("p2p_orders")
+    .update({
+      type,
+      asset,
+      fiat,
+      price,
+      total_amount,
+      min_limit,
+      max_limit,
+      payment_method,
+      terms,
+      status: "active",
+    })
+    .eq("id", orderId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("updateOrder error:", error.message);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/p2p");
+  redirect(`/p2p?tab=${encodeURIComponent(type)}&asset=${encodeURIComponent(asset)}&fiat=${encodeURIComponent(fiat)}`);
+}
+
+// ─── Toggle Own Ad Status ───────────────────────────────────────────────
+export async function setOrderStatus(orderId: string, nextStatus: "active" | "cancelled") {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("p2p_orders")
+    .update({ status: nextStatus })
+    .eq("id", orderId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("setOrderStatus error:", error.message);
+    return;
+  }
+
+  revalidatePath("/p2p");
 }
 
 // ─── Take an Order (Initiates Trade + Escrow Lock) ───────────────────────

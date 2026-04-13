@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { EmptyState } from "@/components/empty-state";
 import { createClient } from "@/utils/supabase/server";
-import { getActiveOrders, getRecentSettlements, type P2POrderWithProfile } from "./actions";
+import { getActiveOrders, getRecentSettlements, setOrderStatus, type P2POrderWithProfile } from "./actions";
 
 export const metadata: Metadata = { title: "P2P Trading" };
 
@@ -234,12 +234,28 @@ export default async function P2PPage({ searchParams }: Props) {
                       <span className="text-[10px] text-on-surface-variant">
                         Visible in <span className="text-on-surface font-semibold">{oppositeTab === "buy" ? "Buy" : "Sell"}</span> tab
                       </span>
-                      <Link
-                        href={`/p2p?tab=${oppositeTab}&asset=${encodeURIComponent(ad.asset)}&fiat=${encodeURIComponent(ad.fiat)}`}
-                        className="text-primary text-[10px] font-bold uppercase tracking-widest"
-                      >
-                        Open
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        <Link
+                          href={`/p2p/post-ad?edit=${encodeURIComponent(ad.id)}`}
+                          className="text-on-surface text-[10px] font-bold uppercase tracking-widest hover:text-primary"
+                        >
+                          Edit
+                        </Link>
+                        <form action={setOrderStatus.bind(null, ad.id, ad.status === "active" ? "cancelled" : "active") }>
+                          <button
+                            type="submit"
+                            className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary"
+                          >
+                            {ad.status === "active" ? "Pause" : "Activate"}
+                          </button>
+                        </form>
+                        <Link
+                          href={`/p2p?tab=${oppositeTab}&asset=${encodeURIComponent(ad.asset)}&fiat=${encodeURIComponent(ad.fiat)}`}
+                          className="text-primary text-[10px] font-bold uppercase tracking-widest"
+                        >
+                          Open
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 );
