@@ -10,6 +10,6 @@ export const appNavRoutes: AppNavRoute[] = [
   { href: "/p2p", label: "P2P" },
   { href: "/assets", label: "Assets" },
   { href: "/payment-methods", label: "Payments" },
-  { href: "/notifications", label: "Logs" },
+  { href: "/notifications", label: "Activity" },
   { href: "/settings", label: "Settings" },
 ];

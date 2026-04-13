@@ -226,7 +226,7 @@ export default function MerchantProfilePage() {
         {/* Dynamic Feed Segment */}
         <section className="mt-12">
           <h3 className="font-label text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant mb-6 flex items-center gap-3">
-            REAL_TIME_FEED
+            LIVE ACTIVITY
             <span className="flex-1 h-[1px] bg-outline-variant/20"></span>
           </h3>
           <div className="space-y-3">

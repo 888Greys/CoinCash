@@ -342,7 +342,7 @@ export default function PostAdPage() {
               <div className="mt-6 p-5 bg-surface-container-low rounded-sm border-l-4 border-secondary/40">
                 <h4 className="text-xs font-bold text-secondary uppercase mb-3 flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm">info</span>
-                  Merchant Protocols
+                  Merchant Guidelines
                 </h4>
                 <ul className="space-y-3 text-[11px] text-on-surface-variant leading-tight">
                   <li className="flex gap-2"><span className="text-secondary">•</span>Ensure your floating margin covers the platform{"'"}s 0.1% merchant fee.</li>

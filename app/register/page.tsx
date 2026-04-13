@@ -88,8 +88,8 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
               DECENTRALIZE <br /> <span className="text-primary">YOUR WEALTH</span>
             </h2>
             <p className="auth-fade-up-delay-1 max-w-md text-lg font-light text-on-surface-variant">
-              Join the high-frequency terminal for the next generation of asset exchange. Speed is
-              your edge. Precision is your profit.
+              Join a next-generation marketplace built for confident execution. Speed is
+              your edge. Precision drives your results.
             </p>
             <div className="auth-fade-up-delay-2 flex gap-8 pt-8">
               <div>

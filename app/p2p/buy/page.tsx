@@ -251,7 +251,7 @@ export default function BuyPage() {
               100% SECURE<br />LIQUIDITY
             </p>
             <p className="text-[10px] uppercase tracking-widest text-primary font-bold mt-1">
-              Protocol Verified
+              Security Verified
             </p>
           </div>
         </div>

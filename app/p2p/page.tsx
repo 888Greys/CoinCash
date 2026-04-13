@@ -79,7 +79,7 @@ export default async function P2PPage({ searchParams }: Props) {
               P2P Marketplace
             </h1>
             <p className="text-on-surface-variant font-label text-xs uppercase tracking-[0.2em]">
-              Liquid peer-to-peer exchange for high-frequency settlement
+              Trusted peer-to-peer marketplace with fast settlement
             </p>
           </div>
           <div className="flex items-center gap-2 bg-surface-container-low p-1 rounded-sm border border-outline-variant/10">
@@ -92,7 +92,7 @@ export default async function P2PPage({ searchParams }: Props) {
           </div>
         </div>
 
-        {/* Terminal Stats Grid */}
+        {/* Marketplace Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-outline-variant/10 mb-8 border border-outline-variant/10">
           {stats.map((s) => (
             <div key={s.label} className="bg-surface-container-low p-4">
