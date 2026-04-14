@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-dim": "#00d4ed",
+                    "on-tertiary-fixed-variant": "#005762",
+                    "on-tertiary": "#005762",
+                    "on-tertiary-container": "#004d57",
+                    "on-error-container": "#ffd2c8",
+                    "secondary": "#78f5ae",
+                    "primary": "#5cfd80",
+                    "on-background": "#f8f9fe",
+                    "on-surface-variant": "#a9abaf",
+                    "outline-variant": "#45484c",
+                    "surface": "#0b0e11",
+                    "on-primary-fixed-variant": "#006827",
+                    "on-error": "#450900",
+                    "surface-container-low": "#101417",
+                    "error": "#ff7351",
+                    "background": "#0b0e11",
+                    "error-dim": "#d53d18",
+                    "inverse-primary": "#006e2a",
+                    "on-secondary": "#005a35",
+                    "on-surface": "#f8f9fe",
+                    "on-primary-fixed": "#004819",
+                    "outline": "#737679",
+                    "tertiary-container": "#00e3fe",
+                    "surface-container-high": "#1c2024",
+                    "surface-tint": "#5cfd80",
+                    "secondary-container": "#006d41",
+                    "tertiary": "#84ecff",
+                    "secondary-fixed": "#78f5ae",
+                    "secondary-dim": "#69e6a1",
+                    "tertiary-fixed-dim": "#00d4ed",
+                    "surface-bright": "#282d31",
+                    "on-primary": "#005d22",
+                    "error-container": "#b92902",
+                    "primary-fixed-dim": "#4bee74",
+                    "on-secondary-fixed": "#004528",
+                    "on-primary-container": "#003711",
+                    "surface-variant": "#22262b",
+                    "on-secondary-fixed-variant": "#00653c",
+                    "surface-container-highest": "#22262b",
+                    "primary-container": "#02c953",
+                    "surface-container": "#161a1e",
+                    "primary-fixed": "#5cfd80",
+                    "on-secondary-container": "#e2ffe8",
+                    "primary-dim": "#4bee74",
+                    "surface-dim": "#0b0e11",
+                    "on-tertiary-fixed": "#003840",
+                    "inverse-on-surface": "#535559",
+                    "tertiary-fixed": "#00e3fe",
+                    "surface-container-lowest": "#000000",
+                    "inverse-surface": "#f8f9fe",
+                    "secondary-fixed-dim": "#69e6a1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0e11;
+            color: #f8f9fe;
+        }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col pb-24">
+<!-- Top App Bar -->
+<header class="bg-[#101417] flex items-center justify-between px-4 h-16 w-full docked full-width top-0 sticky z-50">
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#282d31] transition-all p-2 rounded-full scale-95 active:opacity-80">
+<span class="material-symbols-outlined text-slate-400">arrow_back</span>
+</button>
+<h1 class="font-['Space_Grotesk'] font-bold tracking-tight text-lg text-[#5cfd80]">Buy USDT</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">help</span>
+</div>
+</header>
+<main class="flex-1 px-4 py-6 space-y-6">
+<!-- Exchange Rate Header -->
+<section class="space-y-1">
+<div class="flex items-center gap-2 opacity-60">
+<span class="font-label uppercase tracking-widest text-[10px] font-bold">Exchange Rate</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-3xl font-bold tracking-tighter">Price KES 130</span>
+<span class="text-primary text-xs font-bold font-label uppercase tracking-wider">+0.4%</span>
+</div>
+</section>
+<!-- Tab Selector -->
+<nav class="flex p-1 bg-surface-container-low rounded-lg gap-1">
+<button class="flex-1 py-2 text-center rounded-md font-label text-xs font-bold uppercase tracking-widest bg-surface-bright text-on-surface transition-all">
+                By KES
+            </button>
+<button class="flex-1 py-2 text-center rounded-md font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-all">
+                By Crypto
+            </button>
+</nav>
+<!-- Transaction Card -->
+<div class="bg-surface-container-high rounded-xl p-5 space-y-6 shadow-2xl relative overflow-hidden">
+<!-- Decorative Subtle Glow -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 blur-[80px] rounded-full"></div>
+<!-- Input Section -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant">Amount to Spend</label>
+<span class="font-label text-[10px] text-primary/80">Min: 500.00 KES</span>
+</div>
+<div class="relative flex items-center bg-surface-container-lowest rounded-lg border border-outline-variant/15 focus-within:border-primary/40 transition-all p-4">
+<input class="bg-transparent border-none focus:ring-0 w-full text-xl font-headline font-medium placeholder:text-outline/40" placeholder="Enter KES amount" type="number"/>
+<div class="flex items-center gap-3">
+<button class="text-primary font-bold font-label text-xs uppercase tracking-wider hover:brightness-110">Max</button>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+<span class="font-headline font-bold text-on-surface">KES</span>
+</div>
+</div>
+</div>
+<!-- Conversion Summary -->
+<div class="flex items-center justify-between py-4 border-t border-b border-outline-variant/10">
+<span class="font-label text-sm text-on-surface-variant">You Receive</span>
+<div class="flex items-center gap-2">
+<span class="font-headline text-2xl font-bold text-primary">0.00</span>
+<span class="font-headline font-bold text-slate-400">USDT</span>
+</div>
+</div>
+<!-- Payment Method Selector -->
+<div class="space-y-3">
+<label class="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant">Payment Method</label>
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10 cursor-pointer hover:bg-surface-bright transition-all group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<div>
+<p class="font-label text-sm font-bold text-on-surface">M-Pesa: 0140643848</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<p class="text-[10px] font-label font-medium text-primary uppercase tracking-tighter">Active Instant</p>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-on-surface">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Advertiser's Info -->
+<section class="bg-surface-container-low rounded-xl p-4 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Professional portrait of merchant Anthony Kimandi, sharp lighting, dark background, tech executive aesthetic" class="w-12 h-12 rounded-full object-cover grayscale brightness-75 border border-outline-variant/20" data-alt="Professional portrait of merchant Anthony Kimandi, sharp lighting, dark background, tech executive aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCficZtO0HapAZEcxZ4qmoB7aIRkd-24rR70dApA96ytCBCxnXTIsbGR342L020QsBDic4W3XxdkXGjBFaQpwZ722WO7Lvdyzo3QQnsnvzXJesorhF9DIzXdY8yxsOM8VZ8TJqRpXGoTSWTJw5mJgbgCHRO5przCTNzZ6Z6JNbnbAcP9upertsv8XrCUqdS-ELT_aWxpMkvEc3AHHZYhjESz88-STHAxjcMrwaKuhCndg5aa2TqvPScCHiFmY3fYqJ_fr6RizWb3tw"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary border-2 border-surface-container-low rounded-full"></span>
+</div>
+<div>
+<div class="flex items-center gap-1">
+<h3 class="font-headline font-bold text-sm tracking-wide">ANTHONY KIMANDI</h3>
+<span class="material-symbols-outlined text-[#3da9fc] text-lg" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">98.5% Completion • 1.2k Trades</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label text-[10px] text-primary uppercase font-bold tracking-widest">Online</p>
+<p class="font-label text-[10px] text-on-surface-variant mt-0.5">Avg 2 mins</p>
+</div>
+</div>
+<!-- Terms/Footer Text -->
+<div class="flex gap-3 items-start bg-error/10 p-3 rounded-lg border-l-2 border-error">
+<span class="material-symbols-outlined text-error text-sm mt-0.5">info</span>
+<p class="font-label text-xs text-on-surface-variant leading-relaxed">
+<span class="text-error font-bold uppercase">Strictly no third party payment.</span> The name on your M-Pesa account must match your CoinCash verified identity.
+                </p>
+</div>
+</section>
+</main>
+<!-- Bottom Actions Container -->
+<footer class="fixed bottom-0 left-0 w-full bg-surface-container-highest p-4 pb-8 space-y-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] z-50">
+<div class="flex items-center justify-between px-2">
+<div class="flex flex-col">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Total Payable</span>
+<span class="font-headline text-lg font-bold text-on-surface">0.00 KES</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">No Fees</span>
+<span class="font-label text-xs text-primary font-bold">Free Transaction</span>
+</div>
+</div>
+<button class="w-full h-14 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform">
+            Place Order
+            <span class="material-symbols-outlined">trending_flat</span>
+</button>
+</footer>
+<!-- Bottom Navigation Bar (Hidden as per "Destination" Rule for Transactional pages) -->
+<!-- Suppression Logic: Suppressed because the page intent is Transactional / Checkout focused -->
+</body></html>

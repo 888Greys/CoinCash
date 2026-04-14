@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRef } from "react";
-import { AppShell } from "@/components/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { takeOrder } from "../actions";
 
 export default function BuyPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // These would ideally come from a server fetch, but for now we use search params
-  // with the expectation that the linking page embeds key data
   const orderId = searchParams.get("order");
   const merchantName = searchParams.get("merchant") || "Merchant";
   const orderPrice = Number(searchParams.get("price") || "1.041");
@@ -30,23 +27,27 @@ export default function BuyPage() {
   const [payAmount, setPayAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const touchStartY = useRef<number | null>(null);
-  const touchDeltaY = useRef(0);
-  const canSwipeClose = useRef(false);
 
   const payAmountNum = Number(payAmount || 0);
   const receiveAmountNum = payAmountNum > 0 ? payAmountNum / orderPrice : 0;
-  const receiveAmount = payAmountNum > 0 ? receiveAmountNum.toFixed(6) : "";
+  const receiveAmount = payAmountNum > 0 ? receiveAmountNum.toFixed(6) : "0.00";
+
   const maxPayByInventory = availableNum * orderPrice;
   const effectiveMaxPay = Math.min(maxLimitNum, maxPayByInventory);
   const outOfRange = payAmountNum > 0 && (payAmountNum < minLimitNum || payAmountNum > effectiveMaxPay);
 
   const handleBuy = async () => {
-    if (!orderId || !receiveAmount) return;
+    if (!orderId) return;
 
     if (outOfRange) {
-      setError(`Amount must be between ${minLimitNum.toLocaleString()} and ${effectiveMaxPay.toLocaleString()} ${orderFiat}`);
+      setError(
+        `Amount must be between ${minLimitNum.toLocaleString()} and ${effectiveMaxPay.toLocaleString()} ${orderFiat}`
+      );
+      return;
+    }
+
+    if (receiveAmountNum <= 0) {
+      setError("Enter a valid amount.");
       return;
     }
 
@@ -66,319 +67,169 @@ export default function BuyPage() {
       return;
     }
 
-    // Redirect to trade order page
     router.push(`/p2p/order/${result.tradeId}`);
   };
 
-  const onSheetTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (window.innerWidth >= 768) return;
-    touchStartY.current = e.touches[0].clientY;
-    touchDeltaY.current = 0;
-    canSwipeClose.current = (panelRef.current?.scrollTop ?? 0) <= 2;
-  };
-
-  const onSheetTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!canSwipeClose.current || touchStartY.current === null) return;
-    touchDeltaY.current = e.touches[0].clientY - touchStartY.current;
-  };
-
-  const onSheetTouchEnd = () => {
-    if (canSwipeClose.current && touchDeltaY.current > 95) {
-      router.back();
-    }
-    touchStartY.current = null;
-    touchDeltaY.current = 0;
-    canSwipeClose.current = false;
-  };
-
   return (
-    <AppShell currentPath="/p2p">
-      <div className="fixed inset-0 bg-black/60 md:hidden" onClick={() => router.back()} />
-      <div
-        ref={panelRef}
-        onTouchStart={onSheetTouchStart}
-        onTouchMove={onSheetTouchMove}
-        onTouchEnd={onSheetTouchEnd}
-        className="fixed inset-x-0 bottom-0 top-20 z-20 overflow-y-auto rounded-t-[32px] border border-outline-variant/15 bg-surface px-4 py-6 p2p-sheet-enter md:static md:inset-auto md:z-auto md:max-w-4xl md:mx-auto md:rounded-none md:border-0 md:bg-transparent md:px-4 md:py-8"
-      >
-        <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-outline-variant/30 md:hidden" />
-        {/* Transaction Breadcrumb */}
-        <div className="flex items-center gap-2 text-on-surface-variant mb-2">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-sm hover:text-primary transition-colors">arrow_back</span>
-          </button>
-          <span className="font-label text-xs uppercase tracking-[0.1em]">
-            P2P Markets / {orderAsset} Buy
-          </span>
+    <div className="min-h-[100dvh] bg-surface text-on-surface pb-28">
+      <header className="sticky top-0 z-30 h-16 w-full border-b border-outline-variant/10 bg-surface-container-low px-4">
+        <div className="mx-auto flex h-full w-full max-w-3xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="rounded-full p-2 transition-all hover:bg-surface-bright"
+              aria-label="Back"
+            >
+              <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+            </button>
+            <h1 className="font-headline text-lg font-bold tracking-tight text-primary">Buy {orderAsset}</h1>
+          </div>
+          <span className="material-symbols-outlined text-on-surface-variant">help</span>
         </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+        <section className="space-y-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Exchange Rate</p>
+          <div className="flex items-baseline gap-2">
+            <span className="font-headline text-3xl font-bold tracking-tight">Price {orderFiat} {orderPrice.toFixed(3)}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-primary">Live</span>
+          </div>
+        </section>
+
+        <nav className="flex gap-1 rounded-lg bg-surface-container-low p-1">
+          <button className="flex-1 rounded-md bg-surface-bright py-2 text-center font-label text-xs font-bold uppercase tracking-widest text-on-surface">
+            By {orderFiat}
+          </button>
+          <button className="flex-1 rounded-md py-2 text-center font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            By Crypto
+          </button>
+        </nav>
 
         {error && (
-          <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div className="rounded-sm border border-error/40 bg-error/10 px-3 py-2 text-xs text-error">
             {error}
           </div>
         )}
 
-        {/* Mobile trade sheet (exchange-style) */}
-        <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-4 space-y-4">
-          <div className="text-center py-2">
-            <h1 className="text-3xl font-headline font-black tracking-tight">Buy {orderAsset}</h1>
-            <p className="text-sm text-on-surface-variant">
-              Price {orderFiat} {orderPrice.toFixed(3)}
-            </p>
-          </div>
+        <section className="relative space-y-6 overflow-hidden rounded-xl bg-surface-container-high p-5 shadow-2xl">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-primary/5 blur-3xl" />
 
-          <div className="space-y-2">
-            <p className="text-xl font-semibold">By {orderFiat}</p>
-            <div className="rounded-xl border border-outline-variant/20 bg-surface-container-highest px-4 py-4">
-              <div className="flex items-center">
-                <input
-                  className="w-full bg-transparent border-none focus:ring-0 text-3xl font-bold text-on-surface placeholder:text-on-surface-variant/40"
-                  placeholder="10000"
-                  type="number"
-                  value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
-                  disabled={loading}
-                />
-                <span className="text-2xl font-bold">{orderFiat}</span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Amount to Spend</label>
+              <span className="text-[10px] font-medium text-primary/80">Min: {minLimitNum.toLocaleString("en-US", { minimumFractionDigits: 2 })} {orderFiat}</span>
+            </div>
+            <div className="flex items-center rounded-lg border border-outline-variant/15 bg-surface-container-lowest p-4 transition-all focus-within:border-primary/40">
+              <input
+                className="w-full border-none bg-transparent font-headline text-xl font-medium placeholder:text-outline/40 focus:ring-0"
+                placeholder={`Enter ${orderFiat} amount`}
+                type="number"
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                disabled={loading}
+              />
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setPayAmount(String(effectiveMaxPay))}
-                  className="ml-3 text-lg font-bold text-primary"
+                  className="text-xs font-bold uppercase tracking-wider text-primary hover:brightness-110"
                 >
                   Max
                 </button>
+                <div className="h-6 w-px bg-outline-variant/30" />
+                <span className="font-headline font-bold">{orderFiat}</span>
               </div>
             </div>
-            <p className="text-sm text-on-surface-variant">
-              Enter value between {minLimitNum.toLocaleString("en-US")} and {effectiveMaxPay.toLocaleString("en-US")} {orderFiat}
+            <p className="text-xs text-on-surface-variant">
+              Enter value between {minLimitNum.toLocaleString()} and {effectiveMaxPay.toLocaleString()} {orderFiat}
             </p>
           </div>
 
-          <div className="flex items-center justify-between border-b border-outline-variant/15 pb-3">
-            <span className="text-3xl font-semibold">You Receive</span>
-            <span className="text-2xl font-bold">
-              {receiveAmount || "0.00"} {orderAsset}
-            </span>
-          </div>
-
-          <div className="rounded-xl border border-outline-variant/20 bg-surface-container-highest px-4 py-3">
-            <p className="text-lg font-semibold">{paymentMethod}</p>
-          </div>
-
-          <div className="space-y-1 pt-2">
-            <h2 className="text-3xl font-semibold">Advertiser's Info</h2>
-            <div className="flex items-center justify-between">
-              <p className="text-2xl font-bold uppercase">{merchantName}</p>
-              <p className="text-lg text-primary">Online</p>
+          <div className="flex items-center justify-between border-y border-outline-variant/10 py-4">
+            <span className="text-sm text-on-surface-variant">You Receive</span>
+            <div className="flex items-center gap-2">
+              <span className="font-headline text-2xl font-bold text-primary">{receiveAmount}</span>
+              <span className="font-headline font-bold text-on-surface-variant">{orderAsset}</span>
             </div>
-            <p className="text-sm text-on-surface-variant">Strictly no third party payment</p>
           </div>
 
-          <div className="sticky bottom-2 pt-3">
-            <button
-              onClick={handleBuy}
-              disabled={loading || !payAmount || !orderId || outOfRange}
-              className="w-full rounded-xl bg-primary py-4 text-center text-xl font-black text-on-primary-container disabled:opacity-50"
-            >
-              {loading ? "Processing..." : "Place Order"}
-            </button>
-          </div>
-        </div>
-
-        <div className="hidden md:grid grid-cols-1 md:grid-cols-12 gap-1">
-          {/* LEFT COLUMN: Merchant & Status */}
-          <div className="md:col-span-4 bg-surface-container-low p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-primary/10 flex items-center justify-center rounded-sm">
-                  <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    shield_person
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Payment Method</label>
+            <div className="group flex cursor-pointer items-center justify-between rounded-lg border border-outline-variant/10 bg-surface-container-low p-4 transition-all hover:bg-surface-bright">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/20">
+                  <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    payments
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold tracking-tight text-on-surface">{merchantName}</h2>
-                  <div className="flex items-center gap-2">
-                    <span className="bg-primary/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
-                      Verified Merchant
-                    </span>
+                  <p className="text-sm font-bold">{paymentMethod}</p>
+                  <div className="mt-0.5 flex items-center gap-1.5">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+                    <p className="text-[10px] font-medium uppercase tracking-tighter text-primary">Active Instant</p>
                   </div>
                 </div>
               </div>
-
-              <div className="space-y-6">
-                <div className="space-y-1">
-                  <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    Trade Conditions
-                  </p>
-                  <div className="flex items-center gap-2 text-xs py-1">
-                    <span className="material-symbols-outlined text-[14px] text-primary">check_circle</span>
-                    <span>No 3rd party payments</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs py-1">
-                    <span className="material-symbols-outlined text-[14px] text-primary">check_circle</span>
-                    <span>{paymentMethod} only</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-outline-variant/10">
-              <p className="text-[10px] leading-relaxed text-on-surface-variant uppercase tracking-tighter">
-                Secure Trade Room<br />Order: {orderId?.slice(0, 8) ?? "—"}
-              </p>
+              <span className="material-symbols-outlined text-outline group-hover:text-on-surface">chevron_right</span>
             </div>
           </div>
+        </section>
 
-          {/* RIGHT COLUMN: Trade Inputs */}
-          <div className="md:col-span-8 space-y-1">
-            {/* Price Module */}
-            <div className="bg-surface-container-high p-6 flex justify-between items-center">
+        <section className="space-y-4 rounded-xl bg-surface-container-low p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-high font-bold uppercase text-on-surface-variant">
+                  {merchantName.slice(0, 1)}
+                </div>
+                <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-surface-container-low bg-primary" />
+              </div>
               <div>
-                <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                  Exchange Rate
-                </p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-headline font-bold text-primary">{orderPrice.toFixed(3)}</span>
-                  <span className="text-sm text-on-surface-variant uppercase font-medium">{orderFiat} / {orderAsset}</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                  Available Liquidity
-                </p>
-                <p className="text-lg font-medium text-on-surface">
-                  {Number(available).toLocaleString("en-US", { minimumFractionDigits: 2 })} {orderAsset}
-                </p>
+                <h3 className="font-headline text-sm font-bold tracking-wide uppercase">{merchantName}</h3>
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Verified Merchant</p>
               </div>
             </div>
-
-            {/* Input Module */}
-            <div className="bg-surface-container-highest p-8 space-y-8">
-              {/* I Want to Pay */}
-              <div className="space-y-2 group">
-                <div className="flex justify-between items-end">
-                  <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    I want to pay
-                  </label>
-                  <span className="text-[10px] text-on-surface-variant">Min: {minLimit} / Max: {maxLimit}</span>
-                </div>
-                <div className="relative flex items-center bg-surface-container-lowest border border-outline-variant/15 focus-within:border-primary/40 transition-all px-4 py-4">
-                  <input
-                    className="bg-transparent border-none focus:ring-0 text-2xl font-bold w-full text-on-surface placeholder:text-on-surface-variant/30"
-                    placeholder="0.00"
-                    type="number"
-                    value={payAmount}
-                    onChange={(e) => setPayAmount(e.target.value)}
-                    disabled={loading}
-                  />
-                  <div className="flex items-center gap-3 pl-4 border-l border-outline-variant/15">
-                    <span className="font-bold text-sm tracking-widest">{orderFiat}</span>
-                    <button
-                      type="button"
-                      onClick={() => setPayAmount(String(effectiveMaxPay))}
-                      className="bg-surface-bright px-2 py-1 text-[10px] font-bold text-primary cursor-pointer hover:bg-primary hover:text-on-primary transition-colors"
-                    >
-                      MAX
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* I Will Receive */}
-              <div className="space-y-2">
-                <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  I will receive
-                </label>
-                <div className="relative flex items-center bg-surface-container-lowest border border-outline-variant/15 px-4 py-4">
-                  <input
-                    className="bg-transparent border-none focus:ring-0 text-2xl font-bold w-full text-on-surface-variant"
-                    placeholder="0.00"
-                    readOnly
-                    type="text"
-                    value={receiveAmount}
-                  />
-                  <div className="flex items-center gap-3 pl-4 border-l border-outline-variant/15">
-                    <span className="font-bold text-sm tracking-widest">{orderAsset}</span>
-                    <span className="material-symbols-outlined text-on-surface-variant">
-                      currency_exchange
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="space-y-2">
-                <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Payment Method
-                </label>
-                <div className="bg-surface-container-low p-4 flex items-center justify-between border border-primary/20">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-sm">
-                      <span className="material-symbols-outlined text-primary">account_balance</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold uppercase tracking-wider">{paymentMethod}</p>
-                      <p className="text-[10px] text-on-surface-variant uppercase">0.00 Fee • Immediate Settlement</p>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-primary">radio_button_checked</span>
-                </div>
-              </div>
-
-              <div className="-mx-8 mt-2 px-8 py-3 bg-surface/95 backdrop-blur border-t border-outline-variant/10 sticky bottom-0 md:static md:m-0 md:p-0 md:bg-transparent md:border-0">
-                <button
-                  onClick={handleBuy}
-                  disabled={loading || !payAmount || !orderId || outOfRange}
-                  className="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg uppercase tracking-[0.2em] shadow-[0_8px_30px_rgba(2,201,83,0.15)] active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? "Processing..." : `BUY ${orderAsset}`}
-                </button>
-                <div className="flex items-center justify-center gap-2 text-[10px] text-on-surface-variant uppercase font-medium tracking-widest mt-2 md:mt-0">
-                  <span className="material-symbols-outlined text-sm">lock</span>
-                  Secured by Escrow
-                </div>
-              </div>
+            <div className="text-right">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Online</p>
+              <p className="text-[10px] text-on-surface-variant">Available: {availableNum.toLocaleString()} {orderAsset}</p>
             </div>
           </div>
-        </div>
 
-        {/* Terms & Details */}
-        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-1">
-          <div className="bg-surface-container-low p-6">
-            <h3 className="font-label text-[10px] uppercase tracking-widest text-primary mb-4">Merchant Terms</h3>
+          <div className="flex items-start gap-3 rounded-lg border-l-2 border-error bg-error/10 p-3">
+            <span className="material-symbols-outlined mt-0.5 text-sm text-error">info</span>
             <p className="text-xs leading-relaxed text-on-surface-variant">
-              1. Must be the account owner. <br />
-              2. No memo required in transfer. <br />
-              3. Release occurs within 2 minutes of payment confirmation. <br />
-              4. Any fraud attempts will be reported to customer support.
+              <span className="font-bold uppercase text-error">Strictly no third party payment.</span> Use an account matching your verified identity.
             </p>
           </div>
-          <div className="bg-surface-container-low p-6 flex flex-col justify-between">
-            <div>
-              <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">Safety Checklist</h3>
-              <ul className="text-[11px] space-y-2">
-                <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 bg-primary rounded-full"></span> Only pay through the app
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 bg-primary rounded-full"></span> Verify recipient name
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 bg-primary rounded-full"></span> Keep payment receipt
-                </li>
-              </ul>
+        </section>
+      </main>
+
+      <footer className="fixed bottom-0 left-0 z-40 w-full border-t border-outline-variant/10 bg-surface-container-highest p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div className="mx-auto w-full max-w-3xl space-y-4">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Total Payable</span>
+              <span className="font-headline text-lg font-bold text-on-surface">
+                {(payAmountNum || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })} {orderFiat}
+              </span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">No Fees</span>
+              <span className="text-xs font-bold text-primary">Free Transaction</span>
             </div>
           </div>
-          <div className="bg-surface-container-low overflow-hidden relative p-6 flex flex-col justify-end">
-            <p className="font-headline font-bold text-xl leading-tight text-on-surface">
-              100% SECURE<br />LIQUIDITY
-            </p>
-            <p className="text-[10px] uppercase tracking-widest text-primary font-bold mt-1">
-              Security Verified
-            </p>
-          </div>
+
+          <button
+            onClick={handleBuy}
+            disabled={loading || !orderId || !payAmount || outOfRange}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-container font-headline text-lg font-bold text-on-primary-container shadow-lg shadow-primary/20 transition-transform active:scale-[0.98] disabled:opacity-50"
+          >
+            {loading ? "Processing..." : "Place Order"}
+            <span className="material-symbols-outlined">trending_flat</span>
+          </button>
         </div>
-      </div>
-    </AppShell>
+      </footer>
+    </div>
   );
 }
