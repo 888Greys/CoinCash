@@ -202,7 +202,7 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
             }}
             className="w-full text-center text-xs text-primary hover:underline py-2"
           >
-            Didn't receive the code? Resend
+            Didn&apos;t receive the code? Resend
           </button>
         </form>
       )}

@@ -39,7 +39,22 @@ type TxRow = {
   created_at: string;
 };
 
-export default async function HomePage() {
+type HomePageProps = {
+  searchParams?: {
+    support?: string;
+  };
+};
+
+type QuickAction = {
+  icon: string;
+  label: string;
+  color: string;
+  bg: string;
+  route: string;
+  locked?: boolean;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -53,7 +68,7 @@ export default async function HomePage() {
     getExtendedMarketData(),
     fetchCryptoNews(),
     fetchLearningFeed(),
-    supabase.from("p2p_orders").select("*").eq("type", "sell").eq("asset", "USDT").eq("fiat", "KES").eq("status", "active").order("price", { ascending: true }).limit(1).single()
+    supabase.from("p2p_orders").select("*").eq("type", "sell").eq("asset", "USDT").eq("fiat", "USD").eq("status", "active").order("price", { ascending: true }).limit(1).single()
   ]);
 
   // Build a quick symbol→price map for wallet calculations
@@ -132,6 +147,15 @@ export default async function HomePage() {
   const baseName = profile?.username?.trim() || user?.email?.split("@")[0] || "Trader";
   const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
   const displayHandle = baseName ? `@${baseName}` : null;
+  const supportIntent = searchParams?.support;
+
+  const quickActions: QuickAction[] = [
+    { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10", route: "/home?support=deposit", locked: true },
+    { icon: "currency_exchange", label: "Convert", color: "text-secondary", bg: "bg-secondary/10", route: "/assets" },
+    { icon: "swap_horiz", label: "P2P Trading", color: "text-on-surface", bg: "bg-surface-container-high", route: "/p2p" },
+    { icon: "send", label: "Transfer", color: "text-on-surface", bg: "bg-surface-container-high", route: "/home?support=transfer", locked: true },
+    { icon: "savings", label: "Earn", color: "text-tertiary", bg: "bg-tertiary/10", route: "/home?support=earn", locked: true },
+  ];
 
   return (
     <AppShell currentPath="/home" user={user ? { email: user.email, ...profile } : null}>
@@ -167,30 +191,37 @@ export default async function HomePage() {
           </div>
           {/* Quick Actions Grid Expanded */}
           <div className="grid grid-cols-5 gap-2 mt-6">
-            {[
-              { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10", route: null },
-              { icon: "currency_exchange", label: "Convert", color: "text-secondary", bg: "bg-secondary/10", route: null },
-              { icon: "swap_horiz", label: "P2P Trading", color: "text-on-surface", bg: "bg-surface-container-high", route: "/p2p" },
-              { icon: "send", label: "Transfer", color: "text-on-surface", bg: "bg-surface-container-high", route: null },
-              { icon: "savings", label: "Earn", color: "text-tertiary", bg: "bg-tertiary/10", route: null },
-            ].map((action) => (
-              <Link href={action.route || "#"} key={action.label} className={`flex flex-col items-center justify-start gap-2 group ${!action.route ? "pointer-events-none" : ""}`}>
-                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 group-active:scale-95 ${action.bg} ${!action.route ? "opacity-50" : ""}`}>
+            {quickActions.map((action) => (
+              <Link href={action.route} key={action.label} className="flex flex-col items-center justify-start gap-2 group">
+                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 group-active:scale-95 ${action.bg} ${action.locked ? "opacity-50" : ""}`}>
                   <span className={`material-symbols-outlined ${action.color}`}>
                     {action.icon}
                   </span>
-                  {!action.route && (
+                  {action.locked && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-surface-container-high border border-outline-variant/20 flex items-center justify-center">
                       <span className="material-symbols-outlined text-[9px] text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
                     </span>
                   )}
                 </div>
-                <span className={`text-[9px] uppercase font-bold text-center leading-tight ${action.route ? "text-on-surface-variant group-hover:text-on-surface" : "text-on-surface-variant/50"}`}>
+                <span className={`text-[9px] uppercase font-bold text-center leading-tight ${action.locked ? "text-on-surface-variant/50" : "text-on-surface-variant group-hover:text-on-surface"}`}>
                   {action.label}
                 </span>
               </Link>
             ))}
           </div>
+
+          {supportIntent && (
+            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Customer Support Required</p>
+              <p className="mt-1 text-xs text-on-surface-variant">
+                This action is locked for now. Visit the support chat room for guided steps on buying your intended coin, deposits, or transfers.
+              </p>
+              <Link href={`/support?intent=${encodeURIComponent(supportIntent)}`} className="mt-3 inline-flex items-center gap-1.5 rounded-sm border border-primary/30 bg-surface-container-low px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-surface-container-high">
+                <span className="material-symbols-outlined text-sm">chat</span>
+                Chat Customer Support
+              </Link>
+            </div>
+          )}
         </section>
 
         {/* Market Snapshot */}
@@ -286,7 +317,7 @@ export default async function HomePage() {
         <section className="space-y-3 pb-4">
           <P2PExpressWidget 
             bestPrice={bestP2POrder?.price ?? null}
-            fiat={bestP2POrder?.fiat ?? "KES"}
+            fiat={bestP2POrder?.fiat ?? "USD"}
             asset={bestP2POrder?.asset ?? "USDT"}
             orderId={bestP2POrder?.id ?? null}
             merchantName={bestP2POrder?.profiles?.username ?? null}

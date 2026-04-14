@@ -11,6 +11,7 @@ type BottomNavItem = {
 const bottomNavItems: BottomNavItem[] = [
   { href: "/home", label: "Home", icon: "home" },
   { href: "/markets", label: "Markets", icon: "equalizer" },
+  { href: "/support", label: "Chat", icon: "chat" },
   { href: "/bot", label: "Bot", icon: "smart_toy" },
   { href: "/assets", label: "Assets", icon: "account_balance_wallet" },
   { href: "/p2p", label: "P2P", icon: "swap_horizontal_circle" },
