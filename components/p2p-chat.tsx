@@ -215,8 +215,8 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
       <div 
         ref={chatContainerRef}
         className={isMobileImmersive
-          ? "min-h-[42vh] flex-1 space-y-5 overflow-y-auto px-1 pb-32 pt-3 font-body"
-          : "min-h-[300px] flex-1 space-y-4 overflow-y-auto p-4 font-body"
+          ? "no-scrollbar min-h-[42vh] flex-1 space-y-5 overflow-y-auto px-1 pb-36 pt-3 font-body"
+          : "no-scrollbar min-h-[300px] flex-1 space-y-4 overflow-y-auto p-4 font-body"
         }
       >
         {isLoading ? (
@@ -304,7 +304,7 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
       <form
         onSubmit={handleSendMessage}
         className={isMobileImmersive
-          ? "fixed bottom-[72px] left-0 z-[65] w-full border-t border-outline-variant/15 bg-surface-dim px-4 pb-3 pt-3"
+          ? "fixed bottom-[72px] left-0 z-[65] w-full border-t border-outline-variant/15 bg-surface-dim/95 px-4 pb-3 pt-3 backdrop-blur-xl shadow-[0_-8px_26px_rgba(0,0,0,0.32)]"
           : "flex gap-2 border-t border-outline-variant/10 bg-surface-container-low p-3"
         }
       >
@@ -342,7 +342,12 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
               <button
                 type="submit"
                 disabled={isLoading || !newMessage.trim()}
-                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center text-primary disabled:opacity-40"
+                aria-label="Send message"
+                className={`absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all ${
+                  isLoading || !newMessage.trim()
+                    ? "text-primary/40"
+                    : "bg-primary text-on-primary shadow-[0_0_14px_rgba(92,253,128,0.35)]"
+                }`}
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
               </button>

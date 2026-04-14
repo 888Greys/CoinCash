@@ -143,7 +143,7 @@ export function SupportChatRoom({ initialMessage }: SupportChatRoomProps) {
         </span>
       </div>
 
-      <div className="mt-3 max-h-[420px] overflow-y-auto rounded-lg border border-outline-variant/10 bg-surface-container-lowest/70 p-3">
+      <div className="no-scrollbar mt-3 max-h-[420px] overflow-y-auto rounded-lg border border-outline-variant/10 bg-surface-container-lowest/70 p-3">
         <div className="mb-3 flex justify-center">
           <span className="rounded-full bg-surface-container-high px-2.5 py-1 text-[10px] uppercase tracking-widest text-on-surface-variant">
             Today
@@ -190,7 +190,7 @@ export function SupportChatRoom({ initialMessage }: SupportChatRoomProps) {
       </div>
 
       <form
-        className="mt-3 flex items-end gap-2"
+        className="mt-3 flex items-end gap-2 border-t border-outline-variant/15 pt-3"
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();

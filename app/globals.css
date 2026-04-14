@@ -203,3 +203,66 @@ body {
     animation: none;
   }
 }
+
+@keyframes support-bubble-float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes support-ring-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+
+  70% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.24);
+  }
+}
+
+@keyframes mobile-nav-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.support-chat-bubble {
+  animation: support-bubble-float 3.6s ease-in-out infinite;
+}
+
+.support-chat-ring {
+  animation: support-ring-pulse 2.4s ease-out infinite;
+}
+
+.mobile-nav-enter {
+  animation: mobile-nav-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-chat-bubble,
+  .support-chat-ring,
+  .mobile-nav-enter {
+    animation: none;
+  }
+}

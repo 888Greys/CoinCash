@@ -40,9 +40,9 @@ export function AppShell({ children, currentPath, user }: AppShellProps) {
         <Link
           href="/support"
           aria-label="Open customer support chat"
-          className="group fixed right-4 bottom-[124px] md:bottom-8 z-50 h-16 w-16 rounded-full border border-primary/45 bg-surface-container-high p-1 shadow-[0_0_32px_rgba(92,253,128,0.25)] active:scale-95 transition-transform"
+          className="support-chat-bubble group fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+108px)] md:bottom-8 z-50 h-16 w-16 rounded-full border border-primary/45 bg-surface-container-high p-1 shadow-[0_0_32px_rgba(92,253,128,0.25)] transition-transform duration-200 hover:scale-[1.02] active:scale-95"
         >
-          <span className="pointer-events-none absolute inset-0 rounded-full border border-primary/40 opacity-40 animate-ping" />
+          <span className="support-chat-ring pointer-events-none absolute -inset-1 rounded-full border border-primary/45" />
           <span className="relative block h-full w-full overflow-hidden rounded-full">
             <Image
               src="/icons/support-avatar.webp"
