@@ -105,7 +105,7 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
     return () => {
       if (channel) supabase.removeChannel(channel);
     };
-  }, [tradeId, fetchMessages, supabase]);
+  }, [tradeId, fetchMessages, supabase, currentUserId]);
 
   // Scroll to bottom on new message if we were already at the bottom
   // or on initial load
@@ -156,8 +156,7 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
     }, 0);
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
     const content = newMessage.trim();
@@ -187,6 +186,11 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
       setNewMessage(content);
       console.error("Failed to send message:", error);
     }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await sendMessage();
   };
 
   const parseProofUrl = (content: string) => {
@@ -321,9 +325,7 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  if (newMessage.trim()) {
-                    void handleSendMessage(e as unknown as React.FormEvent);
-                  }
+                  if (newMessage.trim()) void sendMessage();
                 }
               }}
               placeholder="Type a message..."
