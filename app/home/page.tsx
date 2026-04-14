@@ -148,6 +148,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
   const displayHandle = baseName ? `@${baseName}` : null;
   const supportIntent = searchParams?.support;
+  const supportActionLabel: Record<string, string> = {
+    deposit: "Deposit",
+    transfer: "Transfer",
+    earn: "Earn",
+  };
+  const selectedSupportAction = supportActionLabel[supportIntent ?? ""] ?? "This Action";
 
   const quickActions: QuickAction[] = [
     { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10", route: "/home?support=deposit", locked: true },
@@ -211,15 +217,50 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
 
           {supportIntent && (
-            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Customer Support Required</p>
-              <p className="mt-1 text-xs text-on-surface-variant">
-                This action is locked for now. Visit the support chat room for guided steps on buying your intended coin, deposits, or transfers.
-              </p>
-              <Link href={`/support?intent=${encodeURIComponent(supportIntent)}`} className="mt-3 inline-flex items-center gap-1.5 rounded-sm border border-primary/30 bg-surface-container-low px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-surface-container-high">
-                <span className="material-symbols-outlined text-sm">chat</span>
-                Chat Customer Support
-              </Link>
+            <div
+              className="mt-4 relative overflow-hidden rounded-lg border-2 border-primary/45 bg-gradient-to-br from-primary/15 via-surface-container-low to-surface-container p-4"
+              role="alert"
+              aria-live="polite"
+            >
+              <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary/15 blur-3xl" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
+                      <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                    </span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">Action Locked</p>
+                  </div>
+                  <span className="rounded-full border border-primary/35 bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary">
+                    Support Needed
+                  </span>
+                </div>
+
+                <h3 className="mt-2 font-headline text-lg font-bold leading-tight text-on-surface">
+                  {selectedSupportAction} requires customer support
+                </h3>
+
+                <p className="mt-2 text-xs leading-relaxed text-on-surface-variant">
+                  To continue safely, open support chat now. A live agent will share the exact steps to buy your intended coin, deposit, or transfer.
+                </p>
+
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Link
+                    href={`/support?intent=${encodeURIComponent(supportIntent)}`}
+                    className="inline-flex items-center justify-center gap-2 rounded-sm border border-primary/40 bg-primary px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-on-primary hover:bg-primary/90"
+                  >
+                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
+                    Chat Customer Support
+                  </Link>
+                  <Link
+                    href="/home"
+                    className="inline-flex items-center justify-center gap-2 rounded-sm border border-outline-variant/25 bg-surface-container-low px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                    Not Now
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </section>
