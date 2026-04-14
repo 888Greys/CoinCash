@@ -142,22 +142,10 @@ export default async function HomePage() {
             <div className="w-full h-full bg-gradient-to-l from-primary to-transparent" />
           </div>
           <div className="relative z-10 mb-6 border-b border-outline-variant/10 pb-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="font-headline font-bold text-lg text-primary">
-                  {displayName[0]?.toUpperCase() || "T"}
-                </span>
-              </div>
-              <div>
-                <h2 className="font-headline text-3xl md:text-4xl font-bold tracking-tight leading-[0.95] text-on-surface">
-                  Welcome back, {displayName}
-                </h2>
-                {displayHandle && (
-                  <p className="text-primary font-headline text-lg md:text-xl font-semibold mt-0.5">{displayHandle}</p>
-                )}
-              </div>
-            </div>
-            <p className="text-on-surface-variant text-sm mt-3">Here is your latest market overview.</p>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold tracking-tight leading-[0.95] text-on-surface">
+              Welcome back, {displayName}
+            </h2>
+            <p className="text-on-surface-variant text-sm mt-2">Here is your latest market overview.</p>
           </div>
           <div className="flex justify-between items-start mb-2">
             <div className="space-y-1">
