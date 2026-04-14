@@ -72,11 +72,15 @@ export async function devLoginAction() {
   });
 
   if (error) {
+    if (error.message.toLowerCase().includes("email not confirmed")) {
+      redirect("/login?error=dev_login_unconfirmed");
+    }
+
     // Common case: user exists via OTP and has no password set.
     if (error.message.toLowerCase().includes("invalid login credentials")) {
       redirect("/login?error=dev_login_invalid_credentials");
     }
-    redirect("/login?error=dev_login_failed");
+    redirect(`/login?error=dev_login_failed&detail=${encodeURIComponent(error.message)}`);
   }
 
   redirect("/home");

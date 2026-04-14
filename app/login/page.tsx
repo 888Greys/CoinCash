@@ -7,6 +7,7 @@ type LoginPageProps = {
   searchParams?: {
     error?: string;
     registered?: string;
+    detail?: string;
   };
 };
 
@@ -14,6 +15,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
 
 
   const errorState = typeof searchParams?.error === "string" ? searchParams.error : undefined;
+  const errorDetail = typeof searchParams?.detail === "string" ? searchParams.detail : undefined;
   const justRegistered = searchParams?.registered === "1";
 
   return (
@@ -117,7 +119,12 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             )}
             {errorState === "dev_login_failed" && (
               <p className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error mb-4 block">
-                Dev login failed unexpectedly. Check Supabase Auth user password and try again.
+                Dev login failed unexpectedly. {errorDetail ? `Supabase says: ${errorDetail}` : "Check Supabase Auth user password and try again."}
+              </p>
+            )}
+            {errorState === "dev_login_unconfirmed" && (
+              <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 mb-4 block">
+                This user email is not confirmed. Confirm it in Supabase Auth Users, then try Dev Login again.
               </p>
             )}
             {errorState === "dev_login_prod_disabled" && (

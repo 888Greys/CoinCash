@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { createClient as createBrowserClient } from "@/utils/supabase/client";
 import { releaseTradeAction, markTradePaidAction } from "../../actions";
 
@@ -23,9 +24,27 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
   const [allowNoImage, setAllowNoImage] = useState(false);
   const [confirmedOwnAccount, setConfirmedOwnAccount] = useState(false);
   const [merchantCalled, setMerchantCalled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const supabase = createBrowserClient();
   const isPaymentMobile = variant === "payment-mobile";
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const previousOverflow = document.body.style.overflow;
+    if (showProofSheet) {
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showProofSheet, isMounted]);
 
   const handleRelease = async () => {
     if (!confirm("Are you sure you want to release the escrow? This action cannot be undone.")) return;
@@ -158,7 +177,7 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
             }}
             disabled={loading || (isPaymentMobile && !merchantCalled)}
             className={isPaymentMobile
-              ? "fixed bottom-0 left-0 z-40 w-full border-t border-outline-variant/15 bg-surface-container-highest/90 px-6 pb-8 pt-4 disabled:opacity-60"
+              ? "fixed bottom-[72px] left-0 z-40 w-full border-t border-outline-variant/15 bg-surface-container-highest/90 px-6 pb-8 pt-4 disabled:opacity-60 md:bottom-0"
               : "w-full py-4 bg-tertiary text-on-tertiary font-headline font-bold uppercase tracking-widest text-sm rounded-sm active:scale-[0.98] transition-all disabled:opacity-50"
             }
           >
@@ -171,9 +190,9 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
             )}
           </button>
 
-          {showProofSheet && (
-            <div className="fixed inset-0 z-50 flex items-end bg-black/60 md:items-center md:justify-center">
-              <div className="w-full rounded-t-3xl border border-outline-variant/20 bg-surface-container-low p-5 md:max-w-md md:rounded-2xl">
+          {showProofSheet && isMounted && createPortal(
+            <div className="fixed inset-x-0 top-0 bottom-[72px] z-[100] flex items-end bg-black/65 md:inset-0 md:items-center md:justify-center">
+              <div className="w-full max-h-[90dvh] overflow-y-auto rounded-t-3xl border border-outline-variant/20 bg-surface-container-low p-5 pb-[calc(env(safe-area-inset-bottom)+1rem)] md:max-h-[85vh] md:max-w-md md:rounded-2xl">
                 <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-outline-variant/30 md:hidden" />
                 <h4 className="font-headline text-2xl font-bold tracking-tight">Payment Confirmation</h4>
 
@@ -243,7 +262,8 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       )}

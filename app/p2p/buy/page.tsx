@@ -73,10 +73,11 @@ export default function BuyPage() {
 
   return (
     <AppShell currentPath="/p2p">
-    <div className="min-h-[100dvh] bg-surface text-on-surface pb-28">
-      <header className="sticky top-0 z-30 h-16 w-full border-b border-outline-variant/10 bg-surface-container-low px-4">
+    <div className="bg-surface text-on-surface">
+      <div className="mx-auto mt-1 w-[calc(100%-0.5rem)] max-w-3xl overflow-hidden rounded-t-[28px] border border-outline-variant/15 bg-surface">
+      <header className="sticky top-0 z-30 h-14 w-full border-b border-outline-variant/10 bg-surface-container-low px-4">
         <div className="mx-auto flex h-full w-full max-w-3xl items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => router.back()}
               className="rounded-full p-2 transition-all hover:bg-surface-bright"
@@ -90,7 +91,7 @@ export default function BuyPage() {
         </div>
       </header>
 
-      <main className="mx-auto mt-2 w-[calc(100%-0.5rem)] max-w-3xl space-y-6 rounded-t-[28px] border border-outline-variant/15 bg-surface px-4 py-6">
+      <main className="space-y-6 px-4 py-6">
         <section className="space-y-1">
           <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Exchange Rate</p>
           <div className="flex items-baseline gap-2">
@@ -206,26 +207,20 @@ export default function BuyPage() {
           </div>
         </section>
       </main>
+      </div>
 
-      <footer className="fixed bottom-0 left-0 z-40 w-full border-t border-outline-variant/10 bg-surface-container-highest p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-        <div className="mx-auto w-full max-w-3xl space-y-4">
-          <div className="flex items-center justify-between px-2">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Total Payable</span>
-              <span className="font-headline text-lg font-bold text-on-surface">
-                {(payAmountNum || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })} {orderFiat}
-              </span>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">No Fees</span>
-              <span className="text-xs font-bold text-primary">Free Transaction</span>
-            </div>
+      <footer className="fixed bottom-[74px] left-0 z-[60] w-full px-3 md:bottom-4">
+        <div className="mx-auto w-full max-w-3xl rounded-xl border border-outline-variant/20 bg-surface-container-highest/95 p-3 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur">
+          <div className="mb-2 flex items-center justify-between px-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Total Payable</span>
+            <span className="font-headline text-sm font-bold text-on-surface">
+              {(payAmountNum || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })} {orderFiat}
+            </span>
           </div>
-
           <button
             onClick={handleBuy}
             disabled={loading || !orderId || !payAmount}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-container font-headline text-lg font-bold text-on-primary-container shadow-lg shadow-primary/20 transition-transform active:scale-[0.98] disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-container font-headline text-base font-bold text-on-primary-container shadow-lg shadow-primary/20 transition-transform active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? "Processing..." : "Place Order"}
             <span className="material-symbols-outlined">trending_flat</span>

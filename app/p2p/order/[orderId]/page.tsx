@@ -57,6 +57,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const isBuyer = trade.buyer_id === user.id;
   const isSeller = trade.seller_id === user.id;
   const counterparty = isBuyer ? trade.seller : trade.buyer;
+  const counterpartyId = isBuyer ? trade.seller_id : trade.buyer_id;
   const status = statusConfig[trade.status] ?? statusConfig.pending;
   const tradeTimer = timeLeftFromCreatedAt(trade.created_at, 15);
   const payerName =
@@ -66,48 +67,61 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const methodLabel = trade.p2p_orders.payment_method || "Bank Transfer";
   const isChatView = searchParams.view === "chat";
 
+  const { count: completedTradesCount } = await supabase
+    .from("p2p_trades")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "released")
+    .or(`buyer_id.eq.${counterpartyId},seller_id.eq.${counterpartyId}`);
+
   return (
     <AppShell currentPath="/p2p">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {isChatView ? (
-          <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-3">
-            <div className="mb-3 flex items-center gap-3 border-b border-outline-variant/10 pb-3">
-              <Link href={`/p2p/order/${trade.id}`} className="material-symbols-outlined text-on-surface-variant">
-                arrow_back
-              </Link>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high text-sm font-bold uppercase">
-                {(counterparty?.username ?? "U").slice(0, 1)}
+          <div className="md:hidden -mx-4 bg-surface pb-40">
+            <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-outline-variant/15 bg-surface px-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <Link href={`/p2p/order/${trade.id}`} className="material-symbols-outlined text-on-surface">arrow_back</Link>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate font-headline text-sm font-bold uppercase tracking-tight text-on-surface">
+                      {counterparty?.username ?? "Unknown"}
+                    </p>
+                    <span className="h-2 w-2 rounded-full bg-primary" />
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    Completed {(completedTradesCount ?? 0).toLocaleString()} Trades
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-lg font-bold uppercase">{counterparty?.username ?? "Unknown"}</p>
-                <p className="text-xs text-on-surface-variant">Online</p>
+
+              <div className="flex items-center gap-4">
+                <span className="material-symbols-outlined text-primary">info</span>
+                <span className="material-symbols-outlined text-on-surface">more_vert</span>
               </div>
-            </div>
+            </header>
 
-            <div className="mb-3 flex items-center justify-between rounded-sm bg-surface-container-high px-3 py-2">
-              <div>
-                <p className="text-sm font-semibold">{isBuyer ? "Pending Payment Confirmation" : "Awaiting Buyer Payment"}</p>
-                <p className="text-xs text-on-surface-variant">{isBuyer ? `Buy ${trade.p2p_orders.asset} with ${trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} ${trade.p2p_orders.fiat}` : "Monitor payment before releasing funds"}</p>
+            <main className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4">
+              <div className="rounded-lg border-l-2 border-primary bg-surface-container-low p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="font-headline text-lg font-bold text-primary">
+                    {isBuyer ? "Buy" : "Sell"} {trade.p2p_orders.asset} with {trade.fiat_amount.toLocaleString("en-US", { maximumFractionDigits: 2 })} {trade.p2p_orders.fiat}
+                  </h2>
+                  <span className="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+                </div>
+                <p className="mt-1 text-sm font-medium text-on-surface-variant">
+                  {isBuyer ? "Pending Payment Confirmation" : "Awaiting Buyer Payment"}
+                </p>
               </div>
-              <Link href={`/p2p/order/${trade.id}`} className="text-sm font-bold text-primary">View</Link>
-            </div>
 
-            <div className="mb-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
-              Never release cryptocurrency before payment is confirmed in your account.
-            </div>
+              <div className="flex gap-3 rounded-lg border border-error/20 bg-error-container/10 p-4">
+                <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                <p className="text-xs leading-relaxed text-on-surface/80">
+                  <span className="font-bold text-error">NEVER release cryptocurrency before actually receiving the payment!</span> CoinCash will not be responsible if you release before payment verification.
+                </p>
+              </div>
 
-            <div className="mb-3 rounded-xl bg-surface-container-high p-3 text-sm text-on-surface-variant">
-              <p>
-                Trade started. Order: {trade.id.slice(0, 10)} | {isBuyer ? "BUY" : "SELL"} {trade.asset_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.asset}
-              </p>
-              <p>
-                Amount: {trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.fiat} | Method: {methodLabel}
-              </p>
-            </div>
-
-            <div className="h-[56vh]">
-              <P2PChat tradeId={trade.id} currentUserId={user.id} />
-            </div>
+              <P2PChat tradeId={trade.id} currentUserId={user.id} variant="mobile-immersive" />
+            </main>
           </div>
         ) : (
           <div className="md:hidden -mx-4 bg-surface pb-28">
@@ -123,14 +137,16 @@ export default async function OrderPage({ params, searchParams }: Props) {
               </button>
             </header>
 
-            <div className="border-b border-outline-variant/10 bg-surface-container-low px-6 py-8">
-              <div className="flex flex-col items-center">
-                <span className="mb-2 text-xs uppercase tracking-[0.2em] text-on-surface-variant">Pay the seller within</span>
-                <div className="font-headline text-4xl font-bold tracking-tighter text-primary">{tradeTimer}</div>
+            <div className="border-b border-outline-variant/10 bg-surface-container-low px-6 py-3.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Pay the seller within</span>
+                <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-1 font-headline text-2xl font-bold tracking-tight text-primary">
+                  {tradeTimer}
+                </div>
               </div>
             </div>
 
-            <div className="mx-4 mt-6 flex items-center justify-between rounded-lg bg-surface-container-high p-5 shadow-lg">
+            <div className="mx-4 mt-4 flex items-center justify-between rounded-lg bg-surface-container-high p-5 shadow-lg">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-bright">
                   <span className="material-symbols-outlined text-secondary">person</span>
@@ -138,6 +154,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 <div>
                   <div className="mb-0.5 text-[10px] uppercase tracking-widest text-on-surface-variant">Merchant</div>
                   <div className="font-headline text-md font-bold text-on-surface uppercase">{counterparty?.username ?? "Unknown"}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                    Completed {(completedTradesCount ?? 0).toLocaleString()} trades
+                  </div>
                 </div>
               </div>
               <Link
@@ -149,7 +168,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               </Link>
             </div>
 
-            <div className="mt-8 px-6">
+            <div className="mt-4 px-6">
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="font-headline text-xl font-bold tracking-tight text-on-surface">
                   Transfer via: <span className="text-secondary">{methodLabel}</span>
@@ -212,7 +231,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               </div>
             </div>
 
-            <div className="mt-8 px-6">
+            <div className="mt-5 px-6">
               <TradeActions
                 tradeId={trade.id}
                 status={trade.status}

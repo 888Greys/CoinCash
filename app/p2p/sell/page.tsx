@@ -216,7 +216,7 @@ export default function SellPage() {
         </section>
       </main>
 
-      <footer className="fixed bottom-0 left-0 z-40 w-full border-t border-outline-variant/10 bg-surface-container-highest p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+      <footer className="fixed bottom-[72px] left-0 z-40 w-full border-t border-outline-variant/10 bg-surface-container-highest p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:bottom-0">
         <div className="mx-auto w-full max-w-3xl space-y-4">
           <div className="flex items-center justify-between px-2">
             <div className="flex flex-col">

@@ -292,15 +292,63 @@ export async function takeOrder(orderId: string, assetAmount: number) {
       p_asset_amount: assetAmount,
     });
 
-  if (error) {
-    console.error("takeOrder RPC error:", error.message);
-    return { success: false, error: error.message };
-  }
+  const result = data as { success: boolean; error?: string; trade_id?: string } | null;
+  const rpcErrorMessage = error?.message ?? result?.error ?? "";
+  const isDev = process.env.NODE_ENV !== "production";
+  const devBypassEnabled = process.env.P2P_DEV_BYPASS_INSUFFICIENT_BALANCE !== "false";
+  const shouldBypassInsufficientBalance =
+    isDev &&
+    devBypassEnabled &&
+    /insufficient balance/i.test(rpcErrorMessage);
 
-  const result = data as { success: boolean; error?: string; trade_id?: string };
+  if (error || !result?.success) {
+    if (!shouldBypassInsufficientBalance) {
+      if (error) {
+        console.error("takeOrder RPC error:", error.message);
+        return { success: false, error: error.message };
+      }
 
-  if (!result.success) {
-    return { success: false, error: result.error ?? "Failed to take order" };
+      return { success: false, error: result?.error ?? "Failed to take order" };
+    }
+
+    // Dev-only escape hatch for UX testing when wallet escrow checks fail.
+    const { data: order, error: orderError } = await supabase
+      .from("p2p_orders")
+      .select("id, type, user_id, price")
+      .eq("id", orderId)
+      .single();
+
+    if (orderError || !order) {
+      return { success: false, error: orderError?.message ?? "Order not found" };
+    }
+
+    const fiatAmount = Number(order.price) * assetAmount;
+    const buyerId = order.type === "sell" ? user.id : order.user_id;
+    const sellerId = order.type === "sell" ? order.user_id : user.id;
+
+    const { data: insertedTrade, error: insertError } = await supabase
+      .from("p2p_trades")
+      .insert({
+        order_id: order.id,
+        buyer_id: buyerId,
+        seller_id: sellerId,
+        asset_amount: assetAmount,
+        fiat_amount: fiatAmount,
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (insertError || !insertedTrade) {
+      return { success: false, error: insertError?.message ?? "Failed to create dev trade" };
+    }
+
+    console.warn(
+      "takeOrder dev bypass: created trade without escrow lock due to insufficient balance",
+      { orderId, tradeId: insertedTrade.id }
+    );
+
+    return { success: true, tradeId: insertedTrade.id, devBypass: true };
   }
 
   return { success: true, tradeId: result.trade_id };

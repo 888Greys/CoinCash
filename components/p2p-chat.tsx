@@ -13,11 +13,12 @@ interface Message {
 interface P2PChatProps {
   tradeId: string;
   currentUserId: string;
+  variant?: "default" | "mobile-immersive";
 }
 
 const PAGE_SIZE = 20;
 
-export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
+export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -28,6 +29,7 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isInitialMount = useRef(true);
+  const isMobileImmersive = variant === "mobile-immersive";
 
   const fetchMessages = useCallback(async (from: number, to: number) => {
     const { data, error } = await supabase
@@ -152,17 +154,22 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface-container-lowest border border-outline-variant/15 rounded-xl overflow-hidden">
-      <div className="bg-surface-container-low p-4 border-b border-outline-variant/10">
-        <h3 className="font-headline font-bold text-sm tracking-wide text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-lg">chat</span>
-          Trade Chat
-        </h3>
-      </div>
+    <div className={isMobileImmersive ? "flex min-h-0 flex-col" : "flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container-lowest"}>
+      {!isMobileImmersive && (
+        <div className="border-b border-outline-variant/10 bg-surface-container-low p-4">
+          <h3 className="flex items-center gap-2 font-headline text-sm font-bold tracking-wide text-on-surface">
+            <span className="material-symbols-outlined text-lg text-primary">chat</span>
+            Trade Chat
+          </h3>
+        </div>
+      )}
       
       <div 
         ref={chatContainerRef}
-        className="flex-1 p-4 overflow-y-auto space-y-4 font-body min-h-[300px]"
+        className={isMobileImmersive
+          ? "min-h-[42vh] flex-1 space-y-5 overflow-y-auto px-1 pb-32 pt-3 font-body"
+          : "min-h-[300px] flex-1 space-y-4 overflow-y-auto p-4 font-body"
+        }
       >
         {isLoading ? (
           <div className="h-full flex items-center justify-center">
@@ -175,7 +182,7 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
                 <button 
                   onClick={loadMoreMessages}
                   disabled={isLoadingMore}
-                  className="bg-surface-container-highest hover:bg-surface-container text-primary px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary transition-colors hover:bg-surface-container disabled:opacity-50"
                 >
                   {isLoadingMore ? (
                     <>
@@ -198,10 +205,14 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
                 const proofUrl = parseProofUrl(msg.content);
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-                      isMe 
-                        ? 'bg-primary text-on-primary rounded-tr-sm' 
-                        : 'bg-surface-container-high text-on-surface rounded-tl-sm'
+                    <div className={`max-w-[80%] px-4 py-3 text-sm shadow-sm ${
+                      isMobileImmersive
+                        ? isMe
+                          ? "rounded-xl rounded-tr-none bg-primary-container text-on-primary-container"
+                          : "rounded-xl rounded-tl-none border-l-2 border-primary/30 bg-surface-container-high text-on-surface"
+                        : isMe
+                          ? "rounded-2xl rounded-tr-sm bg-primary text-on-primary"
+                          : "rounded-2xl rounded-tl-sm bg-surface-container-high text-on-surface"
                     }`}>
                       {proofUrl ? (
                         <div className="space-y-2">
@@ -235,22 +246,55 @@ export function P2PChat({ tradeId, currentUserId }: P2PChatProps) {
         )}
       </div>
 
-      <form onSubmit={handleSendMessage} className="p-3 bg-surface-container-low border-t border-outline-variant/10 flex gap-2">
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1 bg-surface border border-outline-variant/20 rounded-lg px-4 py-2 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
-          disabled={isLoading}
-        />
-        <button 
-          type="submit"
-          disabled={isLoading || !newMessage.trim()}
-          className="bg-primary text-on-primary w-10 h-10 rounded-lg flex items-center justify-center transition-transform active:scale-95 disabled:opacity-50 disabled:active:scale-100"
-        >
-          <span className="material-symbols-outlined">send</span>
-        </button>
+      <form
+        onSubmit={handleSendMessage}
+        className={isMobileImmersive
+          ? "fixed bottom-[72px] left-0 z-[65] w-full border-t border-outline-variant/15 bg-surface-dim px-4 pb-3 pt-3"
+          : "flex gap-2 border-t border-outline-variant/10 bg-surface-container-low p-3"
+        }
+      >
+        <div className={isMobileImmersive ? "mx-auto flex w-full max-w-3xl items-center gap-3" : "contents"}>
+          {isMobileImmersive && (
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant transition-colors hover:bg-surface-bright"
+            >
+              <span className="material-symbols-outlined">add</span>
+            </button>
+          )}
+
+          <div className={isMobileImmersive ? "relative flex-1" : "flex-1"}>
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className={isMobileImmersive
+                ? "h-10 w-full rounded-lg border-none bg-surface-container-lowest px-4 pr-12 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary"
+                : "w-full rounded-lg border border-outline-variant/20 bg-surface px-4 py-2 text-sm font-body text-on-surface transition-colors focus:border-primary/50 focus:outline-none"
+              }
+              disabled={isLoading}
+            />
+
+            {isMobileImmersive ? (
+              <button
+                type="submit"
+                disabled={isLoading || !newMessage.trim()}
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center text-primary disabled:opacity-40"
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isLoading || !newMessage.trim()}
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-on-primary transition-transform active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+              >
+                <span className="material-symbols-outlined">send</span>
+              </button>
+            )}
+          </div>
+        </div>
       </form>
     </div>
   );
