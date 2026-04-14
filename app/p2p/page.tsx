@@ -115,10 +115,10 @@ export default async function P2PPage({ searchParams }: Props) {
             </p>
           </div>
           <div className="flex items-center gap-2 bg-surface-container-low p-1 rounded-sm border border-outline-variant/10">
-            <Link href={`?tab=buy&asset=${currentAsset}&fiat=${currentFiat}`} className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "buy" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
+            <Link href={`?tab=buy&asset=${currentAsset}&fiat=${currentFiat}`} className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest transition-all ${currentTab === "buy" ? "bg-surface-bright text-on-surface border-b-2 border-primary" : "text-on-surface-variant hover:text-on-surface"}`}>
               Buy
             </Link>
-            <Link href={`?tab=sell&asset=${currentAsset}&fiat=${currentFiat}`} className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest ${currentTab === "sell" ? "bg-surface-bright text-on-surface" : "text-on-surface-variant hover:text-on-surface"}`}>
+            <Link href={`?tab=sell&asset=${currentAsset}&fiat=${currentFiat}`} className={`px-6 py-2 font-label text-xs font-bold uppercase tracking-widest transition-all ${currentTab === "sell" ? "bg-surface-bright text-on-surface border-b-2 border-primary" : "text-on-surface-variant hover:text-on-surface"}`}>
               Sell
             </Link>
           </div>
@@ -319,6 +319,14 @@ export default async function P2PPage({ searchParams }: Props) {
                           verified
                         </span>
                       )}
+                    </div>
+                    {/* Rating + Trade Count */}
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 justify-end">
+                        <span className="text-[#f3ba2f] text-xs">★</span>
+                        <span className="font-headline font-bold text-xs">4.9</span>
+                      </div>
+                      <span className="text-[9px] text-on-surface-variant uppercase tracking-widest">138 trades</span>
                     </div>
                   </div>
 

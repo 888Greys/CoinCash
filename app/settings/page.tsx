@@ -36,7 +36,11 @@ export default async function SettingsPage() {
           </div>
           <div className="bg-surface-container-low p-6 rounded-lg flex items-center justify-between border border-outline-variant/10">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center border-2 border-primary/20 text-primary font-headline text-2xl font-bold">
+              <div className={`w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center border-2 font-headline text-2xl font-bold transition-all ${
+                user?.email_confirmed_at
+                  ? "border-primary/40 shadow-[0_0_16px_rgba(92,253,128,0.2)]"
+                  : "border-primary/20"
+              } text-primary`}>
                 {profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
               </div>
               <div>
@@ -222,7 +226,10 @@ export default async function SettingsPage() {
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-xs font-mono">MacBook Pro - Chrome</span>
                   </div>
-                  <span className="text-[10px] font-mono text-primary">Active</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-on-surface-variant/50 bg-surface-container-high px-1.5 py-0.5 rounded-sm">DEMO</span>
+                    <span className="text-[10px] font-mono text-primary">Active</span>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between bg-surface-container-highest/30 p-3 rounded-sm border-l-2 border-transparent">
                   <div className="flex items-center gap-3">
@@ -231,7 +238,10 @@ export default async function SettingsPage() {
                       iPhone 14 - Safari
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-on-surface-variant">Yesterday</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-on-surface-variant/50 bg-surface-container-high px-1.5 py-0.5 rounded-sm">DEMO</span>
+                    <span className="text-[10px] font-mono text-on-surface-variant">Yesterday</span>
+                  </div>
                 </div>
               </div>
               <button className="mt-6 text-[10px] font-bold tracking-[0.1em] uppercase text-primary flex items-center gap-1 hover:gap-2 transition-all">
@@ -255,6 +265,7 @@ export default async function SettingsPage() {
                   Active Keys
                 </p>
                 <p className="text-2xl font-bold text-on-primary-container">04</p>
+                <p className="text-[8px] text-on-primary-container/40 uppercase tracking-widest mt-1">Simulated</p>
               </div>
             </div>
           </div>

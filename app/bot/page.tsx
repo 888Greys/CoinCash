@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
-import { PortfolioBalance } from "@/components/portfolio-balance";
 import { createClient } from "@/utils/supabase/server";
 import { getUserBots } from "@/app/actions/bots";
 import { getExtendedMarketData } from "@/lib/price-api";
@@ -86,22 +85,27 @@ export default async function BotPage() {
               <span className="material-symbols-outlined text-6xl">insights</span>
             </div>
             <p className="font-label text-[10px] uppercase font-bold tracking-[0.1em] text-on-surface-variant mb-2">
-              Portfolio Overview
+              Bot Portfolio Overview
             </p>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <h2 className="font-headline text-3xl font-bold text-primary tracking-tight">
-                  $<PortfolioBalance />
+                <p className="font-label text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mb-1">Total Bot P&L</p>
+                <h2 className={`font-headline text-3xl font-bold tracking-tight ${totalProfit >= 0 ? 'text-primary' : 'text-error'}`}>
+                  {totalProfit >= 0 ? "+" : "-"}${Math.abs(totalProfit).toFixed(2)}
                 </h2>
-                <p className="text-xs text-secondary-dim font-medium mt-1 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-xs">trending_up</span>
-                  Total bot profit: {totalProfit >= 0 ? "+" : ""}${totalProfit.toFixed(2)}
+                <p className="text-xs text-on-surface-variant font-medium mt-1 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-xs">{avgProfitPct >= 0 ? "trending_up" : "trending_down"}</span>
+                  Average return: {avgProfitPct >= 0 ? "+" : ""}{avgProfitPct.toFixed(1)}% across all bots
                 </p>
               </div>
               <div className="flex gap-8">
                 <div>
                   <p className="font-label text-[10px] uppercase font-bold tracking-[0.1em] text-on-surface-variant">Active Bots</p>
                   <p className="font-headline text-xl font-bold">{String(runningBots.length).padStart(2, "0")}</p>
+                </div>
+                <div>
+                  <p className="font-label text-[10px] uppercase font-bold tracking-[0.1em] text-on-surface-variant">Total Bots</p>
+                  <p className="font-headline text-xl font-bold">{String(bots.length).padStart(2, "0")}</p>
                 </div>
                 <div>
                   <p className="font-label text-[10px] uppercase font-bold tracking-[0.1em] text-on-surface-variant">Avg. Profit</p>
@@ -183,21 +187,33 @@ export default async function BotPage() {
               Live
             </div>
           </div>
-          <div className="h-32 flex items-end justify-between gap-1">
-            {livePerfBars.map((h, i) => (
-              <div
-                key={i}
-                className={`w-full ${h >= 85 ? "bg-primary" : "bg-primary/20"} rounded-t-sm transition-all duration-500`}
-                style={{ height: `${h}%` }}
-              />
-            ))}
-          </div>
-          <div className="flex justify-between mt-2 text-[8px] uppercase font-black tracking-widest text-on-surface-variant">
-            <span>00:00</span>
-            <span>06:00</span>
-            <span>12:00</span>
-            <span>18:00</span>
-            <span>Now</span>
+          {/* Y-axis labels + bars */}
+          <div className="flex gap-3">
+            <div className="flex flex-col justify-between text-[8px] font-mono text-on-surface-variant/50 text-right w-10 py-1">
+              <span>{Math.round(maxP).toLocaleString()}</span>
+              <span>{Math.round((maxP + minP) / 2).toLocaleString()}</span>
+              <span>{Math.round(minP).toLocaleString()}</span>
+            </div>
+            <div className="flex-1">
+              <div className="h-32 flex items-end justify-between gap-1 border-l border-b border-outline-variant/10 relative">
+                {/* 50% gridline */}
+                <div className="absolute left-0 right-0 top-1/2 border-t border-dashed border-outline-variant/15" />
+                {livePerfBars.map((h, i) => (
+                  <div
+                    key={i}
+                    className={`w-full ${h >= 85 ? "bg-primary" : h >= 50 ? "bg-primary/40" : "bg-primary/20"} rounded-t-sm transition-all duration-500`}
+                    style={{ height: `${h}%` }}
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between mt-2 text-[8px] uppercase font-black tracking-widest text-on-surface-variant">
+                <span>7d ago</span>
+                <span>5d</span>
+                <span>3d</span>
+                <span>1d</span>
+                <span>Now</span>
+              </div>
+            </div>
           </div>
         </section>
       </div>

@@ -22,16 +22,16 @@ export default async function PaymentMethodsPage() {
     <AppShell currentPath="/payment-methods" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-6 max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <section className="space-y-2">
+        <section className="space-y-1">
           <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight">Payment Methods</h1>
           <p className="text-on-surface-variant text-sm font-label uppercase tracking-widest">
-            Manage your connected accounts
+            Manage payments for <span className="text-primary font-bold">@{displayName.toLowerCase()}</span>
           </p>
         </section>
 
         {/* Verification Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-surface-container-low p-5 rounded flex items-start gap-4 shadow-sm">
+          <div className="bg-surface-container-low p-5 rounded flex items-start gap-4 shadow-sm border-l-2 border-primary/40">
             <div className="bg-primary/10 p-2 rounded text-primary">
               <span className="material-symbols-outlined">verified_user</span>
             </div>
@@ -42,7 +42,7 @@ export default async function PaymentMethodsPage() {
               </p>
             </div>
           </div>
-          <div className="bg-surface-container-low p-5 rounded flex items-start gap-4 shadow-sm">
+          <div className="bg-surface-container-low p-5 rounded flex items-start gap-4 shadow-sm border-l-2 border-secondary/40">
             <div className="bg-secondary/10 p-2 rounded text-secondary">
               <span className="material-symbols-outlined">security</span>
             </div>

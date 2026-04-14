@@ -33,12 +33,15 @@ export function AppNav({ currentPath, user }: AppNavProps) {
             return (
               <Link
                 key={route.href}
-                className={`font-label text-[11px] font-bold uppercase tracking-[0.18em] transition-colors ${
+                className={`relative font-label text-[11px] font-bold uppercase tracking-[0.18em] transition-colors pb-1 ${
                   isActive ? "text-primary" : "text-on-surface-variant hover:text-on-surface"
                 }`}
                 href={route.href}
               >
                 {route.label}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full" />
+                )}
               </Link>
             );
           })}

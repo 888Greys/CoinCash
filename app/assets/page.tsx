@@ -155,8 +155,8 @@ export default async function AssetsPage() {
                   <tr className="font-label text-[10px] font-bold uppercase tracking-[0.1em] text-on-surface-variant/60 border-b border-outline-variant/10">
                     <th className="px-6 py-4">Asset</th>
                     <th className="px-6 py-4">Total Balance</th>
-                    <th className="px-6 py-4">Available</th>
-                    <th className="px-6 py-4">In Order / Frozen</th>
+                    <th className="px-6 py-4 hidden md:table-cell">Available</th>
+                    <th className="px-6 py-4 hidden md:table-cell">In Order / Frozen</th>
                     <th className="px-6 py-4 text-right">USD Equivalent</th>
                     <th className="px-6 py-4" />
                   </tr>
@@ -191,10 +191,10 @@ export default async function AssetsPage() {
                         <td className="px-6 py-5 font-headline font-medium">
                           {totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })}
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 hidden md:table-cell">
                           {wallet.balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })}
                         </td>
-                        <td className={`px-6 py-5 ${wallet.locked_balance > 0 ? "text-error" : "text-on-surface-variant"}`}>
+                        <td className={`px-6 py-5 hidden md:table-cell ${wallet.locked_balance > 0 ? "text-error" : "text-on-surface-variant"}`}>
                           {wallet.locked_balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })}
                         </td>
                         <td className="px-6 py-5 text-right font-headline">
@@ -309,16 +309,18 @@ export default async function AssetsPage() {
 
           {/* Promo Card */}
           <div className="relative overflow-hidden rounded-sm min-h-[120px] bg-surface-container-low">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10 p-6 flex flex-col justify-center h-full">
               <p className="font-headline text-lg font-bold leading-tight">Master the Volatility</p>
               <p className="font-body text-xs text-on-surface-variant mt-2 max-w-xs">
                 Access advanced charting tools and margin trading to navigate fast-moving markets with confidence.
               </p>
               <Link
-                className="mt-4 text-primary font-label text-[10px] font-bold tracking-widest uppercase flex items-center gap-1"
+                className="mt-4 text-primary font-label text-[10px] font-bold tracking-widest uppercase flex items-center gap-1 w-fit"
                 href="/markets"
               >
-                Upgrade Tier{" "}
+                Explore Markets{" "}
                 <span className="material-symbols-outlined text-xs">chevron_right</span>
               </Link>
             </div>

@@ -22,7 +22,7 @@ type AppBottomNavProps = {
 
 export function AppBottomNav({ currentPath }: AppBottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 w-full md:hidden z-50 bg-[#0b0e11]/80 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center px-2 py-3">
+    <nav className="fixed bottom-0 left-0 w-full md:hidden z-50 bg-[#0b0e11]/95 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_24px_rgba(0,0,0,0.6)] flex justify-around items-end px-1 pt-2 pb-safe pb-3">
       {bottomNavItems.map((item) => {
         const isActive =
           currentPath === item.href ||
@@ -31,15 +31,28 @@ export function AppBottomNav({ currentPath }: AppBottomNavProps) {
         return (
           <Link
             key={item.href}
-            className={`flex flex-col items-center justify-center p-2 transition-all duration-200 ease-in-out ${
-              isActive
-                ? "text-primary bg-surface-container-high rounded-sm"
-                : "text-[#64748b] hover:text-secondary"
-            }`}
+            className="flex flex-col items-center justify-center gap-0.5 px-3 py-1 relative group"
             href={item.href}
           >
-            <span className="material-symbols-outlined mb-1">{item.icon}</span>
-            <span className="font-label text-[10px] font-bold uppercase tracking-[0.05em]">
+            {/* Active pill indicator */}
+            {isActive && (
+              <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-primary" />
+            )}
+            <span
+              className={`material-symbols-outlined text-[22px] transition-all duration-200 ${
+                isActive
+                  ? "text-primary"
+                  : "text-on-surface-variant group-hover:text-on-surface"
+              }`}
+              style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
+            >
+              {item.icon}
+            </span>
+            <span
+              className={`font-label text-[9px] font-bold uppercase tracking-[0.06em] transition-colors duration-200 ${
+                isActive ? "text-primary" : "text-on-surface-variant"
+              }`}
+            >
               {item.label}
             </span>
           </Link>

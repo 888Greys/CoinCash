@@ -142,13 +142,22 @@ export default async function HomePage() {
             <div className="w-full h-full bg-gradient-to-l from-primary to-transparent" />
           </div>
           <div className="relative z-10 mb-6 border-b border-outline-variant/10 pb-4">
-            <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tight leading-[0.95] text-on-surface">
-              Welcome back, {displayName}
-            </h2>
-            {displayHandle && (
-              <p className="text-primary font-headline text-xl md:text-2xl font-semibold mt-1">{displayHandle}</p>
-            )}
-            <p className="text-on-surface-variant text-base mt-2">Here is your latest market overview.</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="font-headline font-bold text-lg text-primary">
+                  {displayName[0]?.toUpperCase() || "T"}
+                </span>
+              </div>
+              <div>
+                <h2 className="font-headline text-3xl md:text-4xl font-bold tracking-tight leading-[0.95] text-on-surface">
+                  Welcome back, {displayName}
+                </h2>
+                {displayHandle && (
+                  <p className="text-primary font-headline text-lg md:text-xl font-semibold mt-0.5">{displayHandle}</p>
+                )}
+              </div>
+            </div>
+            <p className="text-on-surface-variant text-sm mt-3">Here is your latest market overview.</p>
           </div>
           <div className="flex justify-between items-start mb-2">
             <div className="space-y-1">
@@ -171,19 +180,24 @@ export default async function HomePage() {
           {/* Quick Actions Grid Expanded */}
           <div className="grid grid-cols-5 gap-2 mt-6">
             {[
-              { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10" },
-              { icon: "currency_exchange", label: "Convert", color: "text-secondary", bg: "bg-secondary/10" },
+              { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10", route: null },
+              { icon: "currency_exchange", label: "Convert", color: "text-secondary", bg: "bg-secondary/10", route: null },
               { icon: "swap_horiz", label: "P2P Trading", color: "text-on-surface", bg: "bg-surface-container-high", route: "/p2p" },
-              { icon: "send", label: "Transfer", color: "text-on-surface", bg: "bg-surface-container-high" },
-              { icon: "savings", label: "Earn", color: "text-tertiary", bg: "bg-tertiary/10" },
+              { icon: "send", label: "Transfer", color: "text-on-surface", bg: "bg-surface-container-high", route: null },
+              { icon: "savings", label: "Earn", color: "text-tertiary", bg: "bg-tertiary/10", route: null },
             ].map((action) => (
-              <Link href={action.route || "#"} key={action.label} className="flex flex-col items-center justify-start gap-2 group">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 group-active:scale-95 ${action.bg}`}>
+              <Link href={action.route || "#"} key={action.label} className={`flex flex-col items-center justify-start gap-2 group ${!action.route ? "pointer-events-none" : ""}`}>
+                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 group-active:scale-95 ${action.bg} ${!action.route ? "opacity-50" : ""}`}>
                   <span className={`material-symbols-outlined ${action.color}`}>
                     {action.icon}
                   </span>
+                  {!action.route && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-surface-container-high border border-outline-variant/20 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[9px] text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
+                    </span>
+                  )}
                 </div>
-                <span className="text-[9px] uppercase font-bold text-on-surface-variant group-hover:text-on-surface text-center leading-tight">
+                <span className={`text-[9px] uppercase font-bold text-center leading-tight ${action.route ? "text-on-surface-variant group-hover:text-on-surface" : "text-on-surface-variant/50"}`}>
                   {action.label}
                 </span>
               </Link>

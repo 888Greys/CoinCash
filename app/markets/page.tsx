@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
-import Image from "next/image";
 import { getExtendedMarketData, formatCompactNumber, generateSvgSparkline } from "@/lib/price-api";
 import { createClient } from "@/utils/supabase/server";
+import { MarketsTable } from "@/components/markets-table";
 
 export const metadata: Metadata = { title: "Markets" };
 
@@ -123,7 +123,7 @@ export default async function MarketsPage() {
           {spotlightCards.map((card) => (
             <div
               key={card.pair}
-              className="bg-surface-container-low p-5 flex flex-col justify-between group hover:bg-surface-container-high transition-colors"
+              className="bg-surface-container-low p-5 flex flex-col justify-between group hover:bg-surface-container-high transition-colors rounded-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
@@ -148,110 +148,8 @@ export default async function MarketsPage() {
           ))}
         </div>
 
-        {/* Market Table */}
-        <div className="bg-surface-container-low overflow-hidden">
-          {/* Tab Filters */}
-          <div className="flex border-b border-outline-variant/15 px-6">
-            <button className="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] bg-surface-bright text-on-surface transition-all">
-              All
-            </button>
-            <button className="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-all">
-              Favorites
-            </button>
-            <button className="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-all">
-              Hot
-            </button>
-            <button className="px-6 py-4 font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-all">
-              New Listings
-            </button>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/10">
-                  <th className="px-6 py-4 font-medium">Asset</th>
-                  <th className="px-6 py-4 font-medium">Price</th>
-                  <th className="px-6 py-4 font-medium">24h Change</th>
-                  <th className="px-6 py-4 font-medium hidden md:table-cell">24h Volume</th>
-                  <th className="px-6 py-4 font-medium hidden md:table-cell">Market Cap</th>
-                  <th className="px-6 py-4 font-medium text-right">Last 7 Days</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/10">
-                {marketDataDynamic.map((asset) => (
-                  <tr
-                    key={asset.symbol}
-                    className="hover:bg-surface-bright transition-colors cursor-pointer group"
-                  >
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-headline text-xs ${asset.color}`}>
-                          {asset.logo ? (
-                            <Image src={asset.logo} alt={asset.name} width={24} height={24} unoptimized />
-                          ) : (
-                            asset.symbol[0]
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-headline font-bold text-sm">{asset.symbol}</div>
-                          <div className="font-label text-[9px] text-on-surface-variant tracking-widest uppercase">
-                            {asset.name}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="font-headline font-bold">{asset.price}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className={`font-label text-xs font-bold ${asset.isPositive ? "text-primary" : "text-error"}`}>
-                        {asset.change}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 hidden md:table-cell">
-                      <div className="font-label text-xs text-on-surface-variant">{asset.volume}</div>
-                    </td>
-                    <td className="px-6 py-5 hidden md:table-cell">
-                      <div className="font-label text-xs text-on-surface-variant">{asset.marketCap}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex justify-end">
-                        <svg
-                          className={`w-20 h-8 fill-none ${asset.isPositive ? "stroke-primary" : "stroke-error"} opacity-70 group-hover:opacity-100 transition-opacity`}
-                          strokeWidth="1.5"
-                          viewBox="0 0 80 32"
-                        >
-                          <path d={asset.sparkline} />
-                        </svg>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination Footer */}
-          <div className="flex justify-between items-center px-6 py-4 bg-surface-container-low border-t border-outline-variant/10">
-            <div className="font-label text-[9px] text-on-surface-variant uppercase tracking-widest">
-              Showing 1-5 of 142 Assets
-            </div>
-            <div className="flex gap-2">
-              <button className="p-2 bg-surface-container-high hover:bg-surface-bright transition-colors rounded-sm group">
-                <span className="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary">
-                  chevron_left
-                </span>
-              </button>
-              <button className="p-2 bg-surface-container-high hover:bg-surface-bright transition-colors rounded-sm group">
-                <span className="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary">
-                  chevron_right
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Markets — search + table (client component) */}
+        <MarketsTable assets={marketDataDynamic} totalCount={marketDataDynamic.length} />
       </div>
     </AppShell>
   );
