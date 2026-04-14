@@ -274,7 +274,8 @@ export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
                 </div>
 
                 <div className="bg-surface-container-highest rounded-sm p-4 flex items-center justify-center">
-                  <img src={qrUrl} alt="Deposit QR code" width={180} height={180} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={qrUrl} alt="Deposit QR code" width={180} height={180} decoding="async" />
                 </div>
 
                 <button

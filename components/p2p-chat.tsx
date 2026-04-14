@@ -267,7 +267,8 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
                         <div className="space-y-2">
                           <p className="text-[11px] font-semibold uppercase tracking-wider">Payment Proof</p>
                           <a href={proofUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border border-outline-variant/25">
-                            <img src={proofUrl} alt="Payment proof" className="max-h-48 w-full object-cover" />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={proofUrl} alt="Payment proof" className="max-h-48 w-full object-cover" loading="lazy" decoding="async" />
                           </a>
                           <a
                             href={proofUrl}

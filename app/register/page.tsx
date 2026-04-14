@@ -74,10 +74,12 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
         <section className="relative hidden overflow-hidden p-12 md:flex md:w-1/2 md:flex-col md:justify-center">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-br from-surface via-surface-container-low to-surface-container-high opacity-90" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               alt="Abstract digital network"
               className="h-full w-full object-cover"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7Fa9BbgB3Id4BYrt-gbkLv8QuEZP0maCrft-060D-GAqAQhYXA8-UJPi5BH9SX3CLfFPyjNlycKlu5oQP34WA3dnHdutgtVdUorc5dtgwguSfg6e8vSvmXVV05_mhJ-mjMkgWjozrgJwHr_8Fee9mAnSApJhJjCgmthOW-j68RpMRmIqa7cDXWETxsCAAKCFejCvQpX7scfcQNZyWcxvNrZT5BplkXi9MUZRLMoI8xaDjIaft_A4p81KbE-hka0vocqXtQggSpic"
+              decoding="async"
             />
             <div className="auth-float-slow absolute -left-10 top-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
             <div className="auth-float-slower absolute bottom-10 right-6 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />

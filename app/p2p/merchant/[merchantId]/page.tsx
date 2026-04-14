@@ -63,10 +63,12 @@ export default function MerchantProfilePage() {
             <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
               <div className="relative">
                 <div className="w-24 h-24 rounded-lg bg-surface-container-highest border border-primary/30 flex items-center justify-center overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     alt="Kinetic_Alpha"
                     className="w-full h-full p-2 object-cover"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuARO-w4w99FKMFwVAaLTaTFUrAJmZh4EZwzmqcW3L4pp9ARPBgU-I9nn7adPzo5ehWHXPNxud4w0jwKzBujoUflo7RLy1otkTHLa3PxcxbNp9zZGHOl2h19IwX2dxgoZTYd3oq85-tCzvbWGxnDMpgvaBeSjXsdb2AVxsca-I8KuWEeXfYQlXssGBcbmGL1DOLDgjIYN00DzhgQmuqR3skkzPhAx8yxyIBZpLhHKD77Q_dJZc28F2jhMJfC6jGy5T9I1neHzl6vtVg"
+                    decoding="async"
                   />
                 </div>
                 <div className="absolute -bottom-2 -right-2 bg-primary text-on-primary-container px-2 py-0.5 rounded-sm font-label text-[10px] font-bold">

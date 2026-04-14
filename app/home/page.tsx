@@ -344,7 +344,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <h3 className="text-sm font-semibold leading-tight text-on-surface group-hover:text-primary transition-colors">{item.title}</h3>
                 </div>
                 <div className="w-20 h-20 rounded-lg bg-surface-container-high flex-shrink-0 overflow-hidden">
-                  <img alt="News thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src={item.image} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img alt="News thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src={item.image} loading="lazy" decoding="async" />
                 </div>
               </a>
             ))}
