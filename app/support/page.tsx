@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
+import { SupportChatRoom } from "@/components/support-chat-room";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = { title: "Customer Support" };
@@ -69,14 +70,7 @@ export default async function SupportPage({ searchParams }: Props) {
           </div>
         </section>
 
-        <section className="rounded-lg border border-outline-variant/15 bg-surface-container-low p-5">
-          <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">What To Share In Chat</h2>
-          <ul className="mt-3 space-y-2 text-sm text-on-surface-variant">
-            <li>Your intended coin and amount.</li>
-            <li>Your preferred payment method.</li>
-            <li>Whether your request is deposit, transfer, or buy support.</li>
-          </ul>
-        </section>
+        <SupportChatRoom initialMessage={message} />
       </div>
     </AppShell>
   );

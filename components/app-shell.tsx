@@ -40,7 +40,7 @@ export function AppShell({ children, currentPath, user }: AppShellProps) {
         <Link
           href="/support"
           aria-label="Open customer support chat"
-          className="group fixed right-4 bottom-[92px] md:bottom-6 z-50 h-16 w-16 rounded-full border border-primary/45 bg-surface-container-high p-1 shadow-[0_0_32px_rgba(92,253,128,0.25)] active:scale-95 transition-transform"
+          className="group fixed right-4 bottom-[124px] md:bottom-8 z-50 h-16 w-16 rounded-full border border-primary/45 bg-surface-container-high p-1 shadow-[0_0_32px_rgba(92,253,128,0.25)] active:scale-95 transition-transform"
         >
           <span className="pointer-events-none absolute inset-0 rounded-full border border-primary/40 opacity-40 animate-ping" />
           <span className="relative block h-full w-full overflow-hidden rounded-full">

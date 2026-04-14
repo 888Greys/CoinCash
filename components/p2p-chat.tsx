@@ -10,6 +10,14 @@ interface Message {
   created_at: string;
 }
 
+interface PendingMessage {
+  id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  pending: true;
+}
+
 interface P2PChatProps {
   tradeId: string;
   currentUserId: string;
@@ -20,6 +28,7 @@ const PAGE_SIZE = 20;
 
 export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -28,8 +37,15 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
   const supabase = createClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const isInitialMount = useRef(true);
   const isMobileImmersive = variant === "mobile-immersive";
+
+  const removeFirstPendingMatch = (queue: PendingMessage[], content: string) => {
+    const index = queue.findIndex((item) => item.content === content);
+    if (index === -1) return queue;
+    return [...queue.slice(0, index), ...queue.slice(index + 1)];
+  };
 
   const fetchMessages = useCallback(async (from: number, to: number) => {
     const { data, error } = await supabase
@@ -74,7 +90,11 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
             filter: `trade_id=eq.${tradeId}`,
           },
           (payload) => {
-            setMessages((prev) => [...prev, payload.new as Message]);
+            const incoming = payload.new as Message;
+            if (incoming.sender_id === currentUserId) {
+              setPendingMessages((prev) => removeFirstPendingMatch(prev, incoming.content));
+            }
+            setMessages((prev) => [...prev, incoming]);
           }
         )
         .subscribe();
@@ -97,7 +117,14 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
       // Only smooth scroll if it's a new message (not loading old ones)
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isLoading, isLoadingMore]);
+  }, [messages, pendingMessages, isLoading, isLoadingMore]);
+
+  useEffect(() => {
+    const el = composerRef.current;
+    if (!el) return;
+    el.style.height = "0px";
+    el.style.height = `${Math.min(el.scrollHeight, 112)}px`;
+  }, [newMessage]);
 
   const loadMoreMessages = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -134,6 +161,19 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
     if (!newMessage.trim()) return;
 
     const content = newMessage.trim();
+    const optimisticId = `pending-${Date.now()}`;
+
+    setPendingMessages((prev) => [
+      ...prev,
+      {
+        id: optimisticId,
+        sender_id: currentUserId,
+        content,
+        created_at: new Date().toISOString(),
+        pending: true,
+      },
+    ]);
+
     setNewMessage(""); // Optimistic clear
 
     const { error } = await supabase.from("messages").insert({
@@ -143,6 +183,8 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
     });
 
     if (error) {
+      setPendingMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+      setNewMessage(content);
       console.error("Failed to send message:", error);
     }
   };
@@ -152,6 +194,8 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
     const url = content.replace("Payment proof uploaded: ", "").trim();
     return url.startsWith("http") ? url : null;
   };
+
+  const renderedMessages: Array<Message | PendingMessage> = [...messages, ...pendingMessages];
 
   return (
     <div className={isMobileImmersive ? "flex min-h-0 flex-col" : "flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container-lowest"}>
@@ -194,25 +238,26 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
               </div>
             )}
             
-            {messages.length === 0 && !hasMore ? (
+            {renderedMessages.length === 0 && !hasMore ? (
               <div className="h-full flex flex-col items-center justify-center text-on-surface-variant/50 space-y-2">
                 <span className="material-symbols-outlined text-3xl">question_answer</span>
                 <p className="text-xs uppercase tracking-widest">No messages yet</p>
               </div>
             ) : (
-              messages.map((msg) => {
+              renderedMessages.map((msg) => {
                 const isMe = msg.sender_id === currentUserId;
                 const proofUrl = parseProofUrl(msg.content);
+                const isPending = "pending" in msg && msg.pending;
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] px-4 py-3 text-sm shadow-sm ${
                       isMobileImmersive
                         ? isMe
-                          ? "rounded-xl rounded-tr-none bg-primary-container text-on-primary-container"
-                          : "rounded-xl rounded-tl-none border-l-2 border-primary/30 bg-surface-container-high text-on-surface"
+                          ? "rounded-2xl rounded-br-sm border border-primary/25 bg-[#204f3c] text-[#ecfff2]"
+                          : "rounded-2xl rounded-bl-sm border border-outline-variant/20 bg-surface-container-high text-on-surface"
                         : isMe
-                          ? "rounded-2xl rounded-tr-sm bg-primary text-on-primary"
-                          : "rounded-2xl rounded-tl-sm bg-surface-container-high text-on-surface"
+                          ? "rounded-2xl rounded-br-sm border border-primary/25 bg-[#204f3c] text-[#ecfff2]"
+                          : "rounded-2xl rounded-bl-sm border border-outline-variant/20 bg-surface-container-high text-on-surface"
                     }`}>
                       {proofUrl ? (
                         <div className="space-y-2">
@@ -233,8 +278,13 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
                       ) : (
                         msg.content
                       )}
-                      <div className={`text-[9px] mt-1 opacity-60 ${isMe ? 'text-right' : 'text-left'}`}>
-                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <div className={`mt-1 flex items-center gap-1 text-[9px] opacity-75 ${isMe ? 'justify-end text-[#d2f4dd]' : 'justify-start text-on-surface-variant'}`}>
+                        <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        {isMe && (
+                          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                            {isPending ? 'schedule' : 'done_all'}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -264,14 +314,23 @@ export function P2PChat({ tradeId, currentUserId, variant = "default" }: P2PChat
           )}
 
           <div className={isMobileImmersive ? "relative flex-1" : "flex-1"}>
-            <input
-              type="text"
+            <textarea
+              ref={composerRef}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (newMessage.trim()) {
+                    void handleSendMessage(e as unknown as React.FormEvent);
+                  }
+                }
+              }}
               placeholder="Type a message..."
+              rows={1}
               className={isMobileImmersive
-                ? "h-10 w-full rounded-lg border-none bg-surface-container-lowest px-4 pr-12 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary"
-                : "w-full rounded-lg border border-outline-variant/20 bg-surface px-4 py-2 text-sm font-body text-on-surface transition-colors focus:border-primary/50 focus:outline-none"
+                ? "max-h-[112px] min-h-[40px] w-full resize-none rounded-xl border-none bg-surface-container-lowest px-4 py-2 pr-12 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary"
+                : "max-h-[112px] min-h-[40px] w-full resize-none rounded-xl border border-outline-variant/20 bg-surface px-4 py-2 text-sm font-body text-on-surface transition-colors focus:border-primary/50 focus:outline-none"
               }
               disabled={isLoading}
             />
