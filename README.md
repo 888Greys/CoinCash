@@ -175,6 +175,23 @@ Flow behavior after setup:
 - Login submit with matching env credentials -> redirects to `/markets`
 - Login submit with wrong credentials -> stays on `/login` and shows an error
 
+## Local Dev Login (.env.local)
+
+For local design testing, you can use the `Dev Login (.env.local)` button on `/login`.
+
+Add these to `.env.local`:
+
+```bash
+DEV_LOGIN_EMAIL=your-test-user@example.com
+DEV_LOGIN_PASSWORD=your-test-password
+```
+
+Notes:
+
+- This shortcut is disabled in production.
+- It still authenticates against Supabase using email/password, so the test account must exist.
+- On success, it redirects to `/home`.
+
 ## Verification Notes
 
 At this stage the implementation is an initial scaffold, not a full migration. The reference HTML remains available in `public/reference-designs/` so every migrated page can be checked against the original.

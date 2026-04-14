@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LoginOverlay } from "@/components/login-overlay";
 import { OTPAuthForm } from "@/components/otp-auth-form";
+import { devLoginAction } from "./actions";
 
 type LoginPageProps = {
   searchParams?: {
@@ -104,8 +105,39 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
                 Authentication required. Please log in first.
               </p>
             )}
+            {errorState === "dev_login_missing_env" && (
+              <p className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error mb-4 block">
+                Dev login env vars are missing. Set DEV_LOGIN_EMAIL and DEV_LOGIN_PASSWORD in .env.local.
+              </p>
+            )}
+            {errorState === "dev_login_invalid_credentials" && (
+              <p className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error mb-4 block">
+                Dev login failed: invalid credentials. If this account was created via OTP-only, set a password in Supabase Auth first.
+              </p>
+            )}
+            {errorState === "dev_login_failed" && (
+              <p className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error mb-4 block">
+                Dev login failed unexpectedly. Check Supabase Auth user password and try again.
+              </p>
+            )}
+            {errorState === "dev_login_prod_disabled" && (
+              <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 mb-4 block">
+                Dev login is disabled in production.
+              </p>
+            )}
 
             <OTPAuthForm mode="login" />
+
+            {process.env.NODE_ENV !== "production" && (
+              <form action={devLoginAction} className="pt-1">
+                <button
+                  type="submit"
+                  className="w-full rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-primary hover:bg-primary/20"
+                >
+                  Dev Login (.env.local)
+                </button>
+              </form>
+            )}
 
             <p className="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
               New to CoinCash?{" "}

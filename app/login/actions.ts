@@ -51,3 +51,33 @@ export async function logoutAction() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function devLoginAction() {
+  const devEmail = (process.env.DEV_LOGIN_EMAIL ?? "").trim().toLowerCase();
+  const devPassword = process.env.DEV_LOGIN_PASSWORD ?? "";
+
+  // Safety guard: never allow the shortcut in production.
+  if (process.env.NODE_ENV === "production") {
+    redirect("/login?error=dev_login_prod_disabled");
+  }
+
+  if (!devEmail || !devPassword) {
+    redirect("/login?error=dev_login_missing_env");
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: devEmail,
+    password: devPassword,
+  });
+
+  if (error) {
+    // Common case: user exists via OTP and has no password set.
+    if (error.message.toLowerCase().includes("invalid login credentials")) {
+      redirect("/login?error=dev_login_invalid_credentials");
+    }
+    redirect("/login?error=dev_login_failed");
+  }
+
+  redirect("/home");
+}

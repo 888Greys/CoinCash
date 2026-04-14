@@ -110,70 +110,119 @@ export default async function OrderPage({ params, searchParams }: Props) {
             </div>
           </div>
         ) : (
-        <div className="md:hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low p-4">
-          <div className="mb-5 flex items-center justify-between">
-            <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
-            <span className="text-sm font-bold text-error">Cancel Order</span>
-          </div>
+          <div className="md:hidden -mx-4 bg-surface pb-28">
+            <header className="sticky top-0 z-20 flex h-16 items-center justify-between bg-surface px-6">
+              <div className="flex items-center gap-4">
+                <Link href="/p2p" className="text-primary hover:text-secondary">
+                  <span className="material-symbols-outlined">arrow_back</span>
+                </Link>
+                <h1 className="font-headline text-lg font-bold uppercase tracking-wider text-primary">Payment</h1>
+              </div>
+              <button className="text-[11px] uppercase tracking-widest text-on-surface-variant hover:text-error">
+                Cancel Order
+              </button>
+            </header>
 
-          <h1 className="font-headline text-4xl font-black tracking-tight">Payment</h1>
-          <p className="mt-1 text-lg text-on-surface-variant">
-            Pay the seller within <span className="font-bold text-on-surface">{tradeTimer}</span>
-          </p>
+            <div className="border-b border-outline-variant/10 bg-surface-container-low px-6 py-8">
+              <div className="flex flex-col items-center">
+                <span className="mb-2 text-xs uppercase tracking-[0.2em] text-on-surface-variant">Pay the seller within</span>
+                <div className="font-headline text-4xl font-bold tracking-tighter text-primary">{tradeTimer}</div>
+              </div>
+            </div>
 
-          <div className="mt-5 rounded-xl border border-outline-variant/20 bg-surface p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-container-high text-lg font-bold uppercase">
-                  {(counterparty?.username ?? "U").slice(0, 1)}
+            <div className="mx-4 mt-6 flex items-center justify-between rounded-lg bg-surface-container-high p-5 shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-bright">
+                  <span className="material-symbols-outlined text-secondary">person</span>
                 </div>
-                <p className="text-xl font-bold uppercase">{counterparty?.username ?? "Unknown"}</p>
+                <div>
+                  <div className="mb-0.5 text-[10px] uppercase tracking-widest text-on-surface-variant">Merchant</div>
+                  <div className="font-headline text-md font-bold text-on-surface uppercase">{counterparty?.username ?? "Unknown"}</div>
+                </div>
               </div>
-              <Link href={`/p2p/order/${trade.id}?view=chat`} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary-container">Chat</Link>
+              <Link
+                href={`/p2p/order/${trade.id}?view=chat`}
+                className="flex items-center gap-2 rounded-md border border-primary/10 bg-surface-bright px-4 py-2 text-xs font-bold uppercase tracking-wider text-primary"
+              >
+                <span className="material-symbols-outlined text-sm">chat</span>
+                Chat
+              </Link>
+            </div>
+
+            <div className="mt-8 px-6">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="font-headline text-xl font-bold tracking-tight text-on-surface">
+                  Transfer via: <span className="text-secondary">{methodLabel}</span>
+                </h2>
+                <button className="text-on-surface-variant hover:text-primary">
+                  <span className="material-symbols-outlined">refresh</span>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="group rounded-lg border-l-2 border-primary/30 bg-surface-container-low p-4 transition-colors hover:bg-surface-container">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant">You Pay</div>
+                      <div className="font-headline text-lg font-bold text-on-surface">
+                        {trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.fiat}
+                      </div>
+                    </div>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-md bg-surface-bright text-on-surface-variant transition-colors group-hover:bg-surface-container-high hover:text-primary">
+                      <span className="material-symbols-outlined">content_copy</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="group rounded-lg border-l-2 border-outline-variant/30 bg-surface-container-low p-4 transition-colors hover:bg-surface-container">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant">Merchant Payment Method</div>
+                      <div className="font-headline text-lg font-bold text-on-surface">{methodLabel}</div>
+                    </div>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-md bg-surface-bright text-on-surface-variant transition-colors group-hover:bg-surface-container-high hover:text-primary">
+                      <span className="material-symbols-outlined">content_copy</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="group rounded-lg border-l-2 border-outline-variant/30 bg-surface-container-low p-4 transition-colors hover:bg-surface-container">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant">Your account name</div>
+                      <div className="font-headline text-lg font-bold text-on-surface">{payerName}</div>
+                    </div>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-md bg-surface-bright text-on-surface-variant transition-colors group-hover:bg-surface-container-high hover:text-primary">
+                      <span className="material-symbols-outlined">content_copy</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="group rounded-lg border-l-2 border-outline-variant/30 bg-surface-container-low p-4 transition-colors hover:bg-surface-container">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant">Ref Message</div>
+                      <div className="font-headline text-lg font-bold text-on-surface break-all">{referenceCode}</div>
+                    </div>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-md bg-surface-bright text-on-surface-variant transition-colors group-hover:bg-surface-container-high hover:text-primary">
+                      <span className="material-symbols-outlined">content_copy</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 px-6">
+              <TradeActions
+                tradeId={trade.id}
+                status={trade.status}
+                isBuyer={isBuyer}
+                isSeller={isSeller}
+                currentUserId={user.id}
+                variant="payment-mobile"
+              />
             </div>
           </div>
-
-          <div className="mt-6 space-y-4">
-            <p className="text-3xl font-semibold">Transfer via: {methodLabel}</p>
-            <div className="space-y-4 text-on-surface">
-              <div>
-                <p className="text-sm text-on-surface-variant">You Pay</p>
-                <p className="text-4xl font-black tracking-tight">
-                  {trade.fiat_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {trade.p2p_orders.fiat}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-on-surface-variant">Merchant Payment Method</p>
-                <p className="text-2xl font-semibold">{methodLabel}</p>
-              </div>
-              <div>
-                <p className="text-sm text-on-surface-variant">Your account name</p>
-                <p className="text-2xl font-semibold">{payerName}</p>
-              </div>
-              <div>
-                <p className="text-sm text-on-surface-variant">Ref Message</p>
-                <p className="text-2xl font-semibold">{referenceCode}</p>
-              </div>
-            </div>
-            <p className="pt-2 text-xl text-on-surface-variant">
-              Tap the button below to upload payment proof for seller confirmation.
-            </p>
-          </div>
-
-          <div className="mt-5 rounded-xl border border-error/40 bg-error/10 px-4 py-3">
-            <p className="text-base font-bold text-error">CALL THE MERCHANT BEFORE MAKING PAYMENT</p>
-          </div>
-
-          <div className="mt-4">
-            <TradeActions
-              tradeId={trade.id}
-              status={trade.status}
-              isBuyer={isBuyer}
-              isSeller={isSeller}
-              currentUserId={user.id}
-            />
-          </div>
-        </div>
         )}
 
         <div className="hidden md:block">

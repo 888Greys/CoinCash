@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Payment Confirmation - COINCASH</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "inverse-surface": "#f8f9fe",
+                  "tertiary-dim": "#00d4ed",
+                  "surface-container-lowest": "#000000",
+                  "error": "#ff7351",
+                  "surface-variant": "#22262b",
+                  "surface-bright": "#282d31",
+                  "outline": "#737679",
+                  "on-secondary-container": "#e2ffe8",
+                  "primary-fixed-dim": "#4bee74",
+                  "tertiary-container": "#00e3fe",
+                  "primary-dim": "#4bee74",
+                  "secondary-fixed-dim": "#69e6a1",
+                  "secondary-fixed": "#78f5ae",
+                  "secondary-container": "#006d41",
+                  "on-background": "#f8f9fe",
+                  "tertiary-fixed": "#00e3fe",
+                  "tertiary": "#84ecff",
+                  "inverse-primary": "#006e2a",
+                  "on-primary": "#005d22",
+                  "surface-container-highest": "#22262b",
+                  "primary-fixed": "#5cfd80",
+                  "on-surface-variant": "#a9abaf",
+                  "on-tertiary": "#005762",
+                  "surface-dim": "#0b0e11",
+                  "surface-container-high": "#1c2024",
+                  "on-error": "#450900",
+                  "background": "#0b0e11",
+                  "secondary": "#78f5ae",
+                  "primary-container": "#02c953",
+                  "on-primary-fixed": "#004819",
+                  "on-secondary-fixed": "#004528",
+                  "primary": "#5cfd80",
+                  "on-primary-container": "#003711",
+                  "secondary-dim": "#69e6a1",
+                  "on-primary-fixed-variant": "#006827",
+                  "on-error-container": "#ffd2c8",
+                  "surface": "#0b0e11",
+                  "on-tertiary-container": "#004d57",
+                  "outline-variant": "#45484c",
+                  "inverse-on-surface": "#535559",
+                  "surface-container": "#161a1e",
+                  "surface-tint": "#5cfd80",
+                  "on-tertiary-fixed-variant": "#005762",
+                  "error-container": "#b92902",
+                  "error-dim": "#d53d18",
+                  "surface-container-low": "#101417",
+                  "on-tertiary-fixed": "#003840",
+                  "on-secondary-fixed-variant": "#00653c",
+                  "tertiary-fixed-dim": "#00d4ed",
+                  "on-secondary": "#005a35",
+                  "on-surface": "#f8f9fe"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "fontFamily": {
+                  "headline": ["Space Grotesk"],
+                  "body": ["Inter"],
+                  "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .kinetic-border {
+      position: relative;
+    }
+    .kinetic-border::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: #5cfd80;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary-container min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-[#0b0e11] flex justify-between items-center px-6 h-16 w-full z-40 sticky top-0">
+<div class="flex items-center gap-4">
+<button class="text-[#5cfd80] hover:text-[#78f5ae] transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-['Space_Grotesk'] uppercase tracking-wider text-[#5cfd80] text-lg font-bold">Payment</h1>
+</div>
+<button class="text-slate-400 hover:text-white transition-colors font-label text-xs tracking-widest uppercase">
+      Cancel Order
+    </button>
+</header>
+<main class="flex-1 overflow-y-auto pb-32">
+<!-- Timer Section -->
+<div class="px-6 py-8 bg-surface-container-low border-b border-outline-variant/10">
+<div class="flex flex-col items-center">
+<span class="font-label text-xs tracking-[0.2em] text-on-surface-variant uppercase mb-2">Pay the seller within</span>
+<div class="font-headline text-4xl font-bold text-primary tracking-tighter">15:00</div>
+</div>
+</div>
+<!-- Merchant Info Card -->
+<div class="mx-4 mt-6 p-5 bg-surface-container-high rounded-lg flex items-center justify-between shadow-lg">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-bright flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary" data-icon="person">person</span>
+</div>
+<div>
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-0.5">Merchant</div>
+<div class="font-headline text-md font-bold text-on-surface">ANTHONY KIMANDI</div>
+</div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-bright rounded-md text-primary font-label text-xs font-bold uppercase tracking-wider hover:bg-surface-variant transition-all border border-primary/10">
+<span class="material-symbols-outlined text-sm" data-icon="chat">chat</span>
+        Chat
+      </button>
+</div>
+<!-- Payment Details Section -->
+<div class="px-6 mt-8">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline text-xl font-bold tracking-tight text-on-surface">Transfer via: <span class="text-secondary">M-Pesa</span></h2>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Item: You Pay -->
+<div class="p-4 bg-surface-container-low rounded-lg group hover:bg-surface-container transition-colors border-l-2 border-primary/30">
+<div class="flex justify-between items-center">
+<div>
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">You Pay</div>
+<div class="font-headline text-lg font-bold text-on-surface">130,000 KES</div>
+</div>
+<button class="w-10 h-10 rounded-md bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group-hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Item: Merchant Number -->
+<div class="p-4 bg-surface-container-low rounded-lg group hover:bg-surface-container transition-colors border-l-2 border-outline-variant/30">
+<div class="flex justify-between items-center">
+<div>
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Merchant M-Pesa Number</div>
+<div class="font-headline text-lg font-bold text-on-surface">0140643848</div>
+</div>
+<button class="w-10 h-10 rounded-md bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group-hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Item: Account Name -->
+<div class="p-4 bg-surface-container-low rounded-lg group hover:bg-surface-container transition-colors border-l-2 border-outline-variant/30">
+<div class="flex justify-between items-center">
+<div>
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Your account name</div>
+<div class="font-headline text-lg font-bold text-on-surface">Nassir Hood</div>
+</div>
+<button class="w-10 h-10 rounded-md bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group-hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Item: Ref Message -->
+<div class="p-4 bg-surface-container-low rounded-lg group hover:bg-surface-container transition-colors border-l-2 border-outline-variant/30">
+<div class="flex justify-between items-center">
+<div>
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Ref Message</div>
+<div class="font-headline text-lg font-bold text-on-surface break-all">80685483991856180</div>
+</div>
+<button class="w-10 h-10 rounded-md bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group-hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Guidance and Checkbox -->
+<div class="px-6 mt-8 space-y-6">
+<div class="flex items-start gap-3 p-4 bg-primary/5 rounded-lg border border-primary/10">
+<span class="material-symbols-outlined text-primary text-xl shrink-0" data-icon="info">info</span>
+<p class="text-xs text-on-surface-variant leading-relaxed font-label">
+          Tap the button below to upload payment proof for Seller's confirmation
+        </p>
+</div>
+<label class="flex items-start gap-4 p-4 bg-error/5 rounded-lg border border-error/20 cursor-pointer select-none">
+<div class="pt-1">
+<input class="w-5 h-5 rounded-sm bg-surface-container-highest border-error/40 text-error focus:ring-error transition-all cursor-pointer" type="checkbox"/>
+</div>
+<div class="text-xs font-bold leading-relaxed text-error tracking-tight uppercase">
+          CALL THE MERCHANT BEFORE MAKING THE PAYMENT — Tick to confirm you have called the merchant
+        </div>
+</label>
+</div>
+</main>
+<!-- Sticky Footer Action -->
+<footer class="fixed bottom-0 left-0 w-full bg-[#101417]/90 backdrop-blur-xl border-t border-[#45484c]/15 px-6 pt-4 pb-8 z-50">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold py-4 rounded-lg shadow-[0_4px_20px_rgba(2,201,83,0.3)] hover:opacity-90 active:scale-[0.98] transition-all uppercase tracking-[0.15em] text-sm">
+      Upload Payment Proof
+    </button>
+</footer>
+</body></html>

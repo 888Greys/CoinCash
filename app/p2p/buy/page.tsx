@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { AppShell } from "@/components/app-shell";
 import { takeOrder } from "../actions";
 
 export default function BuyPage() {
@@ -71,6 +72,7 @@ export default function BuyPage() {
   };
 
   return (
+    <AppShell currentPath="/p2p">
     <div className="min-h-[100dvh] bg-surface text-on-surface pb-28">
       <header className="sticky top-0 z-30 h-16 w-full border-b border-outline-variant/10 bg-surface-container-low px-4">
         <div className="mx-auto flex h-full w-full max-w-3xl items-center justify-between">
@@ -88,7 +90,7 @@ export default function BuyPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+      <main className="mx-auto mt-2 w-[calc(100%-0.5rem)] max-w-3xl space-y-6 rounded-t-[28px] border border-outline-variant/15 bg-surface px-4 py-6">
         <section className="space-y-1">
           <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Exchange Rate</p>
           <div className="flex items-baseline gap-2">
@@ -222,7 +224,7 @@ export default function BuyPage() {
 
           <button
             onClick={handleBuy}
-            disabled={loading || !orderId || !payAmount || outOfRange}
+            disabled={loading || !orderId || !payAmount}
             className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-container font-headline text-lg font-bold text-on-primary-container shadow-lg shadow-primary/20 transition-transform active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? "Processing..." : "Place Order"}
@@ -231,5 +233,6 @@ export default function BuyPage() {
         </div>
       </footer>
     </div>
+    </AppShell>
   );
 }

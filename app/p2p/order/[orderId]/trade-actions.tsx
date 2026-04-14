@@ -11,9 +11,10 @@ type TradeActionsProps = {
   isBuyer: boolean;
   isSeller: boolean;
   currentUserId?: string;
+  variant?: "default" | "payment-mobile";
 };
 
-export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId }: TradeActionsProps) {
+export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId, variant = "default" }: TradeActionsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showProofSheet, setShowProofSheet] = useState(false);
@@ -21,8 +22,10 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [allowNoImage, setAllowNoImage] = useState(false);
   const [confirmedOwnAccount, setConfirmedOwnAccount] = useState(false);
+  const [merchantCalled, setMerchantCalled] = useState(false);
   const router = useRouter();
   const supabase = createBrowserClient();
+  const isPaymentMobile = variant === "payment-mobile";
 
   const handleRelease = async () => {
     if (!confirm("Are you sure you want to release the escrow? This action cannot be undone.")) return;
@@ -108,8 +111,10 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
   }
 
   return (
-    <div className="bg-surface-container-low p-6 rounded-sm space-y-4">
-      <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Actions</h3>
+    <div className={isPaymentMobile ? "space-y-4" : "bg-surface-container-low p-6 rounded-sm space-y-4"}>
+      {!isPaymentMobile && (
+        <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Actions</h3>
+      )}
 
       {error && (
         <div className="rounded border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
@@ -119,18 +124,51 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
 
       {isBuyer && status === "pending" && (
         <div className="space-y-3">
-          <p className="text-xs text-on-surface-variant leading-relaxed">
-            Please complete the payment using the specified method, then click the button below to notify the seller.
-          </p>
+          {isPaymentMobile ? (
+            <>
+              <div className="flex items-start gap-3 rounded-lg border border-primary/10 bg-primary/5 p-4">
+                <span className="material-symbols-outlined shrink-0 text-primary text-xl">info</span>
+                <p className="text-xs leading-relaxed text-on-surface-variant">
+                  Tap the button below to upload payment proof for seller confirmation.
+                </p>
+              </div>
+
+              <label className="flex cursor-pointer select-none items-start gap-3 rounded-lg border border-error/20 bg-error/5 p-4">
+                <input
+                  type="checkbox"
+                  checked={merchantCalled}
+                  onChange={(e) => setMerchantCalled(e.target.checked)}
+                  className="mt-1 h-5 w-5 rounded-sm border-error/40 bg-surface-container-highest text-error"
+                />
+                <span className="text-xs font-bold uppercase leading-relaxed tracking-tight text-error">
+                  Call the merchant before making payment. Tick to confirm you have called the merchant.
+                </span>
+              </label>
+            </>
+          ) : (
+            <p className="text-xs text-on-surface-variant leading-relaxed">
+              Please complete the payment using the specified method, then click the button below to notify the seller.
+            </p>
+          )}
+
           <button
             onClick={() => {
               setError(null);
               setShowProofSheet(true);
             }}
-            disabled={loading}
-            className="w-full py-4 bg-tertiary text-on-tertiary font-headline font-bold uppercase tracking-widest text-sm rounded-sm active:scale-[0.98] transition-all disabled:opacity-50"
+            disabled={loading || (isPaymentMobile && !merchantCalled)}
+            className={isPaymentMobile
+              ? "fixed bottom-0 left-0 z-40 w-full border-t border-outline-variant/15 bg-surface-container-highest/90 px-6 pb-8 pt-4 disabled:opacity-60"
+              : "w-full py-4 bg-tertiary text-on-tertiary font-headline font-bold uppercase tracking-widest text-sm rounded-sm active:scale-[0.98] transition-all disabled:opacity-50"
+            }
           >
-            Upload Payment Proof
+            {isPaymentMobile ? (
+              <span className="mx-auto flex h-14 w-full max-w-3xl items-center justify-center rounded-lg bg-gradient-to-r from-primary to-primary-container font-headline text-sm font-bold uppercase tracking-[0.15em] text-on-primary-container shadow-[0_4px_20px_rgba(2,201,83,0.3)]">
+                Upload Payment Proof
+              </span>
+            ) : (
+              "Upload Payment Proof"
+            )}
           </button>
 
           {showProofSheet && (
