@@ -44,7 +44,7 @@ export function AppShell({ children, currentPath, user }: AppShellProps) {
         >
           <span className="relative block h-full w-full overflow-hidden rounded-full">
             <Image
-              src="/icons/support-avatar.svg"
+              src="/icons/support-avatar.webp"
               alt="Support agent"
               fill
               sizes="64px"
