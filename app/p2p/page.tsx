@@ -357,19 +357,35 @@ export default async function P2PPage({ searchParams }: Props) {
                   </div>
 
                   {/* Methods + Action */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex-grow flex gap-1 overflow-hidden">
-                      {order.payment_method.split(",").map((method) => (
-                        <span key={method} className="px-2 py-1 bg-surface-container-highest text-[9px] font-bold uppercase text-on-surface-variant">
-                          {method.trim()}
-                        </span>
-                      ))}
+                  <div className="flex flex-col gap-3 rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+                    <div className="space-y-2 sm:flex-1">
+                      <span className="block text-[9px] font-bold uppercase tracking-[0.25em] text-on-surface-variant">Payment Methods</span>
+                      <div className="flex flex-wrap gap-2">
+                        {order.payment_method.split(",").map((method, index) => (
+                          <span
+                            key={method}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/10 bg-surface-container-highest px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-on-surface-variant"
+                          >
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${
+                                index % 3 === 0 ? "bg-primary" : index % 3 === 1 ? "bg-secondary" : "bg-warning"
+                              }`}
+                            />
+                            {method.trim()}
+                          </span>
+                        ))}
+                      </div>
                     </div>
+
                     <Link
-                      className="bg-gradient-to-br from-primary to-primary-container px-6 py-2 text-on-primary-container font-label text-xs font-black uppercase tracking-widest rounded-sm active:scale-95 transition-transform"
+                      className={`inline-flex h-11 min-w-28 items-center justify-center rounded-md px-5 font-label text-xs font-black uppercase tracking-widest text-white shadow-lg transition-transform active:scale-95 sm:self-center ${
+                        currentTab === "buy"
+                          ? "bg-[#2bb673] shadow-[#2bb673]/20 hover:brightness-110"
+                          : "bg-gradient-to-r from-primary to-primary-container shadow-primary/20"
+                      }`}
                       href={`/p2p/${currentTab}?order=${order.id}&merchant=${encodeURIComponent(username)}&price=${order.price}&asset=${order.asset}&fiat=${order.fiat}&available=${order.total_amount}&min=${order.min_limit}&max=${order.max_limit}&method=${encodeURIComponent(order.payment_method)}`}
                     >
-                      {currentTab === "buy" ? "Buy" : "Sell"} {order.asset}
+                      {currentTab === "buy" ? "Buy" : "Sell"}
                     </Link>
                   </div>
                 </div>

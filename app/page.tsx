@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getExtendedMarketData } from "@/lib/price-api";
+import AnimatedTicker from "@/components/animated-ticker";
 
 export const metadata: Metadata = {
   title: "CoinCash — The Future of P2P Exchange",
@@ -152,6 +153,11 @@ export default async function LandingPage() {
           </div>
         </div>
       )}
+
+      {/* ── TICKER ─────────────────────────────────── */}
+      <div className="mb-6">
+        <AnimatedTicker />
+      </div>
 
       {/* ── HERO ───────────────────────────────────── */}
       <section className={`relative overflow-hidden ${liveAssets.length > 0 ? "pt-44" : "pt-32"} pb-24 px-6`}>
