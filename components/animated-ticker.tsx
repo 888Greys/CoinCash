@@ -22,13 +22,13 @@ export function AnimatedTicker() {
     let animationId: number;
     let start: number | null = null;
     let scrollLeft = 0;
-    const speed = 0.5; // px per ms
+    const speed = 0.22; // px per ms
     const maxScroll = container.scrollWidth / 2;
 
     function step(ts: number) {
       if (start === null) start = ts;
       const elapsed = ts - start;
-      scrollLeft = (elapsed * speed) % maxScroll;
+      scrollLeft = maxScroll - ((elapsed * speed) % maxScroll);
       if (container) {
         container.scrollLeft = scrollLeft;
       }
