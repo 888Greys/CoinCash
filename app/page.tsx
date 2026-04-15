@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getExtendedMarketData } from "@/lib/price-api";
-import AnimatedTicker from "@/components/animated-ticker";
+import { AnimatedTicker } from "@/components/animated-ticker";
 
 export const metadata: Metadata = {
   title: "CoinCash — The Future of P2P Exchange",
