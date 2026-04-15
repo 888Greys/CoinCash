@@ -167,7 +167,7 @@ export function OTPAuthForm({ mode = "login" }: { mode?: "login" | "register" })
             <p className="text-[10px] text-on-surface-variant/60 mt-1">Check your inbox and spam folder. Code may take up to 60 seconds.</p>
             <div className="ghost-border bg-surface-container-lowest transition-all mt-2">
               <input
-                className="w-full border-none bg-transparent px-4 py-4 font-body tracking-[0.3em] font-mono text-center text-lg text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
+                className="w-full border-none bg-transparent px-4 py-4 tracking-[0.3em] font-mono text-center text-lg text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0"
                 name="token"
                 placeholder="123456"
                 required

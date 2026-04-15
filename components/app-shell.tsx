@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { AppNav } from "@/components/app-nav";
 import { AppBottomNav } from "@/components/app-bottom-nav";
+import { LiveMarketStrip } from "@/components/live-market-strip";
 
 type UserInfo = {
   email?: string;
@@ -28,6 +29,7 @@ export function AppShell({ children, currentPath, user }: AppShellProps) {
   return (
     <div className="flex flex-col min-h-[100dvh] w-full bg-background">
       <AppNav currentPath={currentPath} user={user} />
+      <LiveMarketStrip />
       <motion.main 
         className="flex-1 overflow-y-auto pb-20 md:pb-8"
         animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
@@ -40,7 +42,7 @@ export function AppShell({ children, currentPath, user }: AppShellProps) {
         <Link
           href="/support"
           aria-label="Open customer support chat"
-          className="support-chat-bubble group fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+108px)] md:bottom-8 z-50 h-16 w-16 rounded-full border border-primary/45 bg-surface-container-high p-1 shadow-[0_0_32px_rgba(92,253,128,0.25)] transition-transform duration-200 hover:scale-[1.02] active:scale-95"
+          className="support-chat-bubble group fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+108px)] md:bottom-8 z-50 h-16 w-16 rounded-full border border-primary/45 bg-surface-container-high p-1 shadow-[0_0_32px_rgba(240,185,11,0.25)] transition-transform duration-200 hover:scale-[1.02] active:scale-95"
         >
           <span className="support-chat-ring pointer-events-none absolute -inset-1 rounded-full border border-primary/45" />
           <span className="relative block h-full w-full overflow-hidden rounded-full">

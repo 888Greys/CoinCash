@@ -17,7 +17,7 @@ export function AppNav({ currentPath, user }: AppNavProps) {
   const initial = displayName?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-outline-variant/15 bg-[#0b0e11] w-full">
+    <header className="sticky top-0 z-50 border-b border-outline-variant/15 bg-background w-full">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 md:px-6">
         <Link
           className="font-headline text-xl font-bold tracking-tight text-on-surface"
@@ -61,14 +61,14 @@ export function AppNav({ currentPath, user }: AppNavProps) {
       </div>
 
       <nav className="border-t border-outline-variant/10 md:hidden">
-        <div className="no-scrollbar mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3">
+        <div className="no-scrollbar mx-auto flex max-w-7xl gap-1.5 overflow-x-auto px-4 py-2.5">
           {appNavRoutes.map((route) => {
             const isActive = currentPath === route.href;
 
             return (
               <Link
                 key={route.href}
-                className={`whitespace-nowrap rounded-full border px-3 py-2 font-label text-[10px] font-bold uppercase tracking-[0.18em] transition-colors ${
+                className={`whitespace-nowrap rounded-full border px-2.5 py-1.5 font-label text-[9px] font-bold uppercase tracking-[0.14em] transition-colors ${
                   isActive
                     ? "border-primary/30 bg-primary/10 text-primary"
                     : "border-outline-variant/15 bg-surface-container-low text-on-surface-variant"

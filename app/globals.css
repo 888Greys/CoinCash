@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 ::selection {
-  background-color: rgba(92, 253, 128, 0.2);
-  color: #f8f9fe;
+  background-color: rgba(240, 185, 11, 0.28);
+  color: #f3f4f6;
 }
 
 .material-symbols-outlined {
@@ -17,8 +17,8 @@ html {
 
 body {
   min-height: 100vh;
-  background-color: #0b0e11;
-  color: #f8f9fe;
+  background-color: #0f1014;
+  color: #f3f4f6;
   font-family: var(--font-inter), sans-serif;
 }
 
@@ -39,15 +39,15 @@ body {
 }
 
 .vignette {
-  background: radial-gradient(circle, transparent 20%, #0b0e11 100%);
+  background: radial-gradient(circle, transparent 20%, #0f1014 100%);
 }
 
 .cursor-glow {
-  box-shadow: 0 0 30px rgba(92, 253, 128, 0.3);
+  box-shadow: 0 0 30px rgba(240, 185, 11, 0.3);
 }
 
 .kinetic-gradient {
-  background: linear-gradient(135deg, #5cfd80 0%, #02c953 100%);
+  background: linear-gradient(135deg, #f0b90b 0%, #d6a000 100%);
 }
 
 @keyframes splash-bar-loop {
@@ -73,7 +73,7 @@ body {
 }
 
 .splash-bar-track {
-  background: rgba(92, 253, 128, 0.16);
+  background: rgba(240, 185, 11, 0.22);
 }
 
 .splash-bar-fill {
@@ -109,15 +109,15 @@ body {
 
 @keyframes auth-pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(92, 253, 128, 0.22);
+    box-shadow: 0 0 0 0 rgba(240, 185, 11, 0.24);
   }
 
   70% {
-    box-shadow: 0 0 0 16px rgba(92, 253, 128, 0);
+    box-shadow: 0 0 0 16px rgba(240, 185, 11, 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgba(92, 253, 128, 0);
+    box-shadow: 0 0 0 0 rgba(240, 185, 11, 0);
   }
 }
 
@@ -143,9 +143,9 @@ body {
 
 .auth-panel-glow {
   box-shadow:
-    0 0 0 1px rgba(248, 249, 254, 0.05),
+    0 0 0 1px rgba(243, 244, 246, 0.05),
     0 24px 70px rgba(0, 0, 0, 0.38),
-    0 0 40px rgba(92, 253, 128, 0.09);
+    0 0 40px rgba(240, 185, 11, 0.11);
 }
 
 .auth-live-dot {

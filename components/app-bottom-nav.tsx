@@ -23,7 +23,7 @@ type AppBottomNavProps = {
 
 export function AppBottomNav({ currentPath }: AppBottomNavProps) {
   return (
-    <nav className="mobile-nav-enter fixed bottom-0 left-0 w-full md:hidden z-50 bg-[#0b0e11]/95 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_24px_rgba(0,0,0,0.6)] flex justify-around items-end px-1 pt-2 pb-safe pb-3">
+    <nav className="mobile-nav-enter fixed bottom-0 left-0 w-full md:hidden z-50 bg-background/95 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_24px_rgba(0,0,0,0.6)] flex justify-around items-end px-1 pt-2 pb-safe pb-3">
       {bottomNavItems.map((item) => {
         const isActive =
           currentPath === item.href ||
