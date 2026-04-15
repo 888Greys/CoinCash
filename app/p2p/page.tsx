@@ -308,85 +308,109 @@ export default async function P2PPage({ searchParams }: Props) {
               const verified = true; // Could be a profile field
 
               return (
-                <div key={order.id} className="bg-surface-container-low p-4 group hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 ${isOnline ? "bg-primary shadow-[0_0_8px_rgba(92,253,128,0.5)]" : "bg-on-surface-variant"} rounded-full`} />
-                      <h3 className="font-label text-sm font-bold tracking-tight">{username.toUpperCase()}</h3>
-                      {verified && (
-                        <span className="material-symbols-outlined text-primary text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                          verified
-                        </span>
-                      )}
-                    </div>
-                    {/* Rating + Trade Count */}
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 justify-end">
-                        <span className="text-[#f3ba2f] text-xs">★</span>
-                        <span className="font-headline font-bold text-xs">4.9</span>
-                      </div>
-                      <span className="text-[9px] text-on-surface-variant uppercase tracking-widest">138 trades</span>
-                    </div>
-                  </div>
+                <div
+                  key={order.id}
+                  className="group overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-container-high"
+                >
+                  <div className="h-1 bg-gradient-to-r from-primary via-secondary to-warning" />
 
-                  {/* Price / Available */}
-                  <div className="flex items-center justify-between mb-4 border-b border-outline-variant/5 pb-4">
-                    <div>
-                      <span className="block font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Price</span>
-                      <span className="block font-headline text-2xl font-black">
-                        {order.price.toFixed(3)} <span className="text-xs font-normal text-on-surface-variant">{order.fiat}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Available / Limit */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <span className="block font-label text-[9px] text-on-surface-variant uppercase tracking-tighter">Available</span>
-                      <span className="block font-headline text-sm font-medium">
-                        {order.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {order.asset}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="block font-label text-[9px] text-on-surface-variant uppercase tracking-tighter">Limit</span>
-                      <span className="block font-headline text-sm font-medium">
-                        ${order.min_limit.toLocaleString()} - ${order.max_limit.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Methods + Action */}
-                  <div className="flex flex-col gap-3 rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-                    <div className="space-y-2 sm:flex-1">
-                      <span className="block text-[9px] font-bold uppercase tracking-[0.25em] text-on-surface-variant">Payment Methods</span>
-                      <div className="flex flex-wrap gap-2">
-                        {order.payment_method.split(",").map((method, index) => (
+                  <div className="p-4 space-y-4">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="relative">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant/15 bg-surface-container-high font-bold uppercase text-on-surface-variant">
+                            {username.slice(0, 1)}
+                          </div>
                           <span
-                            key={method}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/10 bg-surface-container-highest px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-on-surface-variant"
-                          >
-                            <span
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                index % 3 === 0 ? "bg-primary" : index % 3 === 1 ? "bg-secondary" : "bg-warning"
-                              }`}
-                            />
-                            {method.trim()}
-                          </span>
-                        ))}
+                            className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-surface-container-low ${
+                              isOnline ? "bg-primary shadow-[0_0_8px_rgba(92,253,128,0.5)]" : "bg-on-surface-variant"
+                            }`}
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-headline text-sm font-bold tracking-wide uppercase">{username}</h3>
+                            {verified && (
+                              <span className="material-symbols-outlined text-primary text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                verified
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-on-surface-variant">
+                            <span className="font-bold text-on-surface">{order.type} ad</span>
+                            <span>•</span>
+                            <span>{currentTab === "buy" ? "Showing sellers" : "Showing buyers"}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <span className="text-[#f3ba2f] text-xs">★</span>
+                          <span className="font-headline text-xs font-bold">4.9</span>
+                        </div>
+                        <span className="text-[9px] uppercase tracking-widest text-on-surface-variant">138 trades</span>
                       </div>
                     </div>
 
-                    <Link
-                      className={`inline-flex h-11 min-w-28 items-center justify-center rounded-md px-5 font-label text-xs font-black uppercase tracking-widest text-white shadow-lg transition-transform active:scale-95 sm:self-center ${
-                        currentTab === "buy"
-                          ? "bg-[#2bb673] shadow-[#2bb673]/20 hover:brightness-110"
-                          : "bg-gradient-to-r from-primary to-primary-container shadow-primary/20"
-                      }`}
-                      href={`/p2p/${currentTab}?order=${order.id}&merchant=${encodeURIComponent(username)}&price=${order.price}&asset=${order.asset}&fiat=${order.fiat}&available=${order.total_amount}&min=${order.min_limit}&max=${order.max_limit}&method=${encodeURIComponent(order.payment_method)}`}
-                    >
-                      {currentTab === "buy" ? "Buy" : "Sell"}
-                    </Link>
+                    <div className="grid gap-4 md:grid-cols-[1fr_240px] md:items-stretch">
+                      {/* Left: price + limits */}
+                      <div className="space-y-4">
+                        <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-4">
+                          <span className="block text-[10px] font-bold uppercase tracking-[0.25em] text-on-surface-variant">Price</span>
+                          <span className="mt-1 block font-headline text-[2rem] font-black leading-none">
+                            {order.price.toFixed(3)} <span className="text-sm font-normal text-on-surface-variant">{order.fiat}</span>
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-3">
+                            <span className="block text-[9px] uppercase tracking-widest text-on-surface-variant">Available</span>
+                            <span className="mt-1 block font-headline text-sm font-medium">
+                              {order.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {order.asset}
+                            </span>
+                          </div>
+                          <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-3 text-right">
+                            <span className="block text-[9px] uppercase tracking-widest text-on-surface-variant">Limit</span>
+                            <span className="mt-1 block font-headline text-sm font-medium">
+                              ${order.min_limit.toLocaleString()} - ${order.max_limit.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: methods + CTA */}
+                      <div className="flex h-full flex-col justify-between rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-4">
+                        <div className="space-y-2">
+                          <span className="block text-[9px] font-bold uppercase tracking-[0.25em] text-on-surface-variant">Payment Methods</span>
+                          <div className="space-y-2">
+                            {order.payment_method.split(",").map((method, index) => (
+                              <div key={method} className="flex items-center justify-between rounded-lg bg-surface-container-highest px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">
+                                <span>{method.trim()}</span>
+                                <span
+                                  className={`h-2 w-2 rounded-full ${
+                                    index % 3 === 0 ? "bg-primary" : index % 3 === 1 ? "bg-secondary" : "bg-warning"
+                                  }`}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <Link
+                          className={`mt-4 inline-flex h-12 w-full items-center justify-center rounded-md font-headline text-base font-bold shadow-lg transition-transform active:scale-[0.98] ${
+                            currentTab === "buy"
+                              ? "bg-[#2bb673] text-white shadow-[#2bb673]/20 hover:brightness-110"
+                              : "bg-gradient-to-r from-primary to-primary-container text-on-primary-container shadow-primary/20"
+                          }`}
+                          href={`/p2p/${currentTab}?order=${order.id}&merchant=${encodeURIComponent(username)}&price=${order.price}&asset=${order.asset}&fiat=${order.fiat}&available=${order.total_amount}&min=${order.min_limit}&max=${order.max_limit}&method=${encodeURIComponent(order.payment_method)}`}
+                        >
+                          {currentTab === "buy" ? "Buy" : "Sell"}
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
