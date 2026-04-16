@@ -40,7 +40,7 @@ function mapRowToChatMessage(row: SupportMessageRow, userId: string): ChatMessag
 }
 
 export function SupportChatRoom({ initialMessage, userId }: SupportChatRoomProps) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const initialSeed: ChatMessage[] = useMemo(() => [
     {
       id: "seed-welcome",
@@ -118,7 +118,7 @@ export function SupportChatRoom({ initialMessage, userId }: SupportChatRoomProps
       isCancelled = true;
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [supabase, userId]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
