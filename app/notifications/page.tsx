@@ -127,20 +127,6 @@ function getTimeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString();
 }
 
-// Static security events as fallback content
-const securityEvents: NotificationItem[] = [
-  {
-    tag: "AUTH",
-    tagColor: "text-tertiary",
-    tagBg: "bg-tertiary/10",
-    dotColor: "bg-tertiary",
-    dotGlow: "shadow-[0_0_8px_rgba(0,227,254,0.4)]",
-    title: "SESSION_ACTIVE",
-    description: "Current session authenticated via email OTP. Two-factor protection enabled.",
-    time: "Active",
-  },
-];
-
 export default async function NotificationsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -214,15 +200,12 @@ export default async function NotificationsPage() {
     });
   }
 
-  // Always append security events at the end
-  const allNotifications = [...notifications, ...securityEvents];
-
   return (
     <AppShell currentPath="/notifications" user={user ? { email: user.email, ...profile } : null}>
       <div className="px-4 pt-6 max-w-5xl mx-auto">
         {/* Notifications — client component handles header, tabs, feed, mark-as-read */}
         <NotificationsFeed
-          notifications={allNotifications}
+          notifications={notifications}
           totalEventCount={notifications.length}
         />
 
