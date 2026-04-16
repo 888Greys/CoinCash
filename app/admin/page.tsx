@@ -81,41 +81,63 @@ export default async function AdminPage() {
           <AdminSupportInbox />
         </div>
 
-        <h2 className="mb-3 font-headline text-lg font-bold tracking-tight">P2P Trade Chat Monitor</h2>
+        <section className="rounded-lg border border-outline-variant/15 bg-surface-container-low p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-headline text-lg font-bold tracking-tight">P2P Trade Chat Monitor</h2>
+            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">Latest 200</span>
+          </div>
 
-        {rows.length === 0 ? (
-          <div className="rounded-lg border border-outline-variant/15 bg-surface-container-low p-6 text-sm text-on-surface-variant">
-            No chat messages found yet.
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-lg border border-outline-variant/15 bg-surface-container-low">
-            <div className="grid grid-cols-12 border-b border-outline-variant/15 bg-surface-container-high px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-              <div className="col-span-2">Time</div>
-              <div className="col-span-2">Trade ID</div>
-              <div className="col-span-3">Sender</div>
-              <div className="col-span-5">Message</div>
+          {rows.length === 0 ? (
+            <div className="rounded border border-outline-variant/15 bg-surface-container-high/40 p-6 text-sm text-on-surface-variant">
+              No chat messages found yet.
             </div>
-            {rows.map((row) => {
-              const sender = senderMap.get(row.sender_id) ?? { username: "Unknown", email: "-" };
-              return (
-                <div
-                  key={row.id}
-                  className="grid grid-cols-12 gap-2 border-b border-outline-variant/10 px-4 py-3 text-xs last:border-b-0"
-                >
-                  <div className="col-span-2 text-on-surface-variant">
-                    {new Date(row.created_at).toLocaleString()}
-                  </div>
-                  <div className="col-span-2 font-mono text-on-surface-variant">{row.trade_id.slice(0, 8)}...</div>
-                  <div className="col-span-3">
-                    <div className="font-semibold text-on-surface">{sender.username}</div>
-                    <div className="text-[10px] text-on-surface-variant">{sender.email}</div>
-                  </div>
-                  <div className="col-span-5 text-on-surface">{row.content}</div>
+          ) : (
+            <>
+              <div className="space-y-2 md:hidden">
+                {rows.map((row) => {
+                  const sender = senderMap.get(row.sender_id) ?? { username: "Unknown", email: "-" };
+                  return (
+                    <article key={row.id} className="rounded border border-outline-variant/15 bg-surface-container-high/40 p-3">
+                      <div className="mb-2 flex items-center justify-between gap-2 text-[10px] text-on-surface-variant">
+                        <span>{new Date(row.created_at).toLocaleString()}</span>
+                        <span className="rounded bg-surface-container px-2 py-1 font-mono">{row.trade_id.slice(0, 8)}...</span>
+                      </div>
+                      <p className="text-xs font-semibold text-on-surface">{sender.username}</p>
+                      <p className="text-[10px] text-on-surface-variant">{sender.email}</p>
+                      <p className="mt-2 break-words text-xs text-on-surface">{row.content}</p>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="hidden overflow-hidden rounded border border-outline-variant/15 md:block">
+                <div className="grid grid-cols-12 border-b border-outline-variant/15 bg-surface-container-high px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                  <div className="col-span-2">Time</div>
+                  <div className="col-span-2">Trade ID</div>
+                  <div className="col-span-3">Sender</div>
+                  <div className="col-span-5">Message</div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+                {rows.map((row) => {
+                  const sender = senderMap.get(row.sender_id) ?? { username: "Unknown", email: "-" };
+                  return (
+                    <div
+                      key={row.id}
+                      className="grid grid-cols-12 gap-2 border-b border-outline-variant/10 px-4 py-3 text-xs last:border-b-0"
+                    >
+                      <div className="col-span-2 text-on-surface-variant">{new Date(row.created_at).toLocaleString()}</div>
+                      <div className="col-span-2 font-mono text-on-surface-variant">{row.trade_id.slice(0, 8)}...</div>
+                      <div className="col-span-3">
+                        <div className="font-semibold text-on-surface">{sender.username}</div>
+                        <div className="text-[10px] text-on-surface-variant">{sender.email}</div>
+                      </div>
+                      <div className="col-span-5 break-words text-on-surface">{row.content}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </section>
       </div>
     </AppShell>
   );

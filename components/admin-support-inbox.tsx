@@ -23,6 +23,8 @@ type SupportThread = {
   messages: SupportInboxMessage[];
 };
 
+type StreamState = "connecting" | "live" | "reconnecting";
+
 function formatTimestamp(iso: string) {
   return new Date(iso).toLocaleString();
 }
@@ -34,6 +36,7 @@ export function AdminSupportInbox() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [streamState, setStreamState] = useState<StreamState>("connecting");
 
   const applyMessages = (nextMessages: SupportInboxMessage[]) => {
     setMessages(nextMessages);
@@ -85,13 +88,17 @@ export function AdminSupportInbox() {
     bootstrap();
 
     const eventSource = new EventSource("/api/admin/support-inbox/stream");
+    eventSource.onopen = () => {
+      setStreamState("live");
+    };
+
     eventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data) as { messages?: SupportInboxMessage[] };
         if (Array.isArray(payload.messages)) {
           applyMessages(payload.messages);
           setLoading(false);
-          setError(null);
+          setStreamState("live");
         }
       } catch {
         // Ignore malformed event payloads and keep current view.
@@ -99,7 +106,7 @@ export function AdminSupportInbox() {
     };
 
     eventSource.addEventListener("error", () => {
-      setError("Live stream disconnected. Reconnecting...");
+      setStreamState("reconnecting");
     });
 
     return () => {
@@ -166,7 +173,16 @@ export function AdminSupportInbox() {
     <section className="rounded-lg border border-outline-variant/15 bg-surface-container-low p-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-headline text-lg font-bold tracking-tight">Support Inbox</h2>
-        <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">Auto-refresh 4s</span>
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${
+            streamState === "live"
+              ? "bg-primary/10 text-primary"
+              : "bg-amber-500/10 text-amber-300"
+          }`}
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${streamState === "live" ? "bg-primary" : "bg-amber-300"}`} />
+          {streamState === "live" ? "Live" : streamState === "connecting" ? "Connecting" : "Reconnecting"}
+        </span>
       </div>
 
       {error && (
