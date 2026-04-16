@@ -147,7 +147,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const baseName = profile?.username?.trim() || user?.email?.split("@")[0] || "Trader";
   const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
   const displayHandle = baseName ? `@${baseName}` : null;
-  const displayUserUid = profile?.user_uid ? String(profile.user_uid).padStart(8, "0") : null;
+  const displayUserUid = profile?.user_uid ? String(profile.user_uid).padStart(5, "0") : null;
   const supportIntent = searchParams?.support;
   const supportActionLabel: Record<string, string> = {
     deposit: "Deposit",
@@ -180,10 +180,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
           <div className="flex justify-between items-start mb-2">
             <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-[0.12em] text-primary font-bold">
+              <span className="block text-[10px] uppercase tracking-[0.12em] text-primary font-bold">
                 CoinCash ID: {displayUserUid ?? "Pending"}
               </span>
-              <span className="text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium">
+              <span className="block text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium">
                 Total Balance (USD)
               </span>
               <h1 className="font-headline text-4xl font-bold tracking-tight text-on-surface">
