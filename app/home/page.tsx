@@ -158,7 +158,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const selectedSupportAction = supportActionLabel[supportIntent ?? ""] ?? "This Action";
 
   const quickActions: QuickAction[] = [
-    { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10", route: "/home?support=deposit", locked: true },
+    { icon: "download", label: "Deposit", color: "text-primary", bg: "bg-primary/10", route: "/assets" },
     { icon: "currency_exchange", label: "Convert", color: "text-secondary", bg: "bg-secondary/10", route: "/assets" },
     { icon: "swap_horiz", label: "P2P Trading", color: "text-on-surface", bg: "bg-surface-container-high", route: "/p2p" },
     { icon: "send", label: "Transfer", color: "text-on-surface", bg: "bg-surface-container-high", route: "/assets" },
