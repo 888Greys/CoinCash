@@ -11,6 +11,7 @@ type UserInfo = {
   email?: string;
   username?: string | null;
   avatar_url?: string | null;
+  isAdmin?: boolean;
 };
 
 type AppShellProps = {
@@ -58,7 +59,7 @@ export function AppShell({ children, currentPath, user }: AppShellProps) {
           <span className="absolute right-1 bottom-1 h-3.5 w-3.5 rounded-full border-2 border-background bg-primary" />
         </Link>
       )}
-      <AppBottomNav currentPath={currentPath} />
+      <AppBottomNav currentPath={currentPath} user={user} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { WalletActionDrawer } from "@/components/wallet-action-drawer";
 import { createClient } from "@/utils/supabase/server";
 import { getLivePrices } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Wallet & Assets" };
 type Wallet = {
@@ -51,6 +52,7 @@ export default async function AssetsPage() {
 
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
   const livePrices = await getLivePrices();
 
   let wallets: Wallet[] = [];
@@ -104,7 +106,7 @@ export default async function AssetsPage() {
   const totalBtc = totalUsdValue / btcRate;
 
   return (
-    <AppShell currentPath="/assets" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/assets" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 md:px-8 pt-6 max-w-7xl mx-auto relative">
         {/* Background Grid */}
         <div className="fixed inset-0 pointer-events-none opacity-[0.05]" style={{

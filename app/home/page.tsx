@@ -10,6 +10,7 @@ import { ensureUserWallets } from "@/app/actions/wallet";
 import { fetchCryptoNews, fetchLearningFeed } from "@/lib/rss-parser";
 import { P2PExpressWidget } from "@/components/p2p-express-widget";
 import { CopyUserIdButton } from "@/components/copy-user-id-button";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Dashboard" };
 const MARKET_CARD_META: Record<string, { logo: string; color: string; borderColor: string }> = {
@@ -58,6 +59,7 @@ type QuickAction = {
 export default async function HomePage({ searchParams }: HomePageProps) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
 
   let liveUsdtBalance = 0;
   let profile: { username: string | null; avatar_url: string | null; user_uid: number | null } | null = null;
@@ -166,7 +168,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   ];
 
   return (
-    <AppShell currentPath="/home" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/home" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 pt-4 max-w-5xl mx-auto space-y-6">
         {/* Hero Portfolio Section */}
         <section className="bg-surface-container-low rounded-lg p-6 relative overflow-hidden">

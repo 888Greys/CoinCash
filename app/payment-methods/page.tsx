@@ -3,12 +3,14 @@ import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getPaymentMethods } from "@/app/actions/payment-methods";
 import { PaymentMethodsList } from "@/components/payment-methods-list";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Payment Methods" };
 
 export default async function PaymentMethodsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
   let profile: { username: string | null; avatar_url: string | null } | null = null;
   if (user) {
     const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
@@ -19,7 +21,7 @@ export default async function PaymentMethodsPage() {
   const methods = await getPaymentMethods();
 
   return (
-    <AppShell currentPath="/payment-methods" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/payment-methods" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 pt-6 max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <section className="space-y-1">

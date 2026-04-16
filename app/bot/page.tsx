@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getUserBots } from "@/app/actions/bots";
 import { getExtendedMarketData } from "@/lib/price-api";
 import { BotCard, CreateBotButton } from "@/components/bot-controls";
 import { EmptyState } from "@/components/empty-state";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Trading Bots" };
 
@@ -42,6 +44,15 @@ export default async function BotPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
+
+  if (isAdmin) {
+    redirect("/admin");
+  }
+
+  redirect("/home");
+
+  // Unreachable fallback kept for static analysis expectations.
   let profile = null;
   if (user) {
     const { data } = await supabase
@@ -76,7 +87,7 @@ export default async function BotPage() {
     : 0;
 
   return (
-    <AppShell currentPath="/bot" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/bot" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 pt-6 max-w-4xl mx-auto space-y-6">
         {/* Portfolio Overview */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">

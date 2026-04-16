@@ -119,3 +119,32 @@ begin;
   create publication supabase_realtime;
 commit;
 alter publication supabase_realtime add table messages;
+
+-- 7. SUPPORT MESSAGES (Shared support inbox)
+CREATE TABLE support_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  sender_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  sender_role TEXT NOT NULL CHECK (sender_role IN ('user', 'support')),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX support_messages_user_id_created_at_idx
+  ON support_messages(user_id, created_at DESC);
+
+ALTER TABLE support_messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read their support conversation"
+ON support_messages FOR SELECT
+USING (auth.uid() = user_id OR auth.uid() = sender_id);
+
+CREATE POLICY "Users can send support messages"
+ON support_messages FOR INSERT
+WITH CHECK (
+  auth.uid() = sender_id
+  AND auth.uid() = user_id
+  AND sender_role = 'user'
+);
+
+alter publication supabase_realtime add table support_messages;

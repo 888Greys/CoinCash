@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { NotificationsFeed } from "@/components/notifications-feed";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Notifications" };
 
@@ -130,6 +131,7 @@ function getTimeAgo(dateStr: string): string {
 export default async function NotificationsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
   let profile = null;
   if (user) {
     const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
@@ -201,7 +203,7 @@ export default async function NotificationsPage() {
   }
 
   return (
-    <AppShell currentPath="/notifications" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/notifications" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 pt-6 max-w-5xl mx-auto">
         {/* Notifications — client component handles header, tabs, feed, mark-as-read */}
         <NotificationsFeed

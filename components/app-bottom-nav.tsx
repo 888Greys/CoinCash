@@ -6,25 +6,33 @@ type BottomNavItem = {
   href: string;
   label: string;
   icon: string;
+  adminOnly?: boolean;
 };
 
 const bottomNavItems: BottomNavItem[] = [
   { href: "/home", label: "Home", icon: "home" },
   { href: "/markets", label: "Markets", icon: "equalizer" },
   { href: "/support", label: "Chat", icon: "chat" },
-  { href: "/bot", label: "Bot", icon: "smart_toy" },
+  { href: "/admin", label: "Admin", icon: "admin_panel_settings", adminOnly: true },
   { href: "/assets", label: "Assets", icon: "account_balance_wallet" },
   { href: "/p2p", label: "P2P", icon: "swap_horizontal_circle" },
 ];
 
-type AppBottomNavProps = {
-  currentPath?: string;
+type UserInfo = {
+  isAdmin?: boolean;
 };
 
-export function AppBottomNav({ currentPath }: AppBottomNavProps) {
+type AppBottomNavProps = {
+  currentPath?: string;
+  user?: UserInfo | null;
+};
+
+export function AppBottomNav({ currentPath, user }: AppBottomNavProps) {
+  const visibleItems = bottomNavItems.filter((item) => !item.adminOnly || user?.isAdmin);
+
   return (
     <nav className="mobile-nav-enter fixed bottom-0 left-0 w-full md:hidden z-50 bg-background/95 backdrop-blur-xl border-t border-outline-variant/15 shadow-[0_-4px_24px_rgba(0,0,0,0.6)] flex justify-around items-end px-1 pt-2 pb-safe pb-3">
-      {bottomNavItems.map((item) => {
+      {visibleItems.map((item) => {
         const isActive =
           currentPath === item.href ||
           (item.href !== "/home" && currentPath?.startsWith(item.href));

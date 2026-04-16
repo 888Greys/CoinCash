@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { SupportChatRoom } from "@/components/support-chat-room";
 import { createClient } from "@/utils/supabase/server";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Customer Support" };
 
@@ -22,6 +24,12 @@ export default async function SupportPage({ searchParams }: Props) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const isAdmin = isAdminEmail(user?.email);
 
   let profile: { username: string | null; avatar_url: string | null } | null = null;
   if (user) {
@@ -65,9 +73,9 @@ export default async function SupportPage({ searchParams }: Props) {
   }
 
   return (
-    <AppShell currentPath="/support" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/support" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="mx-auto max-w-3xl px-4 pt-3">
-        <SupportChatRoom initialMessage={message} />
+        <SupportChatRoom initialMessage={message} userId={user.id} />
         {supportRequestRef && (
           <p className="mt-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-primary">
             Request queued: {supportRequestRef}

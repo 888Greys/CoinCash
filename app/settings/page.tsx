@@ -2,19 +2,21 @@ import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { logoutAction } from "@/app/login/actions";
 import { createClient } from "@/utils/supabase/server";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
   let profile = null;
   if (user) {
     const { data } = await supabase.from("profiles").select("username, avatar_url, created_at, user_uid").eq("id", user.id).single();
     profile = data;
   }
   return (
-    <AppShell currentPath="/settings" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/settings" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 pt-6 max-w-4xl mx-auto space-y-8">
         {/* Header Section */}
         <section className="mb-10">

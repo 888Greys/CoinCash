@@ -5,6 +5,7 @@ type UserInfo = {
   email?: string;
   username?: string | null;
   avatar_url?: string | null;
+  isAdmin?: boolean;
 };
 
 type AppNavProps = {
@@ -15,6 +16,7 @@ type AppNavProps = {
 export function AppNav({ currentPath, user }: AppNavProps) {
   const displayName = user?.username || user?.email?.split("@")[0] || null;
   const initial = displayName?.[0]?.toUpperCase() ?? "?";
+  const visibleRoutes = appNavRoutes.filter((route) => route.href !== "/admin" || user?.isAdmin);
 
   return (
     <header className="sticky top-0 z-50 border-b border-outline-variant/15 bg-background w-full">
@@ -27,7 +29,7 @@ export function AppNav({ currentPath, user }: AppNavProps) {
         </Link>
 
         <nav className="hidden items-center gap-5 md:flex">
-          {appNavRoutes.map((route) => {
+          {visibleRoutes.map((route) => {
             const isActive = currentPath === route.href;
 
             return (
@@ -62,7 +64,7 @@ export function AppNav({ currentPath, user }: AppNavProps) {
 
       <nav className="border-t border-outline-variant/10 md:hidden">
         <div className="no-scrollbar mx-auto flex max-w-7xl gap-1.5 overflow-x-auto px-4 py-2.5">
-          {appNavRoutes.map((route) => {
+          {visibleRoutes.map((route) => {
             const isActive = currentPath === route.href;
 
             return (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { getExtendedMarketData, formatCompactNumber, generateSvgSparkline } from "@/lib/price-api";
 import { createClient } from "@/utils/supabase/server";
+import { isAdminEmail } from "@/lib/admin";
 import { MarketsTable } from "@/components/markets-table";
 
 export const metadata: Metadata = { title: "Markets" };
@@ -11,6 +12,7 @@ const SPOTLIGHT_FALLBACK = "M0,28 L10,20 L20,22 L30,10 L40,12 L50,5 L60,8 L70,1 
 export default async function MarketsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
   let profile = null;
   if (user) {
     const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
@@ -90,7 +92,7 @@ export default async function MarketsPage() {
   const globalVol = `$${formatCompactNumber(globalVolRaw)}`;
 
   return (
-    <AppShell currentPath="/markets" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/markets" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="px-4 md:px-8 pt-6 max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">

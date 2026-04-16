@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { isAdminEmail } from '@/lib/admin';
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -49,6 +50,10 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('error', 'auth_required');
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (request.nextUrl.pathname.startsWith('/admin') && !isAdminEmail(user?.email)) {
+    return NextResponse.redirect(new URL('/home', request.url));
   }
 
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register' || request.nextUrl.pathname === '/')) {

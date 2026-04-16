@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { createClient } from "@/utils/supabase/server";
 import { getActiveOrders } from "./actions";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "P2P Trading" };
 
@@ -172,6 +173,7 @@ export default async function P2PPage({ searchParams }: Props) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const isAdmin = isAdminEmail(user?.email);
 
   let profile = null;
   if (user) {
@@ -206,7 +208,7 @@ export default async function P2PPage({ searchParams }: Props) {
     `/p2p/${currentTab}?order=${orderId}&merchant=${encodeURIComponent(username || "Trader")}&price=${price}&asset=${asset}&fiat=${fiat}`;
 
   return (
-    <AppShell currentPath="/p2p" user={user ? { email: user.email, ...profile } : null}>
+    <AppShell currentPath="/p2p" user={user ? { email: user.email, ...profile, isAdmin } : null}>
       <div className="mx-auto max-w-5xl px-4 pt-5 md:px-8">
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
