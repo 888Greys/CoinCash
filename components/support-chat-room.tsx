@@ -132,7 +132,7 @@ export function SupportChatRoom({ initialMessage }: SupportChatRoomProps) {
   };
 
   return (
-    <section className="rounded-lg border border-outline-variant/15 bg-surface-container-low p-4 sm:p-5">
+    <section className="flex h-[calc(100dvh-210px)] min-h-[520px] flex-col rounded-lg border border-outline-variant/15 bg-surface-container-low p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3 border-b border-outline-variant/15 pb-3">
         <div>
           <h2 className="font-headline text-sm uppercase tracking-widest font-bold text-on-surface-variant">Live Support Chat</h2>
@@ -143,7 +143,7 @@ export function SupportChatRoom({ initialMessage }: SupportChatRoomProps) {
         </span>
       </div>
 
-      <div className="no-scrollbar mt-3 max-h-[420px] overflow-y-auto rounded-lg border border-outline-variant/10 bg-surface-container-lowest/70 p-3">
+      <div className="no-scrollbar mt-3 flex-1 overflow-y-auto rounded-lg border border-outline-variant/10 bg-surface-container-lowest/70 p-3">
         <div className="mb-3 flex justify-center">
           <span className="rounded-full bg-surface-container-high px-2.5 py-1 text-[10px] uppercase tracking-widest text-on-surface-variant">
             Today
@@ -190,7 +190,7 @@ export function SupportChatRoom({ initialMessage }: SupportChatRoomProps) {
       </div>
 
       <form
-        className="mt-3 flex items-end gap-2 border-t border-outline-variant/15 pt-3"
+        className="mt-2 flex items-end gap-2 border-t border-outline-variant/15 pt-2"
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
