@@ -39,6 +39,14 @@ function mapRowToChatMessage(row: SupportMessageRow, userId: string): ChatMessag
   };
 }
 
+function removeFirstPendingUserMatch(messages: ChatMessage[], text: string): ChatMessage[] {
+  const index = messages.findIndex(
+    (item) => item.sender === "user" && item.status === "sending" && item.text === text
+  );
+  if (index === -1) return messages;
+  return [...messages.slice(0, index), ...messages.slice(index + 1)];
+}
+
 export function SupportChatRoom({ initialMessage, userId }: SupportChatRoomProps) {
   const supabase = useMemo(() => createClient(), []);
   const initialSeed: ChatMessage[] = useMemo(() => [
@@ -105,10 +113,17 @@ export function SupportChatRoom({ initialMessage, userId }: SupportChatRoomProps
         (payload) => {
           const incoming = payload.new as SupportMessageRow;
           setMessages((prev) => {
-            if (prev.some((item) => item.id === incoming.id)) {
-              return prev;
+            let next = prev;
+
+            if (incoming.sender_id === userId) {
+              next = removeFirstPendingUserMatch(next, incoming.content);
             }
-            return [...prev, mapRowToChatMessage(incoming, userId)];
+
+            if (next.some((item) => item.id === incoming.id)) {
+              return next;
+            }
+
+            return [...next, mapRowToChatMessage(incoming, userId)];
           });
         }
       )
@@ -161,7 +176,7 @@ export function SupportChatRoom({ initialMessage, userId }: SupportChatRoomProps
       return;
     }
 
-    setMessages((prev) => prev.filter((item) => item.id !== optimisticId));
+    // Keep optimistic bubble visible until realtime insert confirms and replaces it.
   };
 
   return (
