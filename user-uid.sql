@@ -5,22 +5,22 @@ ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS user_uid BIGINT;
 
 -- Create sequence for UID assignment if missing
-CREATE SEQUENCE IF NOT EXISTS public.profiles_user_uid_seq START WITH 87464;
+CREATE SEQUENCE IF NOT EXISTS public.profiles_user_uid_seq START WITH 8746484;
 
--- Ensure next generated value stays in requested 5-digit style (e.g. 87464)
+-- Ensure next generated value stays in requested 7-digit style (e.g. 8746484)
 SELECT setval(
 	'public.profiles_user_uid_seq',
 	GREATEST(
-		COALESCE((SELECT MAX(user_uid) FROM public.profiles WHERE user_uid BETWEEN 87464 AND 99999), 87463),
-		87463
+		COALESCE((SELECT MAX(user_uid) FROM public.profiles WHERE user_uid BETWEEN 8746484 AND 9999999), 8746483),
+		8746483
 	) + 1,
 	false
 );
 
--- Backfill existing users missing UID or outside this 5-digit range
+-- Backfill existing users missing UID or outside this 7-digit range
 UPDATE public.profiles
 SET user_uid = nextval('public.profiles_user_uid_seq')
-WHERE user_uid IS NULL OR user_uid < 87464 OR user_uid > 99999;
+WHERE user_uid IS NULL OR user_uid < 8746484 OR user_uid > 9999999;
 
 -- Ensure future inserts automatically get a UID
 ALTER TABLE public.profiles

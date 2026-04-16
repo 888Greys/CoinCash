@@ -9,6 +9,7 @@ import { getExtendedMarketData, generateSvgSparkline } from "@/lib/price-api";
 import { ensureUserWallets } from "@/app/actions/wallet";
 import { fetchCryptoNews, fetchLearningFeed } from "@/lib/rss-parser";
 import { P2PExpressWidget } from "@/components/p2p-express-widget";
+import { CopyUserIdButton } from "@/components/copy-user-id-button";
 
 export const metadata: Metadata = { title: "Dashboard" };
 const MARKET_CARD_META: Record<string, { logo: string; color: string; borderColor: string }> = {
@@ -147,7 +148,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const baseName = profile?.username?.trim() || user?.email?.split("@")[0] || "Trader";
   const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
   const displayHandle = baseName ? `@${baseName}` : null;
-  const displayUserUid = profile?.user_uid ? String(profile.user_uid).padStart(5, "0") : null;
+  const displayUserUid = profile?.user_uid ? String(profile.user_uid).padStart(7, "0") : null;
   const supportIntent = searchParams?.support;
   const supportActionLabel: Record<string, string> = {
     deposit: "Deposit",
@@ -182,6 +183,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <div className="space-y-1">
               <span className="block text-[10px] uppercase tracking-[0.12em] text-primary font-bold">
                 CoinCash ID: {displayUserUid ?? "Pending"}
+                {displayUserUid && <CopyUserIdButton userId={displayUserUid} />}
               </span>
               <span className="block text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium">
                 Total Balance (USD)
