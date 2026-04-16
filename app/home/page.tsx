@@ -59,7 +59,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const { data: { user } } = await supabase.auth.getUser();
 
   let liveUsdtBalance = 0;
-  let profile: { username: string | null; avatar_url: string | null } | null = null;
+  let profile: { username: string | null; avatar_url: string | null; user_uid: number | null } | null = null;
   let recentTransactions: TxRow[] = [];
   let walletIds: string[] = [];
 
@@ -83,7 +83,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
     // Fetch auth-dependent data in parallel
     const [profileRes, walletsRes] = await Promise.all([
-      supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single(),
+      supabase.from("profiles").select("username, avatar_url, user_uid").eq("id", user.id).single(),
       supabase.from("wallets").select("id, currency, balance").eq("user_id", user.id)
     ]);
     
@@ -147,6 +147,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const baseName = profile?.username?.trim() || user?.email?.split("@")[0] || "Trader";
   const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
   const displayHandle = baseName ? `@${baseName}` : null;
+  const displayUserUid = profile?.user_uid ? String(profile.user_uid).padStart(8, "0") : null;
   const supportIntent = searchParams?.support;
   const supportActionLabel: Record<string, string> = {
     deposit: "Deposit",
@@ -179,6 +180,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
           <div className="flex justify-between items-start mb-2">
             <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-[0.12em] text-primary font-bold">
+                CoinCash ID: {displayUserUid ?? "Pending"}
+              </span>
               <span className="text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium">
                 Total Balance (USD)
               </span>
