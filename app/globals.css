@@ -204,6 +204,44 @@ body {
   }
 }
 
+@keyframes live-strip-scroll {
+  0% {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.live-strip-viewport {
+  mask-image: linear-gradient(to right, transparent 0, black 4%, black 96%, transparent 100%);
+}
+
+.live-strip-track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  animation: live-strip-scroll 24s linear infinite;
+  will-change: transform;
+}
+
+.live-strip-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.live-strip-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-strip-track {
+    animation: none;
+  }
+}
+
 @keyframes support-bubble-float {
   0% {
     transform: translateY(0px);

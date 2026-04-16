@@ -84,22 +84,28 @@ export function LiveMarketStrip() {
 
   return (
     <div className="border-b border-outline-variant/15 bg-surface-container-low/90 backdrop-blur-md">
-      <div className="no-scrollbar mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-2 md:px-6">
-        {rows.map((row) => (
-          <div
-            key={row.symbol}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/80 px-3 py-1"
-          >
-            <Image src={row.logo} alt={row.symbol} width={14} height={14} unoptimized />
-            <span className="font-label text-[9px] font-bold uppercase tracking-[0.12em] text-on-surface-variant">
-              {row.symbol}
-            </span>
-            <span className="font-mono text-[11px] font-bold text-on-surface">
-              ${row.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: row.symbol === "USDT" ? 4 : 2 })}
-            </span>
-          </div>
-        ))}
-        <span className="ml-auto hidden shrink-0 text-[9px] font-bold uppercase tracking-[0.12em] text-primary md:inline">
+      <div className="live-strip-viewport relative overflow-hidden py-2">
+        <div className="live-strip-track px-4 md:px-6">
+          {[0, 1].map((loop) => (
+            <div key={loop} className="live-strip-group" aria-hidden={loop === 1}>
+              {rows.map((row) => (
+                <div
+                  key={`${row.symbol}-${loop}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/80 px-3 py-1"
+                >
+                  <Image src={row.logo} alt={row.symbol} width={14} height={14} unoptimized />
+                  <span className="font-label text-[9px] font-bold uppercase tracking-[0.12em] text-on-surface-variant">
+                    {row.symbol}
+                  </span>
+                  <span className="font-mono text-[11px] font-bold text-on-surface">
+                    ${row.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: row.symbol === "USDT" ? 4 : 2 })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <span className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 rounded bg-surface-container-low/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-primary md:inline">
           Live • {updatedAt}
         </span>
       </div>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>P2P Trading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#ecf3e9",
+                    "on-secondary-container": "#426e4c",
+                    "surface-container": "#e9f0e6",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#400011",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#006d37",
+                    "tertiary-fixed": "#ffd9dc",
+                    "background": "#f4fbf1",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#a7344c",
+                    "primary-fixed-dim": "#61de8a",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f4fbf1",
+                    "on-background": "#171d17",
+                    "tertiary-container": "#f26d83",
+                    "on-secondary-fixed": "#00210c",
+                    "secondary-fixed-dim": "#a2d2aa",
+                    "primary-fixed": "#7efba4",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#61de8a",
+                    "on-surface": "#171d17",
+                    "primary": "#006d37",
+                    "on-primary-fixed-variant": "#005228",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#bccabc",
+                    "on-tertiary-container": "#670021",
+                    "surface-dim": "#d5dcd2",
+                    "surface-container-high": "#e3eae0",
+                    "inverse-surface": "#2b322c",
+                    "secondary-fixed": "#bdefc5",
+                    "on-secondary-fixed-variant": "#234f31",
+                    "on-tertiary-fixed-variant": "#871b35",
+                    "secondary": "#3c6847",
+                    "surface-container-highest": "#dde5db",
+                    "on-surface-variant": "#3d4a3f",
+                    "secondary-container": "#bdefc5",
+                    "outline": "#6d7a6e",
+                    "on-primary-container": "#00391a",
+                    "surface-variant": "#dde5db",
+                    "primary-container": "#27ae60",
+                    "surface": "#f4fbf1",
+                    "tertiary-fixed-dim": "#ffb2bb",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#eff6ec",
+                    "on-primary-fixed": "#00210c",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top AppBar -->
+<header class="bg-[#f4fbf1]/80 dark:bg-[#171d17]/80 backdrop-blur-xl flex justify-between items-center w-full px-4 h-16 docked full-width top-0 sticky z-40 shadow-sm shadow-[#171d17]/5 no-border">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#006d37] dark:text-[#27ae60] cursor-pointer" data-icon="arrow_back">arrow_back</span>
+<div class="flex gap-4">
+<span class="font-headline font-bold text-lg text-[#006d37] dark:text-[#27ae60] cursor-pointer">P2P</span>
+<span class="font-headline font-bold text-lg text-[#3d4a3f] dark:text-[#bccabc] opacity-50 cursor-pointer">Express</span>
+<span class="font-headline font-bold text-lg text-[#3d4a3f] dark:text-[#bccabc] opacity-50 cursor-pointer">Block Trade</span>
+</div>
+</div>
+<div class="font-inter font-medium text-sm text-[#006d37] dark:text-[#27ae60] bg-secondary-container/30 px-3 py-1 rounded-full cursor-pointer hover:opacity-80 transition-opacity">
+            KES
+        </div>
+</header>
+<main class="pb-24">
+<!-- Sub Tabs & Primary Navigation Layer -->
+<div class="bg-surface-container-low px-4 py-4 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex bg-surface-container-highest p-1 rounded-full">
+<button class="px-6 py-2 rounded-full bg-inverse-surface text-inverse-on-surface text-sm font-semibold">Buy</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant text-sm font-semibold">Sell</button>
+</div>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-primary p-2 bg-secondary-container rounded-full text-xl" data-icon="history">history</span>
+<span class="material-symbols-outlined text-primary p-2 bg-secondary-container rounded-full text-xl" data-icon="more_horiz">more_horiz</span>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex gap-2 overflow-x-auto hide-scrollbar">
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer">
+                    USDT <span class="material-symbols-outlined text-xs" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer">
+                    Amount <span class="material-symbols-outlined text-xs" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer">
+                    Payment <span class="material-symbols-outlined text-xs" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</div>
+<div class="flex items-center justify-center bg-secondary-container p-2 rounded-lg cursor-pointer">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="filter_list">filter_list</span>
+</div>
+</div>
+</div>
+<!-- Content Canvas -->
+<div class="px-4 mt-6">
+<!-- Promoted Section -->
+<div class="mb-4">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<h2 class="font-headline font-bold text-on-surface">Promoted Ad</h2>
+</div>
+<!-- Ad Card -->
+<div class="bg-surface-container-lowest p-5 rounded-3xl mb-4 shadow-sm">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container/20 border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="professional male trader portrait with a clean white background, soft lighting and friendly expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAABYV7S_Nxt5xx6mAWUEyVnPKGXsH8HFVy7pjleV0Dg0PWyHfrcwoCdObER2vaLsyukdLu9XmVBg0ZjS3Wt2DmSBGergH1IH2gnaLvf8yBZrEH7QJTyw6B1siLWkODILc3h8kxYeuCXBHWtXDQWqVN2yhO9GySbeIwsVEmpysJobOyDmfag-SzrZBGNOzLclc-bl0QD2QrufORQxmubzgXAI8_s9MS_q6uyda6087e-qAPZ7RDem2eKMv-loxwdsFL1ROOmQ2dhlrE"/>
+</div>
+<div>
+<div class="flex items-center gap-1">
+<span class="font-bold text-on-surface">Premium_Trader</span>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="text-[11px] text-on-surface-variant flex gap-2">
+<span>2,586 Trades</span>
+<span class="text-primary-container font-semibold">99.40% Completion</span>
+</div>
+</div>
+</div>
+<div class="text-[10px] bg-secondary-container/40 text-on-secondary-container px-2 py-0.5 rounded font-medium">15 min</div>
+</div>
+<div class="mb-6">
+<div class="text-on-surface-variant text-[11px] font-medium tracking-wide mb-1 uppercase">Price</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline font-extrabold text-2xl text-on-surface">136.50</span>
+<span class="text-on-surface-variant text-sm font-medium">KES/USDT</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<div class="text-on-surface-variant text-[11px] mb-1">Limit</div>
+<div class="text-on-surface font-semibold text-xs">KES 1,000.00 - 250,000.00</div>
+</div>
+<div>
+<div class="text-on-surface-variant text-[11px] mb-1">Available</div>
+<div class="text-on-surface font-semibold text-xs">4,520.45 USDT</div>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex gap-2">
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-md">
+<div class="w-1 h-3 bg-[#FFCC00] rounded-full"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">M-PESA</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-md">
+<div class="w-1 h-3 bg-primary rounded-full"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">Bank Transfer</span>
+</div>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-8 py-2.5 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all">Buy</button>
+</div>
+</div>
+</div>
+<!-- List Section -->
+<div class="space-y-4">
+<!-- Standard Ad 1 -->
+<div class="bg-surface-container-low p-5 rounded-3xl">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="professional female trader with business attire, soft natural lighting and neutral grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAULAgWB-eb6xz45Fao1IUbicedfXUeo9R0SrMCbp4XXJJ6d7AclCvaNztVoJnjLrC8X2k593wyXwzk8WxozJqVx0ZQbKNatF0b7BybCxkjTzwAqDHdsO0fiLPrCsx6oSHZB5su6E3ESm0LL0fMbuaBQvO_kwWm-8TXpDzLbghUSlmZBaGK2p7ExV2MAp3gGgKo39nVb3yRiCyQTuFLGJl-x3dCUVw9VXh87cii2UQinTLuaM-PLzdbxXb1J3TZdCQeUIzgF0tXVmRW"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Crypto_Queen</div>
+<div class="text-[11px] text-on-surface-variant flex gap-2">
+<span>954 Trades</span>
+<span class="text-primary-container font-semibold">98.15%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-5">
+<div class="flex items-baseline gap-1">
+<span class="font-headline font-bold text-xl text-on-surface">136.55</span>
+<span class="text-on-surface-variant text-xs font-medium">KES/USDT</span>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<div class="text-[11px] text-on-surface-variant">Limit KES 5,000 - 100,000</div>
+<div class="flex gap-1.5">
+<div class="w-4 h-4 bg-[#FFCC00] rounded-sm flex items-center justify-center text-[8px] font-bold text-white">M</div>
+<div class="w-4 h-4 bg-primary rounded-sm flex items-center justify-center text-[8px] font-bold text-white">B</div>
+</div>
+</div>
+<button class="bg-primary text-white px-8 py-2 rounded-xl font-bold text-sm active:scale-95 transition-all">Buy</button>
+</div>
+</div>
+<!-- Standard Ad 2 -->
+<div class="bg-surface-container-low p-5 rounded-3xl">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="close up headshot of a smiling young businessman, corporate photography style, bright office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIniUHwpQY-4KdsNnD7CVnJ8QAacn9UPRQ6PVbQI8CxQbIuItHE5r35sG3fgys4r1CYCXb8Ud4wrpAByYEZMBFeaJd9xfKSjCmgHsNnynw0_pocZ631t5iQ-GwfLd-WBVV9J45ZX0dfsWXIJDASB5rQZHcGxaHLGhXhqH8TFwlAtNNBb4VK0sWf-68YZENiIIm33frhabYvzCUyRCqWYc4GDk103KAdbzb2WsEU43F2oET7JorR__tyxRVjmlonPRMzorcc9rCxo2V"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Swift_Exchange</div>
+<div class="text-[11px] text-on-surface-variant flex gap-2">
+<span>4,210 Trades</span>
+<span class="text-primary-container font-semibold">99.88%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-5">
+<div class="flex items-baseline gap-1">
+<span class="font-headline font-bold text-xl text-on-surface">136.62</span>
+<span class="text-on-surface-variant text-xs font-medium">KES/USDT</span>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<div class="text-[11px] text-on-surface-variant">Limit KES 50,000 - 1,500,000</div>
+<div class="flex gap-1.5">
+<div class="w-4 h-4 bg-primary rounded-sm flex items-center justify-center text-[8px] font-bold text-white">B</div>
+<div class="w-4 h-4 bg-tertiary rounded-sm flex items-center justify-center text-[8px] font-bold text-white">A</div>
+</div>
+</div>
+<button class="bg-primary text-white px-8 py-2 rounded-xl font-bold text-sm active:scale-95 transition-all">Buy</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-3 pb-6 px-2 bg-[#f4fbf1]/85 dark:bg-[#171d17]/85 backdrop-blur-2xl rounded-t-3xl shadow-[0_-8px_32px_rgba(23,29,23,0.06)] no-border">
+<div class="flex flex-col items-center justify-center text-[#3d4a3f] dark:text-[#bccabc] opacity-70 hover:bg-[#eff6ec]/50 dark:hover:bg-[#2b322c]/50 transition-colors cursor-pointer tap-highlight-none active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-0.5" data-icon="home">home</span>
+<span class="font-inter text-[11px] font-medium tracking-tight">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3d4a3f] dark:text-[#bccabc] opacity-70 hover:bg-[#eff6ec]/50 dark:hover:bg-[#2b322c]/50 transition-colors cursor-pointer tap-highlight-none active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-0.5" data-icon="receipt_long">receipt_long</span>
+<span class="font-inter text-[11px] font-medium tracking-tight">Orders</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#006d37] dark:text-[#27ae60] relative after:content-[''] after:w-1 after:h-1 after:bg-[#006d37] after:rounded-full after:mt-1 hover:bg-[#eff6ec]/50 dark:hover:bg-[#2b322c]/50 transition-colors cursor-pointer tap-highlight-none active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-0.5" data-icon="ads_click">ads_click</span>
+<span class="font-inter text-[11px] font-medium tracking-tight">Ads</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3d4a3f] dark:text-[#bccabc] opacity-70 hover:bg-[#eff6ec]/50 dark:hover:bg-[#2b322c]/50 transition-colors cursor-pointer tap-highlight-none active:scale-90 duration-200 relative">
+<span class="material-symbols-outlined mb-0.5" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-inter text-[11px] font-medium tracking-tight">Chat</span>
+<span class="absolute -top-1 -right-1 bg-tertiary text-white text-[9px] font-bold px-1 rounded-full min-w-[16px] h-4 flex items-center justify-center">99+</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3d4a3f] dark:text-[#bccabc] opacity-70 hover:bg-[#eff6ec]/50 dark:hover:bg-[#2b322c]/50 transition-colors cursor-pointer tap-highlight-none active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-0.5" data-icon="person">person</span>
+<span class="font-inter text-[11px] font-medium tracking-tight">Profile</span>
+</div>
+</nav>
+</body></html>
