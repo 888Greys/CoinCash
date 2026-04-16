@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   let profile = null;
   if (user) {
-    const { data } = await supabase.from("profiles").select("username, avatar_url, created_at").eq("id", user.id).single();
+    const { data } = await supabase.from("profiles").select("username, avatar_url, created_at, user_uid").eq("id", user.id).single();
     profile = data;
   }
   return (
@@ -46,6 +46,9 @@ export default async function SettingsPage() {
               <div>
                 <p className="font-headline text-xl font-bold tracking-tight text-on-surface">
                   {profile?.username || "User"}
+                </p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+                  CoinCash ID: {profile?.user_uid ?? "Pending"}
                 </p>
                 <div className="flex items-center gap-3 mt-1">
                   <p className="text-xs text-on-surface-variant lowercase flex items-center gap-1">
