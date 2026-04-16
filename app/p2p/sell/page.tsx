@@ -1,23 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { takeOrder } from "../actions";
+import { getOrderById, takeOrder } from "../actions";
 
 export default function SellPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const orderId = searchParams.get("order");
-  const merchantName = searchParams.get("merchant") || "Merchant";
-  const orderPrice = Number(searchParams.get("price") || "1.041");
-  const orderAsset = searchParams.get("asset") || "USDT";
-  const orderFiat = searchParams.get("fiat") || "USD";
-  const available = searchParams.get("available") || "0";
-  const minLimit = searchParams.get("min") || "100";
-  const maxLimit = searchParams.get("max") || "2,500";
-  const paymentMethod = searchParams.get("method") || "Bank Transfer";
+  const [resolvedOrder, setResolvedOrder] = useState<{
+    merchantName: string;
+    price: number;
+    asset: string;
+    fiat: string;
+    available: number;
+    minLimit: number;
+    maxLimit: number;
+    paymentMethod: string;
+  } | null>(null);
+
+  const queryMerchantName = searchParams.get("merchant") || "Merchant";
+  const queryOrderPrice = Number(searchParams.get("price") || "1.041");
+  const queryOrderAsset = searchParams.get("asset") || "USDT";
+  const queryOrderFiat = searchParams.get("fiat") || "USD";
+  const queryAvailable = searchParams.get("available") || "0";
+  const queryMinLimit = searchParams.get("min") || "100";
+  const queryMaxLimit = searchParams.get("max") || "2,500";
+  const queryPaymentMethod = searchParams.get("method") || "Bank Transfer";
+
+  const hasCompleteLimitsInQuery =
+    searchParams.has("available") && searchParams.has("min") && searchParams.has("max");
+
+  useEffect(() => {
+    let alive = true;
+
+    async function hydrateOrderFromDb() {
+      if (!orderId || hasCompleteLimitsInQuery) return;
+
+      const order = await getOrderById(orderId);
+      if (!alive || !order) return;
+
+      setResolvedOrder({
+        merchantName: order.profiles?.username || queryMerchantName,
+        price: Number(order.price),
+        asset: order.asset,
+        fiat: order.fiat,
+        available: Number(order.total_amount),
+        minLimit: Number(order.min_limit),
+        maxLimit: Number(order.max_limit),
+        paymentMethod: order.payment_method || queryPaymentMethod,
+      });
+    }
+
+    hydrateOrderFromDb();
+
+    return () => {
+      alive = false;
+    };
+  }, [orderId, hasCompleteLimitsInQuery, queryMerchantName, queryPaymentMethod]);
+
+  const merchantName = resolvedOrder?.merchantName || queryMerchantName;
+  const orderPrice = resolvedOrder?.price ?? queryOrderPrice;
+  const orderAsset = resolvedOrder?.asset || queryOrderAsset;
+  const orderFiat = resolvedOrder?.fiat || queryOrderFiat;
+  const available = resolvedOrder ? String(resolvedOrder.available) : queryAvailable;
+  const minLimit = resolvedOrder ? String(resolvedOrder.minLimit) : queryMinLimit;
+  const maxLimit = resolvedOrder ? String(resolvedOrder.maxLimit) : queryMaxLimit;
+  const paymentMethod = resolvedOrder?.paymentMethod || queryPaymentMethod;
 
   const parseNum = (v: string) => Number(String(v).replace(/,/g, "")) || 0;
   const availableNum = parseNum(available);
@@ -36,9 +87,15 @@ export default function SellPage() {
   const maxByLimit = orderPrice > 0 ? maxLimitNum / orderPrice : 0;
   const effectiveMaxSell = Math.min(maxByOrderAmount, maxByLimit);
   const minSellByLimit = orderPrice > 0 ? minLimitNum / orderPrice : 0;
+  const safeEffectiveMaxSell = Number.isFinite(effectiveMaxSell) && effectiveMaxSell > 0 ? effectiveMaxSell : 0;
 
   const outOfRange =
     sellAmountNum > 0 && (sellAmountNum < minSellByLimit || sellAmountNum > effectiveMaxSell);
+
+  const limitsLoading = useMemo(
+    () => Boolean(orderId && !hasCompleteLimitsInQuery && !resolvedOrder),
+    [orderId, hasCompleteLimitsInQuery, resolvedOrder]
+  );
 
   const handleSell = async () => {
     if (!orderId) return;
@@ -115,6 +172,12 @@ export default function SellPage() {
           </button>
         </nav>
 
+        {limitsLoading && (
+          <div className="rounded-sm border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
+            Loading order limits...
+          </div>
+        )}
+
         {error && (
           <div className="rounded-sm border border-error/40 bg-error/10 px-3 py-2 text-xs text-error">
             {error}
@@ -143,7 +206,7 @@ export default function SellPage() {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setSellAmount(String(effectiveMaxSell))}
+                  onClick={() => setSellAmount(String(safeEffectiveMaxSell))}
                   className="text-xs font-bold uppercase tracking-wider text-primary hover:brightness-110"
                 >
                   Max
@@ -153,7 +216,7 @@ export default function SellPage() {
               </div>
             </div>
             <p className="text-xs text-on-surface-variant">
-              Available range: {minSellByLimit.toFixed(6)} - {effectiveMaxSell.toFixed(6)} {orderAsset}
+              Available range: {minSellByLimit.toFixed(6)} - {safeEffectiveMaxSell.toFixed(6)} {orderAsset}
             </p>
           </div>
 
@@ -233,7 +296,7 @@ export default function SellPage() {
 
           <button
             onClick={handleSell}
-            disabled={loading || !orderId || !sellAmount || outOfRange}
+            disabled={loading || limitsLoading || !orderId || !sellAmount || outOfRange || safeEffectiveMaxSell <= 0}
             className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-container font-headline text-lg font-bold text-on-primary-container shadow-lg shadow-primary/20 transition-transform active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? "Processing..." : "Place Order"}
