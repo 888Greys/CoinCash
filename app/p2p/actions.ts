@@ -4,6 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+const KES_USDT_MIN_PRICE = 95;
+const KES_USDT_MAX_PRICE = 98;
+
+function isUsdtKesPair(asset: string, fiat: string) {
+  return asset.trim().toUpperCase() === "USDT" && fiat.trim().toUpperCase() === "KES";
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────
 export type P2POrderWithProfile = {
   id: string;
@@ -151,6 +158,12 @@ export async function createOrder(formData: FormData) {
   if (price <= 0 || total_amount <= 0 || min_limit <= 0 || max_limit <= 0) {
     return { success: false, error: "All numeric fields must be positive" };
   }
+  if (isUsdtKesPair(asset, fiat) && (price < KES_USDT_MIN_PRICE || price > KES_USDT_MAX_PRICE)) {
+    return {
+      success: false,
+      error: `For USDT/KES ads, price must be between ${KES_USDT_MIN_PRICE} and ${KES_USDT_MAX_PRICE}.`,
+    };
+  }
   if (min_limit > max_limit) {
     return { success: false, error: "Min limit cannot exceed max limit" };
   }
@@ -211,6 +224,12 @@ export async function updateOrder(formData: FormData) {
 
   if (price <= 0 || total_amount <= 0 || min_limit <= 0 || max_limit <= 0) {
     return { success: false, error: "All numeric fields must be positive" };
+  }
+  if (isUsdtKesPair(asset, fiat) && (price < KES_USDT_MIN_PRICE || price > KES_USDT_MAX_PRICE)) {
+    return {
+      success: false,
+      error: `For USDT/KES ads, price must be between ${KES_USDT_MIN_PRICE} and ${KES_USDT_MAX_PRICE}.`,
+    };
   }
   if (min_limit > max_limit) {
     return { success: false, error: "Min limit cannot exceed max limit" };
