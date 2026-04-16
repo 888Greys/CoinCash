@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type SupportInboxMessage = {
   id: string;
@@ -35,15 +35,7 @@ export function AdminSupportInbox() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadInbox = async () => {
-    const response = await fetch("/api/admin/support-inbox", { cache: "no-store" });
-    const payload = await response.json().catch(() => null);
-
-    if (!response.ok) {
-      throw new Error(payload?.error ?? "Failed to load support inbox");
-    }
-
-    const nextMessages = (payload?.messages ?? []) as SupportInboxMessage[];
+  const applyMessages = (nextMessages: SupportInboxMessage[]) => {
     setMessages(nextMessages);
     setSelectedUserId((previous) => {
       if (nextMessages.length === 0) {
@@ -58,6 +50,18 @@ export function AdminSupportInbox() {
       return nextMessages[nextMessages.length - 1].userId;
     });
   };
+
+  const loadInbox = useCallback(async () => {
+    const response = await fetch("/api/admin/support-inbox", { cache: "no-store" });
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(payload?.error ?? "Failed to load support inbox");
+    }
+
+    const nextMessages = (payload?.messages ?? []) as SupportInboxMessage[];
+    applyMessages(nextMessages);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,19 +84,29 @@ export function AdminSupportInbox() {
 
     bootstrap();
 
-    const interval = setInterval(async () => {
+    const eventSource = new EventSource("/api/admin/support-inbox/stream");
+    eventSource.onmessage = (event) => {
       try {
-        await loadInbox();
+        const payload = JSON.parse(event.data) as { messages?: SupportInboxMessage[] };
+        if (Array.isArray(payload.messages)) {
+          applyMessages(payload.messages);
+          setLoading(false);
+          setError(null);
+        }
       } catch {
-        // Keep stale data visible; transient failures should not clear UI.
+        // Ignore malformed event payloads and keep current view.
       }
-    }, 4000);
+    };
+
+    eventSource.addEventListener("error", () => {
+      setError("Live stream disconnected. Reconnecting...");
+    });
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      eventSource.close();
     };
-  }, []);
+  }, [loadInbox]);
 
   const threads = useMemo<SupportThread[]>(() => {
     const map = new Map<string, SupportThread>();
