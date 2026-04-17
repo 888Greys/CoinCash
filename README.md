@@ -104,7 +104,7 @@ Do not redesign while migrating.
 - `14.html` -> `/register`
 - `1.html` -> `/p2p`
 - `2.html` -> `/p2p/merchant/[id]`
-- `3.html` -> `/p2p/post-ad`
+- `3.html` -> `/p2p/post-ad` (temporarily disabled for new ad posting)
 - `4.html` -> `/p2p/order/[id]`
 - `5.html` -> `/p2p/buy`
 - `6.html` -> `/assets`

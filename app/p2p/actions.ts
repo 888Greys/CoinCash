@@ -137,6 +137,14 @@ export async function getOrderById(orderId: string) {
 
 // ─── Create New P2P Order (Post Ad) ──────────────────────────────────────
 export async function createOrder(formData: FormData) {
+  const isPostingEnabled = false;
+  if (!isPostingEnabled) {
+    return {
+      success: false,
+      error: "Posting new P2P ads is temporarily disabled.",
+    };
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

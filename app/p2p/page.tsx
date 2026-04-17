@@ -8,7 +8,7 @@ import { isAdminEmail } from "@/lib/admin";
 export const metadata: Metadata = { title: "P2P Trading" };
 
 type Props = {
-  searchParams: { tab?: string; asset?: string; fiat?: string; myAdToast?: string };
+  searchParams: { tab?: string; asset?: string; fiat?: string; myAdToast?: string; postAdDisabled?: string };
 };
 
 type MockAd = {
@@ -278,6 +278,12 @@ export default async function P2PPage({ searchParams }: Props) {
         </div>
 
         <div className="mt-6 pb-28">
+          {searchParams.postAdDisabled === "1" && (
+            <div className="mb-4 rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+              Posting new ads is temporarily disabled.
+            </div>
+          )}
+
           <div className="space-y-4">
             {promotedOrder && (
               <AdCard

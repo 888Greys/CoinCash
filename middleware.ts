@@ -56,6 +56,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/home', request.url));
   }
 
+  // Temporarily disable creating new P2P ads while keeping edit flow available.
+  if (request.nextUrl.pathname === '/p2p/post-ad' && !request.nextUrl.searchParams.get('edit')) {
+    return NextResponse.redirect(new URL('/p2p?postAdDisabled=1', request.url));
+  }
+
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register' || request.nextUrl.pathname === '/')) {
     return NextResponse.redirect(new URL('/home', request.url));
   }

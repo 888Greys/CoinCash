@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { createOrder, updateOrder } from "../actions";
@@ -121,6 +122,27 @@ export default function PostAdPage() {
       setLoading(false);
     }
   };
+
+  if (!isEditMode) {
+    return (
+      <AppShell currentPath="/p2p">
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-6 text-center">
+            <h2 className="font-headline text-xl font-bold text-on-surface">Posting Ads Is Disabled</h2>
+            <p className="mt-2 text-sm text-on-surface-variant">
+              New P2P ad creation is temporarily unavailable.
+            </p>
+            <Link
+              href="/p2p"
+              className="mt-5 inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary"
+            >
+              Back To P2P
+            </Link>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell currentPath="/p2p">
