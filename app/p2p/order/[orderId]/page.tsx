@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
 import { P2PChat } from "@/components/p2p-chat";
 import { createClient } from "@/utils/supabase/server";
@@ -8,7 +9,7 @@ import { CountdownTimer } from "./countdown-timer";
 
 type Props = {
   params: { orderId: string };
-  searchParams: { view?: string };
+  searchParams: { view?: string; success?: string };
 };
 
 const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
@@ -57,6 +58,10 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const referenceCode = trade.id.replace(/-/g, "").slice(0, 18);
   const methodLabel = trade.p2p_orders.payment_method || "Bank Transfer";
   const isChatView = searchParams.view === "chat";
+  const showPaymentSuccess =
+    searchParams.success === "1" &&
+    isBuyer &&
+    (trade.status === "paid" || trade.status === "released");
 
   const { count: completedTradesCount } = await supabase
     .from("p2p_trades")
@@ -66,6 +71,40 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   return (
     <AppShell currentPath="/p2p">
+      {showPaymentSuccess ? (
+        <div className="mx-auto flex min-h-[70dvh] w-full max-w-md flex-col items-center justify-center px-4 py-8 text-center">
+          <div className="w-full overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container-low shadow-xl">
+            <Image
+              src="/asuccess.jpeg"
+              alt="Payment sent successfully"
+              width={900}
+              height={1600}
+              className="h-auto w-full"
+              priority
+            />
+            <div className="space-y-3 px-4 py-5">
+              <h2 className="font-headline text-xl font-bold text-primary">Payment Sent</h2>
+              <p className="text-sm text-on-surface-variant">
+                Your payment proof was submitted. Wait for seller confirmation and release.
+              </p>
+              <div className="grid grid-cols-1 gap-2">
+                <Link
+                  href={`/p2p/order/${trade.id}`}
+                  className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold uppercase tracking-wider text-on-primary"
+                >
+                  Continue
+                </Link>
+                <Link
+                  href={`/p2p/order/${trade.id}?view=chat`}
+                  className="inline-flex h-11 items-center justify-center rounded-lg border border-outline-variant/30 px-4 text-sm font-bold uppercase tracking-wider text-on-surface"
+                >
+                  Open Chat
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {isChatView ? (
           <div className="md:hidden -mx-4 bg-surface pb-40">
@@ -353,6 +392,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </div>
         </div>
       </div>
+      )}
     </AppShell>
   );
 }

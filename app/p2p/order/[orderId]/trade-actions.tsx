@@ -122,7 +122,7 @@ export function TradeActions({ tradeId, status, isBuyer, isSeller, currentUserId
     }
 
     setShowProofSheet(false);
-    router.refresh();
+    router.push(`/p2p/order/${tradeId}?success=1`);
   };
 
   if (status === "released" || status === "cancelled") {
