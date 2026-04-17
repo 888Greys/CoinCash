@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getExtendedMarketData } from "@/lib/price-api";
 import { AnimatedTicker } from "@/components/animated-ticker";
+import { SimpleCountdown } from "@/components/simple-countdown";
 
 export const metadata: Metadata = {
   title: "CoinCash — The Future of P2P Exchange",
@@ -292,7 +293,9 @@ export default async function LandingPage() {
               {/* Floating badges */}
               <div className="absolute -top-4 -right-4 bg-surface-container-highest border border-outline-variant/20 rounded-lg px-3 py-2 shadow-lg">
                 <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">Settled in</p>
-                <p className="font-headline font-bold text-primary text-sm">02:34 min</p>
+                <p className="font-headline font-bold text-primary text-sm">
+                  <SimpleCountdown initialMinutes={2} initialSeconds={34} suffix="min" restartOnZero />
+                </p>
               </div>
               <div className="absolute -bottom-4 -left-4 bg-surface-container-highest border border-outline-variant/20 rounded-lg px-3 py-2 shadow-lg">
                 <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">Escrow</p>

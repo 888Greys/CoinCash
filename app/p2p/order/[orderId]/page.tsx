@@ -4,6 +4,7 @@ import { P2PChat } from "@/components/p2p-chat";
 import { createClient } from "@/utils/supabase/server";
 import { getTradeDetails } from "../../actions";
 import { TradeActions } from "./trade-actions";
+import { CountdownTimer } from "./countdown-timer";
 
 type Props = {
   params: { orderId: string };
@@ -17,15 +18,6 @@ const statusConfig: Record<string, { label: string; color: string; icon: string 
   disputed: { label: "DISPUTED", color: "text-error bg-error/10 border-error/30", icon: "warning" },
   cancelled: { label: "CANCELLED", color: "text-on-surface-variant bg-surface-container-high border-outline-variant/30", icon: "cancel" },
 };
-
-function timeLeftFromCreatedAt(createdAt: string, windowMinutes: number) {
-  const created = new Date(createdAt).getTime();
-  const expiry = created + windowMinutes * 60_000;
-  const remainingMs = Math.max(0, expiry - Date.now());
-  const minutes = Math.floor(remainingMs / 60_000);
-  const seconds = Math.floor((remainingMs % 60_000) / 1000);
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
 
 export default async function OrderPage({ params, searchParams }: Props) {
   const supabase = createClient();
@@ -59,7 +51,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const counterparty = isBuyer ? trade.seller : trade.buyer;
   const counterpartyId = isBuyer ? trade.seller_id : trade.buyer_id;
   const status = statusConfig[trade.status] ?? statusConfig.pending;
-  const tradeTimer = timeLeftFromCreatedAt(trade.created_at, 15);
   const payerName =
     (user.user_metadata?.full_name as string | undefined) ??
     (user.email ? user.email.split("@")[0] : "Account Holder");
@@ -141,7 +132,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Pay the seller within</span>
                 <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-1 font-headline text-2xl font-bold tracking-tight text-primary">
-                  {tradeTimer}
+                  <CountdownTimer createdAt={trade.created_at} windowMinutes={15} />
                 </div>
               </div>
             </div>
