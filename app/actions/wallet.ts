@@ -2,8 +2,10 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getLivePrices } from "@/lib/price-api";
 
-const DEFAULT_CURRENCIES = ["USDT", "BTC", "ETH", "BNB"];
+const DEFAULT_CURRENCIES = ["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"];
+const CONVERTIBLE_CRYPTO = new Set(["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"]);
 
 /**
  * Ensures that the given user has the core wallet currencies created in their account.
@@ -199,4 +201,168 @@ export async function transferFundingToSpot(walletId: string, amount: number, di
   revalidatePath("/assets");
   revalidatePath("/home");
   return { success: true };
+}
+
+export async function convertCrypto(
+  fromWalletId: string,
+  toCurrency: string,
+  fromAmount: number
+) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  if (!Number.isFinite(fromAmount) || fromAmount <= 0) {
+    return { success: false, error: "Enter a valid amount" };
+  }
+
+  const normalizedToCurrency = toCurrency.trim().toUpperCase();
+  if (!CONVERTIBLE_CRYPTO.has(normalizedToCurrency)) {
+    return { success: false, error: "Unsupported destination asset" };
+  }
+
+  const { data: fromWallet, error: fromWalletError } = await supabase
+    .from("wallets")
+    .select("id, currency, balance")
+    .eq("id", fromWalletId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fromWalletError || !fromWallet) {
+    return { success: false, error: "Source wallet not found" };
+  }
+
+  const fromCurrency = String(fromWallet.currency).toUpperCase();
+  if (!CONVERTIBLE_CRYPTO.has(fromCurrency)) {
+    return { success: false, error: "Only crypto assets can be converted" };
+  }
+
+  if (fromCurrency === normalizedToCurrency) {
+    return { success: false, error: "Choose a different destination asset" };
+  }
+
+  const currentFromBalance = Number(fromWallet.balance ?? 0);
+  if (currentFromBalance < fromAmount) {
+    return { success: false, error: "Insufficient source balance" };
+  }
+
+  const prices = await getLivePrices();
+  const fromRate = Number(prices[fromCurrency] ?? 0);
+  const toRate = Number(prices[normalizedToCurrency] ?? 0);
+
+  if (fromRate <= 0 || toRate <= 0) {
+    return { success: false, error: "Price feed unavailable. Try again shortly." };
+  }
+
+  const usdValue = fromAmount * fromRate;
+  const grossReceiveAmount = usdValue / toRate;
+  const receiveAmount = Number(grossReceiveAmount.toFixed(8));
+
+  if (receiveAmount <= 0) {
+    return { success: false, error: "Amount too small to convert" };
+  }
+
+  let toWalletId: string;
+  let toWalletBalance: number;
+
+  const { data: existingToWallet, error: toWalletError } = await supabase
+    .from("wallets")
+    .select("id, balance")
+    .eq("user_id", user.id)
+    .eq("currency", normalizedToCurrency)
+    .maybeSingle();
+
+  if (toWalletError) {
+    return { success: false, error: "Unable to load destination wallet" };
+  }
+
+  if (!existingToWallet) {
+    const { data: insertedWallet, error: insertWalletError } = await supabase
+      .from("wallets")
+      .insert({
+        user_id: user.id,
+        currency: normalizedToCurrency,
+        balance: 0,
+        locked_balance: 0,
+      })
+      .select("id, balance")
+      .single();
+
+    if (insertWalletError || !insertedWallet) {
+      return { success: false, error: "Failed to initialize destination wallet" };
+    }
+
+    toWalletId = insertedWallet.id;
+    toWalletBalance = Number(insertedWallet.balance ?? 0);
+  } else {
+    toWalletId = existingToWallet.id;
+    toWalletBalance = Number(existingToWallet.balance ?? 0);
+  }
+
+  const nextFromBalance = Number((currentFromBalance - fromAmount).toFixed(8));
+  const nextToBalance = Number((toWalletBalance + receiveAmount).toFixed(8));
+
+  const { error: fromUpdateError } = await supabase
+    .from("wallets")
+    .update({ balance: nextFromBalance })
+    .eq("id", fromWallet.id)
+    .eq("user_id", user.id);
+
+  if (fromUpdateError) {
+    return { success: false, error: "Failed to debit source wallet" };
+  }
+
+  const { error: toUpdateError } = await supabase
+    .from("wallets")
+    .update({ balance: nextToBalance })
+    .eq("id", toWalletId)
+    .eq("user_id", user.id);
+
+  if (toUpdateError) {
+    // Attempt rollback best-effort when credit fails.
+    await supabase
+      .from("wallets")
+      .update({ balance: currentFromBalance })
+      .eq("id", fromWallet.id)
+      .eq("user_id", user.id);
+
+    return { success: false, error: "Failed to credit destination wallet" };
+  }
+
+  const reference = `CNV-${Date.now()}`;
+  await supabase.from("transactions").insert([
+    {
+      wallet_id: fromWallet.id,
+      type: "convert_debit",
+      amount: fromAmount,
+      status: "completed",
+      reference: `${reference}-${fromCurrency}-OUT`,
+    },
+    {
+      wallet_id: toWalletId,
+      type: "convert_credit",
+      amount: receiveAmount,
+      status: "completed",
+      reference: `${reference}-${normalizedToCurrency}-IN`,
+    },
+  ]);
+
+  revalidatePath("/assets");
+  revalidatePath("/home");
+
+  return {
+    success: true,
+    data: {
+      fromCurrency,
+      toCurrency: normalizedToCurrency,
+      fromAmount,
+      receiveAmount,
+      rateUsed: toRate / fromRate,
+    },
+  };
 }

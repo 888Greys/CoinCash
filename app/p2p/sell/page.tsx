@@ -26,8 +26,8 @@ export default function SellPage() {
   const queryOrderAsset = searchParams.get("asset") || "USDT";
   const queryOrderFiat = searchParams.get("fiat") || "USD";
   const queryAvailable = searchParams.get("available") || "0";
-  const queryMinLimit = searchParams.get("min") || "100";
-  const queryMaxLimit = searchParams.get("max") || "2,500";
+  const queryMinLimit = searchParams.get("min") || "0";
+  const queryMaxLimit = searchParams.get("max") || "0";
   const queryPaymentMethod = searchParams.get("method") || "Bank Transfer";
 
   const hasCompleteLimitsInQuery =
@@ -88,6 +88,7 @@ export default function SellPage() {
   const effectiveMaxSell = Math.min(maxByOrderAmount, maxByLimit);
   const minSellByLimit = orderPrice > 0 ? minLimitNum / orderPrice : 0;
   const safeEffectiveMaxSell = Number.isFinite(effectiveMaxSell) && effectiveMaxSell > 0 ? effectiveMaxSell : 0;
+  const hasTradeWindow = safeEffectiveMaxSell > 0 && minSellByLimit > 0;
 
   const outOfRange =
     sellAmountNum > 0 && (sellAmountNum < minSellByLimit || sellAmountNum > effectiveMaxSell);
@@ -216,7 +217,9 @@ export default function SellPage() {
               </div>
             </div>
             <p className="text-xs text-on-surface-variant">
-              Available range: {minSellByLimit.toFixed(6)} - {safeEffectiveMaxSell.toFixed(6)} {orderAsset}
+              {hasTradeWindow
+                ? `Available range: ${minSellByLimit.toFixed(6)} - ${safeEffectiveMaxSell.toFixed(6)} ${orderAsset}`
+                : "Select an offer from the P2P list to load valid limits."}
             </p>
           </div>
 

@@ -130,7 +130,7 @@ export default async function AssetsPage() {
                 ≈ ${totalUsdValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
-            <WalletActionDrawer wallets={wallets} />
+            <WalletActionDrawer wallets={wallets} livePrices={livePrices} />
           </div>
         </section>
 

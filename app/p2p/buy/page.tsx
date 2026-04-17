@@ -27,8 +27,8 @@ export default function BuyPage() {
   const queryOrderAsset = searchParams.get("asset") || "USDT";
   const queryOrderFiat = searchParams.get("fiat") || "USD";
   const queryAvailable = searchParams.get("available") || "0";
-  const queryMinLimit = searchParams.get("min") || "100";
-  const queryMaxLimit = searchParams.get("max") || "2,500";
+  const queryMinLimit = searchParams.get("min") || "0";
+  const queryMaxLimit = searchParams.get("max") || "0";
   const queryPaymentMethod = searchParams.get("method") || "Bank Transfer";
 
   const hasCompleteLimitsInQuery =
@@ -87,6 +87,7 @@ export default function BuyPage() {
   const maxPayByInventory = availableNum * orderPrice;
   const effectiveMaxPay = Math.min(maxLimitNum, maxPayByInventory);
   const safeEffectiveMaxPay = Number.isFinite(effectiveMaxPay) && effectiveMaxPay > 0 ? effectiveMaxPay : 0;
+  const hasTradeWindow = safeEffectiveMaxPay > 0 && minLimitNum > 0;
   const outOfRange = payAmountNum > 0 && (payAmountNum < minLimitNum || payAmountNum > effectiveMaxPay);
 
   const limitsLoading = useMemo(
@@ -208,7 +209,9 @@ export default function BuyPage() {
               </div>
             </div>
             <p className="text-xs text-on-surface-variant">
-              Enter value between {minLimitNum.toLocaleString()} and {safeEffectiveMaxPay.toLocaleString()} {orderFiat}
+              {hasTradeWindow
+                ? `Enter value between ${minLimitNum.toLocaleString()} and ${safeEffectiveMaxPay.toLocaleString()} ${orderFiat}`
+                : "Select an offer from the P2P list to load valid limits."}
             </p>
           </div>
 

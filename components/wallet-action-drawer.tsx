@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { requestDeposit, submitWithdrawal, transferFundingToSpot } from "@/app/actions/wallet";
+import { convertCrypto, requestDeposit, submitWithdrawal, transferFundingToSpot } from "@/app/actions/wallet";
 
 type WalletLite = {
   id: string;
@@ -11,7 +11,10 @@ type WalletLite = {
   locked_balance: number;
 };
 
-type ActionMode = "deposit" | "withdraw" | "transfer";
+type ActionMode = "deposit" | "withdraw" | "transfer" | "convert";
+type LivePriceMap = Record<string, number>;
+
+const CRYPTO_ASSETS = ["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"];
 
 const NETWORKS: Record<string, string[]> = {
   USDT: ["TRC20", "ERC20", "BEP20"],
@@ -38,7 +41,7 @@ function buildReceiveAddress(currency: string, walletId: string, network: string
   return `${currency}-${network.replace(/\s/g, "").toUpperCase()}-${compact}`;
 }
 
-export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
+export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: WalletLite[]; livePrices?: LivePriceMap }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<ActionMode>("deposit");
@@ -48,6 +51,8 @@ export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
   const [destination, setDestination] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [transferDirection, setTransferDirection] = useState<"funding_to_spot" | "spot_to_funding">("funding_to_spot");
+  const [convertToCurrency, setConvertToCurrency] = useState("USDT");
+  const [convertAmount, setConvertAmount] = useState("");
   const [feedback, setFeedback] = useState<{ type: "error" | "success"; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -70,16 +75,43 @@ export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(receiveAddress)}`;
   const availableBalance = Number(selectedWallet?.balance ?? 0);
   const spotBalance = Number(selectedWallet?.locked_balance ?? 0);
+  const convertibleWallets = useMemo(
+    () => wallets.filter((wallet) => CRYPTO_ASSETS.includes(wallet.currency)),
+    [wallets]
+  );
+
+  const convertTargetOptions = useMemo(() => {
+    if (!selectedWallet) return CRYPTO_ASSETS;
+    return CRYPTO_ASSETS.filter((asset) => asset !== selectedWallet.currency);
+  }, [selectedWallet]);
+
+  const convertPreview = useMemo(() => {
+    if (!selectedWallet) return null;
+    const amount = Number(convertAmount);
+    if (!Number.isFinite(amount) || amount <= 0) return null;
+    const fromRate = Number(livePrices[selectedWallet.currency] ?? 0);
+    const toRate = Number(livePrices[convertToCurrency] ?? 0);
+    if (fromRate <= 0 || toRate <= 0) return null;
+
+    const receive = (amount * fromRate) / toRate;
+    return Number(receive.toFixed(8));
+  }, [convertAmount, convertToCurrency, livePrices, selectedWallet]);
 
   function openWith(nextMode: ActionMode) {
     setMode(nextMode);
     setIsOpen(true);
     setFeedback(null);
 
-    if (wallets[0]) {
-      setSelectedWalletId(wallets[0].id);
-      const defaults = NETWORKS[wallets[0].currency] ?? ["Mainnet"];
+    const preferredWallet =
+      nextMode === "convert"
+        ? convertibleWallets[0] ?? wallets[0]
+        : wallets[0];
+
+    if (preferredWallet) {
+      setSelectedWalletId(preferredWallet.id);
+      const defaults = NETWORKS[preferredWallet.currency] ?? ["Mainnet"];
       setSelectedNetwork(defaults[0]);
+      setConvertToCurrency((CRYPTO_ASSETS.find((asset) => asset !== preferredWallet.currency) ?? "USDT"));
     }
   }
 
@@ -163,6 +195,41 @@ export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
     });
   }
 
+  async function handleConvert() {
+    if (!selectedWallet) return;
+
+    const amount = Number(convertAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setFeedback({ type: "error", message: "Enter a valid conversion amount" });
+      return;
+    }
+
+    if (!convertToCurrency) {
+      setFeedback({ type: "error", message: "Select destination asset" });
+      return;
+    }
+
+    if (amount > availableBalance) {
+      setFeedback({ type: "error", message: "Amount exceeds your available balance" });
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await convertCrypto(selectedWallet.id, convertToCurrency, amount);
+      if (!result.success) {
+        setFeedback({ type: "error", message: result.error ?? "Conversion failed" });
+        return;
+      }
+
+      setConvertAmount("");
+      setFeedback({
+        type: "success",
+        message: `Converted ${amount} ${selectedWallet.currency} to ${result.data?.receiveAmount ?? ""} ${convertToCurrency}.`,
+      });
+      router.refresh();
+    });
+  }
+
   return (
     <>
       <div className="flex gap-2">
@@ -189,6 +256,14 @@ export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
         >
           <span className="material-symbols-outlined text-lg">swap_horiz</span>
           Transfer
+        </button>
+        <button
+          onClick={() => openWith("convert")}
+          disabled={convertibleWallets.length === 0}
+          className="bg-surface-container-highest border border-primary/20 text-on-surface px-6 py-3 font-label text-sm font-bold uppercase tracking-wider rounded-sm flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <span className="material-symbols-outlined text-lg">currency_exchange</span>
+          Convert
         </button>
       </div>
 
@@ -368,6 +443,57 @@ export function WalletActionDrawer({ wallets }: { wallets: WalletLite[] }) {
                   className="w-full py-3 bg-primary text-on-primary font-bold uppercase tracking-widest text-sm rounded-sm disabled:opacity-50"
                 >
                   {isPending ? "Moving Funds..." : "Move Funds"}
+                </button>
+              </div>
+            )}
+
+            {mode === "convert" && selectedWallet && (
+              <div className="space-y-4">
+                <div className="rounded-sm bg-surface-container-highest p-3 text-xs text-on-surface-variant">
+                  Convert between crypto assets using live USD rates.
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">From Amount ({selectedWallet.currency})</label>
+                  <input
+                    value={convertAmount}
+                    onChange={(e) => setConvertAmount(e.target.value)}
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    className="w-full bg-surface-container-highest border border-outline-variant/25 px-3 py-3 rounded-sm text-sm"
+                  />
+                  <p className="mt-2 text-[11px] text-on-surface-variant">
+                    Available: <span className="text-on-surface font-semibold">{availableBalance.toFixed(8)} {selectedWallet.currency}</span>
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">To Asset</label>
+                  <select
+                    value={convertToCurrency}
+                    onChange={(e) => setConvertToCurrency(e.target.value)}
+                    className="w-full bg-surface-container-highest border border-outline-variant/25 px-3 py-3 rounded-sm text-sm"
+                  >
+                    {convertTargetOptions.map((asset) => (
+                      <option key={asset} value={asset}>
+                        {asset}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="rounded-sm bg-surface-container-highest p-3 text-xs text-on-surface-variant space-y-1">
+                  <p>
+                    Estimated receive: <span className="text-on-surface font-semibold">{convertPreview !== null ? `${convertPreview} ${convertToCurrency}` : "-"}</span>
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleConvert}
+                  disabled={isPending}
+                  className="w-full py-3 bg-primary text-on-primary font-bold uppercase tracking-widest text-sm rounded-sm disabled:opacity-50"
+                >
+                  {isPending ? "Converting..." : `Convert ${selectedWallet.currency} to ${convertToCurrency}`}
                 </button>
               </div>
             )}
