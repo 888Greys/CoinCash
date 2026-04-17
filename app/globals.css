@@ -15,11 +15,73 @@ html {
   color-scheme: dark;
 }
 
+html.light {
+  color-scheme: light;
+}
+
 body {
   min-height: 100vh;
   background-color: #0f1014;
   color: #f3f4f6;
   font-family: var(--font-inter), sans-serif;
+}
+
+html.light body {
+  background-color: #eef2f7;
+  color: #0f172a;
+}
+
+/* Light mode semantic overrides for Tailwind utility classes used in the app. */
+html.light .bg-background,
+html.light .bg-surface,
+html.light .bg-surface-dim {
+  background-color: #eef2f7 !important;
+}
+
+html.light .bg-surface-container-lowest {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-surface-container-low {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-surface-container {
+  background-color: #eef3fa !important;
+}
+
+html.light .bg-surface-container-high {
+  background-color: #e4ebf4 !important;
+}
+
+html.light .bg-surface-container-highest {
+  background-color: #d8e1ed !important;
+}
+
+html.light .text-on-surface,
+html.light .text-on-background {
+  color: #0f172a !important;
+}
+
+html.light .text-on-surface-variant {
+  color: #334155 !important;
+}
+
+html.light .text-primary {
+  color: #a16207 !important;
+}
+
+html.light .text-primary-dim {
+  color: #92400e !important;
+}
+
+html.light .border-outline,
+html.light .border-outline-variant {
+  border-color: #94a3b8 !important;
+}
+
+html.light .vignette {
+  background: radial-gradient(circle, transparent 30%, #eef2f7 100%);
 }
 
 .no-scrollbar {

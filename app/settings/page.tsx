@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { logoutAction } from "@/app/login/actions";
 import { createClient } from "@/utils/supabase/server";
 import { isAdminEmail } from "@/lib/admin";
+import { ThemeModeToggle } from "@/components/theme-mode-toggle";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -173,17 +174,14 @@ export default async function SettingsPage() {
             </div>
 
             {/* Theme */}
-            <div className="bg-surface-container-low p-5 rounded-lg border border-outline-variant/5 hover:border-primary/20 transition-all cursor-pointer group">
+            <div className="bg-surface-container-low p-5 rounded-lg border border-outline-variant/5 hover:border-primary/20 transition-all group">
               <div className="flex justify-between items-start mb-4">
                 <span className="material-symbols-outlined text-primary text-3xl">dark_mode</span>
                 <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">
                   palette
                 </span>
               </div>
-              <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">
-                Theme
-              </p>
-              <p className="text-xl font-bold tracking-tight">Dark Mode</p>
+              <ThemeModeToggle />
             </div>
           </div>
 
