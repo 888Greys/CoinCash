@@ -239,21 +239,35 @@ export default async function AssetsPage() {
           ) : (
             <div className="bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/10 divide-y divide-outline-variant/10">
               {transactions.map((tx) => {
-                const isPositive = tx.type === "deposit" || tx.type === "trade_buy";
                 const icons: Record<string, string> = {
                   deposit: "south_west",
                   withdrawal: "north_east",
                   trade_buy: "swap_horiz",
                   trade_sell: "swap_horiz",
+                  convert_debit: "currency_exchange",
+                  convert_credit: "currency_exchange",
+                  transfer_out: "send",
+                  transfer_in: "call_received",
+                  transfer: "swap_horiz",
                 };
                 const colors: Record<string, string> = {
                   deposit: "text-primary bg-primary/10",
                   withdrawal: "text-error bg-error/10",
                   trade_buy: "text-secondary bg-secondary/10",
                   trade_sell: "text-tertiary bg-tertiary/10",
+                  convert_debit: "text-error bg-error/10",
+                  convert_credit: "text-primary bg-primary/10",
+                  transfer_out: "text-secondary bg-secondary/10",
+                  transfer_in: "text-primary bg-primary/10",
+                  transfer: "text-on-surface-variant bg-surface-container-high",
                 };
                 const icon = icons[tx.type] ?? "receipt";
                 const colorClass = colors[tx.type] ?? "text-on-surface-variant bg-surface-container-high";
+                const isPositive =
+                  tx.type === "deposit" ||
+                  tx.type === "trade_buy" ||
+                  tx.type === "convert_credit" ||
+                  tx.type === "transfer_in";
 
                 return (
                   <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-surface-container-high transition-colors group">

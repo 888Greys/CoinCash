@@ -11,6 +11,7 @@ import { fetchCryptoNews, fetchLearningFeed } from "@/lib/rss-parser";
 import { P2PExpressWidget } from "@/components/p2p-express-widget";
 import { CopyUserIdButton } from "@/components/copy-user-id-button";
 import { isAdminEmail } from "@/lib/admin";
+import { summarizeTransferActivity } from "@/lib/transfer-helpers";
 
 export const metadata: Metadata = { title: "Dashboard" };
 const MARKET_CARD_META: Record<string, { logo: string; color: string; borderColor: string }> = {
@@ -39,6 +40,7 @@ type TxRow = {
   status: string;
   reference: string | null;
   created_at: string;
+  currency?: string;
 };
 
 type HomePageProps = {
@@ -101,15 +103,24 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
     // Fetch recent transactions
     if (walletIds.length > 0) {
+      const walletCurrencyMap = new Map((wallets ?? []).map((w: any) => [w.id, w.currency]));
       const { data: txData } = await supabase
         .from("transactions")
-        .select("id, type, amount, status, reference, created_at")
+        .select("id, type, amount, status, reference, created_at, wallet_id")
         .in("wallet_id", walletIds)
         .order("created_at", { ascending: false })
         .limit(5);
       
       if (txData) {
-        recentTransactions = txData as TxRow[];
+        recentTransactions = txData.map((tx: any) => ({
+          id: tx.id,
+          type: tx.type,
+          amount: tx.amount,
+          status: tx.status,
+          reference: tx.reference,
+          created_at: tx.created_at,
+          currency: walletCurrencyMap.get(tx.wallet_id) ?? undefined,
+        })) as TxRow[];
       }
     }
   }
@@ -145,12 +156,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     withdrawal: { icon: "north_east", color: "text-error", bg: "bg-error/10" },
     trade_buy: { icon: "swap_horiz", color: "text-secondary", bg: "bg-secondary/10" },
     trade_sell: { icon: "swap_horiz", color: "text-tertiary", bg: "bg-tertiary/10" },
+    convert_debit: { icon: "currency_exchange", color: "text-error", bg: "bg-error/10" },
+    convert_credit: { icon: "currency_exchange", color: "text-primary", bg: "bg-primary/10" },
+    transfer_out: { icon: "send", color: "text-secondary", bg: "bg-secondary/10" },
+    transfer_in: { icon: "call_received", color: "text-primary", bg: "bg-primary/10" },
+    transfer: { icon: "swap_horiz", color: "text-on-surface-variant", bg: "bg-surface-container-high" },
   };
 
   const baseName = profile?.username?.trim() || user?.email?.split("@")[0] || "Trader";
   const displayName = baseName.replace(/[._-]/g, " ").replace(/\s+/g, " ").trim();
   const displayHandle = baseName ? `@${baseName}` : null;
   const displayUserUid = profile?.user_uid ? String(profile.user_uid).padStart(7, "0") : null;
+  const transferActivity = summarizeTransferActivity(recentTransactions);
   const supportIntent = searchParams?.support;
   const supportActionLabel: Record<string, string> = {
     deposit: "Deposit",
@@ -271,6 +288,77 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </div>
             </div>
           )}
+        </section>
+
+        {/* Direct Transfer Snapshot */}
+        <section className="relative overflow-hidden rounded-lg border border-outline-variant/10 bg-gradient-to-br from-surface-container-low via-surface-container-low to-primary/5 p-5">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-8 -bottom-10 h-28 w-28 rounded-full bg-secondary/10 blur-3xl" />
+          <div className="relative z-10 flex items-start justify-between gap-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <span className="material-symbols-outlined text-lg">send</span>
+                </span>
+                <div>
+                  <p className="font-label text-[10px] uppercase tracking-widest text-primary">Direct Transfers</p>
+                  <h3 className="font-headline text-lg font-bold text-on-surface">Recent CoinCash-to-CoinCash activity</h3>
+                </div>
+              </div>
+
+              {transferActivity ? (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Latest transfer</p>
+                    <p className="mt-1 font-headline text-2xl font-bold text-on-surface">
+                      {transferActivity.latest.type === "transfer_out" ? "Sent" : "Received"}{" "}
+                      {Math.abs(transferActivity.latest.amount).toLocaleString("en-US", { maximumFractionDigits: 8 })}{" "}
+                      <span className="text-primary">{transferActivity.latest.currency ?? "asset"}</span>
+                    </p>
+                    <p className="text-xs text-on-surface-variant">
+                      {transferActivity.latest.reference ?? "Pending reference"} ·{" "}
+                      {new Date(transferActivity.latest.created_at).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-outline-variant/10 bg-surface-container-lowest/70 p-3">
+                      <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Sent</p>
+                      <p className="mt-1 font-headline text-xl font-bold text-secondary">
+                        {transferActivity.sentTotal.toLocaleString("en-US", { maximumFractionDigits: 8 })}
+                      </p>
+                      <p className="text-[10px] text-on-surface-variant">{transferActivity.sentCount} transfers</p>
+                    </div>
+                    <div className="rounded-lg border border-outline-variant/10 bg-surface-container-lowest/70 p-3">
+                      <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Received</p>
+                      <p className="mt-1 font-headline text-xl font-bold text-primary">
+                        {transferActivity.receivedTotal.toLocaleString("en-US", { maximumFractionDigits: 8 })}
+                      </p>
+                      <p className="text-[10px] text-on-surface-variant">{transferActivity.receivedCount} transfers</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="max-w-md text-sm text-on-surface-variant">
+                    No direct transfers yet. Send to a CoinCash ID, username, or email from the wallet drawer to start tracking activity here.
+                  </p>
+                  <div className="inline-flex items-center gap-2 rounded-sm border border-primary/30 bg-primary/10 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-primary">
+                    <span className="material-symbols-outlined text-sm">account_circle</span>
+                    Transfer Ready
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link
+              href="/assets"
+              className="inline-flex h-10 shrink-0 items-center gap-2 rounded-sm border border-outline-variant/20 bg-surface-container-high px-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+            >
+              Open Wallets
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
         </section>
 
         {/* Market Snapshot */}
@@ -417,7 +505,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 divide-y divide-outline-variant/10">
               {recentTransactions.map((tx) => {
                 const conf = txIcons[tx.type] ?? { icon: "receipt", color: "text-on-surface-variant", bg: "bg-surface-container-high" };
-                const isPositive = tx.type === "deposit" || tx.type === "trade_buy";
+                const isPositive =
+                  tx.type === "deposit" ||
+                  tx.type === "trade_buy" ||
+                  tx.type === "convert_credit" ||
+                  tx.type === "transfer_in";
 
                 return (
                   <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group">

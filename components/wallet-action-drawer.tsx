@@ -2,7 +2,13 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { convertCrypto, requestDeposit, submitWithdrawal, transferFundingToSpot } from "@/app/actions/wallet";
+import {
+  convertCrypto,
+  requestDeposit,
+  submitWithdrawal,
+  transferFundingToSpot,
+  transferToUser,
+} from "@/app/actions/wallet";
 
 type WalletLite = {
   id: string;
@@ -12,6 +18,7 @@ type WalletLite = {
 };
 
 type ActionMode = "deposit" | "withdraw" | "transfer" | "convert";
+type TransferMode = "user" | "internal";
 type LivePriceMap = Record<string, number>;
 
 const CRYPTO_ASSETS = ["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"];
@@ -50,6 +57,8 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [destination, setDestination] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
+  const [transferRecipient, setTransferRecipient] = useState("");
+  const [transferMode, setTransferMode] = useState<TransferMode>("user");
   const [transferDirection, setTransferDirection] = useState<"funding_to_spot" | "spot_to_funding">("funding_to_spot");
   const [convertToCurrency, setConvertToCurrency] = useState("USDT");
   const [convertAmount, setConvertAmount] = useState("");
@@ -113,6 +122,12 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
       setSelectedNetwork(defaults[0]);
       setConvertToCurrency((CRYPTO_ASSETS.find((asset) => asset !== preferredWallet.currency) ?? "USDT"));
     }
+
+    if (nextMode === "transfer") {
+      setTransferMode("user");
+      setTransferRecipient("");
+      setTransferDirection("funding_to_spot");
+    }
   }
 
   function closeDrawer() {
@@ -169,6 +184,35 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
     const amount = Number(transferAmount);
     if (!Number.isFinite(amount) || amount <= 0) {
       setFeedback({ type: "error", message: "Enter a valid transfer amount" });
+      return;
+    }
+
+    if (transferMode === "user") {
+      if (!transferRecipient.trim()) {
+        setFeedback({ type: "error", message: "Enter a CoinCash ID, email, or username" });
+        return;
+      }
+
+      if (amount > availableBalance) {
+        setFeedback({ type: "error", message: "Amount exceeds your available balance" });
+        return;
+      }
+
+      startTransition(async () => {
+        const result = await transferToUser(selectedWallet.id, transferRecipient, amount);
+        if (!result.success) {
+          setFeedback({ type: "error", message: result.error ?? "Unable to process transfer" });
+          return;
+        }
+
+        setTransferAmount("");
+        setTransferRecipient("");
+        setFeedback({
+          type: "success",
+          message: `Sent ${amount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${selectedWallet.currency} to ${result.data?.recipientLabel ?? "another CoinCash account"}.`,
+        });
+        router.refresh();
+      });
       return;
     }
 
@@ -404,22 +448,70 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => setTransferDirection("funding_to_spot")}
+                    onClick={() => {
+                      setTransferMode("user");
+                      setFeedback(null);
+                    }}
                     className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
-                      transferDirection === "funding_to_spot" ? "bg-primary/10 text-primary border-primary/30" : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
+                      transferMode === "user"
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
                     }`}
                   >
-                    Funding to Spot
+                    To User
                   </button>
                   <button
-                    onClick={() => setTransferDirection("spot_to_funding")}
+                    onClick={() => {
+                      setTransferMode("internal");
+                      setFeedback(null);
+                    }}
                     className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
-                      transferDirection === "spot_to_funding" ? "bg-primary/10 text-primary border-primary/30" : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
+                      transferMode === "internal"
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
                     }`}
                   >
-                    Spot to Funding
+                    My Wallets
                   </button>
                 </div>
+
+                {transferMode === "user" && (
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">
+                      Recipient
+                    </label>
+                    <input
+                      value={transferRecipient}
+                      onChange={(e) => setTransferRecipient(e.target.value)}
+                      placeholder="CoinCash ID, @username, or email"
+                      className="w-full bg-surface-container-highest border border-outline-variant/25 px-3 py-3 rounded-sm text-sm"
+                    />
+                    <p className="mt-2 text-[11px] text-on-surface-variant">
+                      Send directly to another CoinCash account.
+                    </p>
+                  </div>
+                )}
+
+                {transferMode === "internal" && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setTransferDirection("funding_to_spot")}
+                      className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
+                        transferDirection === "funding_to_spot" ? "bg-primary/10 text-primary border-primary/30" : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
+                      }`}
+                    >
+                      Funding to Spot
+                    </button>
+                    <button
+                      onClick={() => setTransferDirection("spot_to_funding")}
+                      className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
+                        transferDirection === "spot_to_funding" ? "bg-primary/10 text-primary border-primary/30" : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
+                      }`}
+                    >
+                      Spot to Funding
+                    </button>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Amount ({selectedWallet.currency})</label>
@@ -432,17 +524,25 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
                   />
                 </div>
 
-                <div className="rounded-sm bg-surface-container-highest p-3 text-xs text-on-surface-variant space-y-1">
-                  <p>Funding Wallet: <span className="text-on-surface">{availableBalance.toFixed(6)} {selectedWallet.currency}</span></p>
-                  <p>Spot Wallet: <span className="text-on-surface">{spotBalance.toFixed(6)} {selectedWallet.currency}</span></p>
-                </div>
+                {transferMode === "internal" ? (
+                  <div className="rounded-sm bg-surface-container-highest p-3 text-xs text-on-surface-variant space-y-1">
+                    <p>Funding Wallet: <span className="text-on-surface">{availableBalance.toFixed(6)} {selectedWallet.currency}</span></p>
+                    <p>Spot Wallet: <span className="text-on-surface">{spotBalance.toFixed(6)} {selectedWallet.currency}</span></p>
+                  </div>
+                ) : (
+                  <div className="rounded-sm bg-surface-container-highest p-3 text-xs text-on-surface-variant space-y-1">
+                    <p>
+                      Available Balance: <span className="text-on-surface">{availableBalance.toFixed(6)} {selectedWallet.currency}</span>
+                    </p>
+                  </div>
+                )}
 
                 <button
                   onClick={handleTransfer}
                   disabled={isPending}
                   className="w-full py-3 bg-primary text-on-primary font-bold uppercase tracking-widest text-sm rounded-sm disabled:opacity-50"
                 >
-                  {isPending ? "Moving Funds..." : "Move Funds"}
+                  {isPending ? "Moving Funds..." : transferMode === "user" ? "Send to User" : "Move Funds"}
                 </button>
               </div>
             )}

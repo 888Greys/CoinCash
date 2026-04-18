@@ -73,6 +73,58 @@ function mapTransactionToNotification(tx: {
         description: `P2P sell order completed. Volume: ${amt} ${cur}. Status: ${tx.status}.`,
         time: ago,
       };
+    case "convert_debit":
+      return {
+        tag: "CONV",
+        tagColor: "text-error",
+        tagBg: "bg-error/10",
+        dotColor: "bg-error",
+        title: `CONVERSION_DEBIT: ${amt} ${cur}`,
+        description: `Conversion debit recorded for ${amt} ${cur}. Reference: ${tx.reference ?? "N/A"}.`,
+        time: ago,
+      };
+    case "convert_credit":
+      return {
+        tag: "CONV",
+        tagColor: "text-primary",
+        tagBg: "bg-primary/10",
+        dotColor: "bg-primary",
+        dotGlow: "shadow-[0_0_8px_rgba(92,253,128,0.4)]",
+        title: `CONVERSION_CREDIT: ${amt} ${cur}`,
+        description: `Conversion credit recorded for ${amt} ${cur}. Reference: ${tx.reference ?? "N/A"}.`,
+        time: ago,
+      };
+    case "transfer_out":
+      return {
+        tag: "SEND",
+        tagColor: "text-secondary",
+        tagBg: "bg-secondary/10",
+        dotColor: "bg-secondary",
+        title: `TRANSFER_SENT: ${amt} ${cur}`,
+        description: `You sent ${amt} ${cur}. Reference: ${tx.reference ?? "N/A"}.`,
+        time: ago,
+      };
+    case "transfer_in":
+      return {
+        tag: "RECV",
+        tagColor: "text-primary",
+        tagBg: "bg-primary/10",
+        dotColor: "bg-primary",
+        dotGlow: "shadow-[0_0_8px_rgba(92,253,128,0.4)]",
+        title: `TRANSFER_RECEIVED: ${amt} ${cur}`,
+        description: `You received ${amt} ${cur}. Reference: ${tx.reference ?? "N/A"}.`,
+        time: ago,
+      };
+    case "transfer":
+      return {
+        tag: "MOVE",
+        tagColor: "text-on-surface-variant",
+        tagBg: "bg-on-surface-variant/10",
+        dotColor: "bg-on-surface-variant/40",
+        title: `WALLET_TRANSFER: ${amt} ${cur}`,
+        description: `Internal wallet transfer of ${amt} ${cur}. Reference: ${tx.reference ?? "N/A"}.`,
+        time: ago,
+      };
     default:
       return {
         tag: "INFO",

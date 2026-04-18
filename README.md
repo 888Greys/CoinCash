@@ -121,6 +121,13 @@ This repo now includes:
 - shared theme tokens and base styles
 - copied HTML references under `public/reference-designs/`
 - an initial migrated splash screen at `/splash`
+- wallet actions for deposit, withdrawal, crypto conversion, and internal/user-to-user transfers
+
+## Wallet Transfers
+
+The wallet drawer now supports sending assets directly to another CoinCash account using a CoinCash ID, email, or username.
+
+To enable the atomic balance move in Supabase, apply the `transfer_wallet_to_user` function from `schema.sql`.
 
 ## Brand Direction
 

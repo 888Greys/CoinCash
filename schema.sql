@@ -56,12 +56,105 @@ CREATE TRIGGER on_profile_created
 CREATE TABLE transactions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   wallet_id UUID REFERENCES wallets(id),
-  type TEXT NOT NULL, -- 'deposit', 'withdrawal', 'trade_buy', 'trade_sell'
+  type TEXT NOT NULL, -- 'deposit', 'withdrawal', 'trade_buy', 'trade_sell', 'transfer', 'transfer_in', 'transfer_out', 'convert_debit', 'convert_credit'
   amount NUMERIC NOT NULL,
   status TEXT DEFAULT 'completed', -- 'pending', 'completed', 'failed'
   reference TEXT UNIQUE, -- tx hash or internal reference
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+
+-- 4b. WALLET TRANSFERS (CoinCash user to user)
+CREATE OR REPLACE FUNCTION public.transfer_wallet_to_user(
+  p_source_wallet_id UUID,
+  p_recipient_user_id UUID,
+  p_amount NUMERIC
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_sender_id UUID := auth.uid();
+  v_source_wallet_id UUID;
+  v_source_wallet_currency TEXT;
+  v_source_wallet_balance NUMERIC;
+  v_recipient_wallet_id UUID;
+  v_recipient_wallet_balance NUMERIC;
+  v_amount NUMERIC := round(p_amount::NUMERIC, 8);
+  v_reference TEXT := 'TRF-' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISSMS') || '-' || replace(gen_random_uuid()::text, '-', '');
+BEGIN
+  IF v_sender_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Not authenticated');
+  END IF;
+
+  IF v_amount IS NULL OR v_amount <= 0 THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Enter a valid transfer amount');
+  END IF;
+
+  SELECT id, currency, balance
+  INTO v_source_wallet_id, v_source_wallet_currency, v_source_wallet_balance
+  FROM wallets
+  WHERE id = p_source_wallet_id
+    AND user_id = v_sender_id
+  FOR UPDATE;
+
+  IF NOT FOUND OR v_source_wallet_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Source wallet not found');
+  END IF;
+
+  IF p_recipient_user_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Recipient not found');
+  END IF;
+
+  IF p_recipient_user_id = v_sender_id THEN
+    RETURN jsonb_build_object('success', false, 'error', 'You cannot transfer to your own account');
+  END IF;
+
+  SELECT id, balance
+  INTO v_recipient_wallet_id, v_recipient_wallet_balance
+  FROM wallets
+  WHERE user_id = p_recipient_user_id
+    AND currency = v_source_wallet_currency
+  FOR UPDATE;
+
+  IF NOT FOUND OR v_recipient_wallet_id IS NULL THEN
+    INSERT INTO wallets (user_id, currency, balance, locked_balance)
+    VALUES (p_recipient_user_id, v_source_wallet_currency, 0, 0)
+    RETURNING id, balance INTO v_recipient_wallet_id, v_recipient_wallet_balance;
+  END IF;
+
+  IF v_source_wallet_balance < v_amount THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Insufficient available balance');
+  END IF;
+
+  UPDATE wallets
+  SET balance = balance - v_amount
+  WHERE id = v_source_wallet_id;
+
+  UPDATE wallets
+  SET balance = balance + v_amount
+  WHERE id = v_recipient_wallet_id;
+
+  INSERT INTO transactions (wallet_id, type, amount, status, reference)
+  VALUES
+    (v_source_wallet_id, 'transfer_out', v_amount, 'completed', v_reference || '-OUT'),
+    (v_recipient_wallet_id, 'transfer_in', v_amount, 'completed', v_reference || '-IN');
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'reference', v_reference,
+    'currency', v_source_wallet_currency,
+    'amount', v_amount,
+    'sender_wallet_id', v_source_wallet_id,
+    'recipient_wallet_id', v_recipient_wallet_id
+  );
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN jsonb_build_object('success', false, 'error', SQLERRM);
+END;
+$$;
 
 
 -- 4. P2P ORDERS (The Market Ads)

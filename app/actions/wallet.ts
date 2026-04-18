@@ -4,6 +4,10 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getLivePrices } from "@/lib/price-api";
 import { sendTransactionAlertEmail } from "@/lib/email-notifications";
+import {
+  formatTransferRecipientLabel,
+  parseTransferRecipientInput,
+} from "@/lib/transfer-helpers";
 
 const DEFAULT_CURRENCIES = ["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"];
 const CONVERTIBLE_CRYPTO = new Set(["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"]);
@@ -254,6 +258,144 @@ export async function transferFundingToSpot(walletId: string, amount: number, di
   }
 
   return { success: true };
+}
+
+type TransferWalletRpcResult = {
+  success: boolean;
+  error?: string;
+  reference?: string;
+  currency?: string;
+  amount?: number;
+};
+
+export async function transferToUser(walletId: string, recipientInput: string, amount: number) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const parsedRecipient = parseTransferRecipientInput(recipientInput);
+  if (!parsedRecipient) {
+    return { success: false, error: "Enter a recipient CoinCash ID, email, or username" };
+  }
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { success: false, error: "Enter a valid transfer amount" };
+  }
+
+  const { data: sourceWallet, error: sourceWalletError } = await supabase
+    .from("wallets")
+    .select("id, currency, balance")
+    .eq("id", walletId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (sourceWalletError || !sourceWallet) {
+    return { success: false, error: "Source wallet not found" };
+  }
+
+  const recipientQuery = supabase
+    .from("profiles")
+    .select("id, email, username, user_uid");
+
+  const { data: recipientProfile, error: recipientError } = await (() => {
+    switch (parsedRecipient.kind) {
+      case "user_uid":
+        return recipientQuery.eq("user_uid", Number(parsedRecipient.value)).maybeSingle();
+      case "email":
+        return recipientQuery.ilike("email", parsedRecipient.value).maybeSingle();
+      case "username":
+        return recipientQuery.ilike("username", parsedRecipient.value).maybeSingle();
+    }
+  })();
+
+  if (recipientError || !recipientProfile) {
+    return { success: false, error: "Recipient not found" };
+  }
+
+  if (recipientProfile.id === user.id) {
+    return { success: false, error: "You cannot transfer to your own account" };
+  }
+
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("username, user_uid")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const { data: rpcData, error: rpcError } = await supabase.rpc("transfer_wallet_to_user", {
+    p_source_wallet_id: walletId,
+    p_recipient_user_id: recipientProfile.id,
+    p_amount: amount,
+  });
+
+  const rpcResult = rpcData as TransferWalletRpcResult | null;
+
+  if (rpcError || !rpcResult?.success) {
+    if (rpcError) {
+      console.error("transferToUser RPC error:", rpcError.message);
+      return { success: false, error: rpcError.message };
+    }
+
+    return { success: false, error: rpcResult?.error ?? "Failed to complete transfer" };
+  }
+
+  const currency = String(rpcResult.currency ?? sourceWallet.currency ?? "").toUpperCase();
+  const transferAmount = Number(rpcResult.amount ?? amount);
+  const senderLabel = formatTransferRecipientLabel({
+    username: senderProfile?.username ?? null,
+    user_uid: senderProfile?.user_uid ?? null,
+    email: user.email ?? null,
+  });
+  const recipientLabel = formatTransferRecipientLabel({
+    username: recipientProfile.username ?? null,
+    user_uid: recipientProfile.user_uid ?? null,
+    email: recipientProfile.email ?? null,
+  });
+
+  revalidatePath("/assets");
+  revalidatePath("/home");
+  revalidatePath("/notifications");
+
+  if (user.email) {
+    await sendTransactionAlertEmail({
+      email: user.email,
+      title: "Transfer Sent",
+      summary: `You sent ${transferAmount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${currency} to ${recipientLabel}.`,
+      details: [
+        { label: "Recipient", value: recipientLabel },
+        { label: "Amount", value: `${transferAmount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${currency}`.trim() },
+        { label: "Reference", value: rpcResult.reference ?? "Pending" },
+        { label: "Status", value: "Completed" },
+      ],
+    });
+  }
+
+  if (recipientProfile.email) {
+    await sendTransactionAlertEmail({
+      email: recipientProfile.email,
+      title: "Transfer Received",
+      summary: `${senderLabel} sent you ${transferAmount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${currency}.`,
+      details: [
+        { label: "Sender", value: senderLabel },
+        { label: "Amount", value: `${transferAmount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${currency}`.trim() },
+        { label: "Reference", value: rpcResult.reference ?? "Pending" },
+        { label: "Status", value: "Completed" },
+      ],
+    });
+  }
+
+  return {
+    success: true,
+    data: {
+      amount: transferAmount,
+      currency,
+      reference: rpcResult.reference ?? null,
+      recipientLabel,
+    },
+  };
 }
 
 export async function convertCrypto(
