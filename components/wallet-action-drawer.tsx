@@ -141,7 +141,14 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
   function closeDrawer() {
     setIsOpen(false);
     setFeedback(null);
-    setTransferSuccess(null);
+    if (transferSuccess) {
+      setTransferSuccess(null);
+      startTransition(() => {
+        router.refresh();
+      });
+    } else {
+      setTransferSuccess(null);
+    }
   }
 
   async function handleDepositRequest() {
@@ -183,7 +190,6 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
       setWithdrawAmount("");
       setDestination("");
       setFeedback({ type: "success", message: "Withdrawal submitted and queued for processing." });
-      router.refresh();
     });
   }
 
@@ -223,7 +229,6 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
           recipientLabel: result.data?.recipientLabel ?? "CoinCash User",
           reference: result.data?.reference ?? `TRF-${Date.now()}`,
         });
-        router.refresh();
       });
       return;
     }
@@ -247,7 +252,6 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
 
       setTransferAmount("");
       setFeedback({ type: "success", message: "Internal transfer completed." });
-      router.refresh();
     });
   }
 
@@ -282,7 +286,6 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
         type: "success",
         message: `Converted ${amount} ${selectedWallet.currency} to ${result.data?.receiveAmount ?? ""} ${convertToCurrency}.`,
       });
-      router.refresh();
     });
   }
 
@@ -416,6 +419,9 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
                   setFeedback(null);
                   setTransferAmount("");
                   setTransferRecipient("");
+                  startTransition(() => {
+                    router.refresh();
+                  });
                 }}
                 className="mt-auto w-full py-3.5 bg-primary text-on-primary font-bold uppercase tracking-widest text-sm rounded-sm hover:brightness-110 active:scale-[0.98] transition-all"
               >
