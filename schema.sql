@@ -93,12 +93,15 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'Enter a valid transfer amount');
   END IF;
 
-  SELECT id, currency, balance
-  INTO v_source_wallet_id, v_source_wallet_currency, v_source_wallet_balance
-  FROM wallets
-  WHERE id = p_source_wallet_id
-    AND user_id = v_sender_id
-  FOR UPDATE;
+  FOR v_source_wallet_id, v_source_wallet_currency, v_source_wallet_balance IN
+    SELECT id, currency, balance
+    FROM wallets
+    WHERE id = p_source_wallet_id
+      AND user_id = v_sender_id
+    FOR UPDATE
+  LOOP
+    EXIT;
+  END LOOP;
 
   IF NOT FOUND OR v_source_wallet_id IS NULL THEN
     RETURN jsonb_build_object('success', false, 'error', 'Source wallet not found');
@@ -112,17 +115,37 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'You cannot transfer to your own account');
   END IF;
 
-  SELECT id, balance
-  INTO v_recipient_wallet_id, v_recipient_wallet_balance
-  FROM wallets
-  WHERE user_id = p_recipient_user_id
-    AND currency = v_source_wallet_currency
-  FOR UPDATE;
+  FOR v_recipient_wallet_id, v_recipient_wallet_balance IN
+    SELECT id, balance
+    FROM wallets
+    WHERE user_id = p_recipient_user_id
+      AND currency = v_source_wallet_currency
+    FOR UPDATE
+  LOOP
+    EXIT;
+  END LOOP;
 
   IF NOT FOUND OR v_recipient_wallet_id IS NULL THEN
-    INSERT INTO wallets (user_id, currency, balance, locked_balance)
-    VALUES (p_recipient_user_id, v_source_wallet_currency, 0, 0)
-    RETURNING id, balance INTO v_recipient_wallet_id, v_recipient_wallet_balance;
+    FOR v_recipient_wallet_id, v_recipient_wallet_balance IN
+      INSERT INTO wallets (user_id, currency, balance, locked_balance)
+      VALUES (p_recipient_user_id, v_source_wallet_currency, 0, 0)
+      ON CONFLICT (user_id, currency) DO NOTHING
+      RETURNING id, balance
+    LOOP
+      EXIT;
+    END LOOP;
+
+    IF NOT FOUND OR v_recipient_wallet_id IS NULL THEN
+      FOR v_recipient_wallet_id, v_recipient_wallet_balance IN
+        SELECT id, balance
+        FROM wallets
+        WHERE user_id = p_recipient_user_id
+          AND currency = v_source_wallet_currency
+        FOR UPDATE
+      LOOP
+        EXIT;
+      END LOOP;
+    END IF;
   END IF;
 
   IF v_source_wallet_balance < v_amount THEN
