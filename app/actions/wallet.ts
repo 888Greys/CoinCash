@@ -260,13 +260,7 @@ export async function transferFundingToSpot(walletId: string, amount: number, di
   return { success: true };
 }
 
-type TransferWalletRpcResult = {
-  success: boolean;
-  error?: string;
-  reference?: string;
-  currency?: string;
-  amount?: number;
-};
+
 
 export async function transferToUser(walletId: string, recipientInput: string, amount: number) {
   const supabase = createClient();
@@ -325,25 +319,96 @@ export async function transferToUser(walletId: string, recipientInput: string, a
     .eq("id", user.id)
     .maybeSingle();
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc("transfer_wallet_to_user", {
-    p_source_wallet_id: walletId,
-    p_recipient_user_id: recipientProfile.id,
-    p_amount: amount,
-  });
+  // --- Direct transfer logic (bypasses PostgREST RPC schema cache) ---
 
-  const rpcResult = rpcData as TransferWalletRpcResult | null;
+  const currentBalance = Number(sourceWallet.balance ?? 0);
+  const roundedAmount = Number(amount.toFixed(8));
 
-  if (rpcError || !rpcResult?.success) {
-    if (rpcError) {
-      console.error("transferToUser RPC error:", rpcError.message);
-      return { success: false, error: rpcError.message };
-    }
-
-    return { success: false, error: rpcResult?.error ?? "Failed to complete transfer" };
+  if (currentBalance < roundedAmount) {
+    return { success: false, error: "Insufficient available balance" };
   }
 
-  const currency = String(rpcResult.currency ?? sourceWallet.currency ?? "").toUpperCase();
-  const transferAmount = Number(rpcResult.amount ?? amount);
+  // Ensure recipient has a wallet for this currency
+  const { data: recipientWallet } = await supabase
+    .from("wallets")
+    .select("id, balance")
+    .eq("user_id", recipientProfile.id)
+    .eq("currency", sourceWallet.currency)
+    .maybeSingle();
+
+  let recipientWalletId: string;
+
+  if (!recipientWallet) {
+    const { data: newWallet, error: createError } = await supabase
+      .from("wallets")
+      .insert({
+        user_id: recipientProfile.id,
+        currency: sourceWallet.currency,
+        balance: 0,
+        locked_balance: 0,
+      })
+      .select("id")
+      .single();
+
+    if (createError || !newWallet) {
+      return { success: false, error: "Failed to initialize recipient wallet" };
+    }
+    recipientWalletId = newWallet.id;
+  } else {
+    recipientWalletId = recipientWallet.id;
+  }
+
+  // Debit sender
+  const { error: debitError } = await supabase
+    .from("wallets")
+    .update({ balance: Number((currentBalance - roundedAmount).toFixed(8)) })
+    .eq("id", sourceWallet.id)
+    .eq("user_id", user.id);
+
+  if (debitError) {
+    console.error("transferToUser debit error:", debitError.message);
+    return { success: false, error: "Failed to debit your wallet" };
+  }
+
+  // Credit recipient
+  const recipientCurrentBalance = Number(recipientWallet?.balance ?? 0);
+  const { error: creditError } = await supabase
+    .from("wallets")
+    .update({ balance: Number((recipientCurrentBalance + roundedAmount).toFixed(8)) })
+    .eq("id", recipientWalletId);
+
+  if (creditError) {
+    // Rollback sender debit
+    await supabase
+      .from("wallets")
+      .update({ balance: currentBalance })
+      .eq("id", sourceWallet.id)
+      .eq("user_id", user.id);
+    console.error("transferToUser credit error:", creditError.message);
+    return { success: false, error: "Failed to credit recipient wallet" };
+  }
+
+  // Log transactions
+  const reference = `TRF-${Date.now()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
+  await supabase.from("transactions").insert([
+    {
+      wallet_id: sourceWallet.id,
+      type: "transfer_out",
+      amount: roundedAmount,
+      status: "completed",
+      reference: `${reference}-OUT`,
+    },
+    {
+      wallet_id: recipientWalletId,
+      type: "transfer_in",
+      amount: roundedAmount,
+      status: "completed",
+      reference: `${reference}-IN`,
+    },
+  ]);
+
+  const currency = String(sourceWallet.currency ?? "").toUpperCase();
+  const transferAmount = roundedAmount;
   const senderLabel = formatTransferRecipientLabel({
     username: senderProfile?.username ?? null,
     user_uid: senderProfile?.user_uid ?? null,
@@ -367,7 +432,7 @@ export async function transferToUser(walletId: string, recipientInput: string, a
       details: [
         { label: "Recipient", value: recipientLabel },
         { label: "Amount", value: `${transferAmount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${currency}`.trim() },
-        { label: "Reference", value: rpcResult.reference ?? "Pending" },
+        { label: "Reference", value: reference },
         { label: "Status", value: "Completed" },
       ],
     });
@@ -381,7 +446,7 @@ export async function transferToUser(walletId: string, recipientInput: string, a
       details: [
         { label: "Sender", value: senderLabel },
         { label: "Amount", value: `${transferAmount.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${currency}`.trim() },
-        { label: "Reference", value: rpcResult.reference ?? "Pending" },
+        { label: "Reference", value: reference },
         { label: "Status", value: "Completed" },
       ],
     });
@@ -392,7 +457,7 @@ export async function transferToUser(walletId: string, recipientInput: string, a
     data: {
       amount: transferAmount,
       currency,
-      reference: rpcResult.reference ?? null,
+      reference,
       recipientLabel,
     },
   };
