@@ -420,9 +420,8 @@ export async function transferToUser(walletId: string, recipientInput: string, a
     email: recipientProfile.email ?? null,
   });
 
-  revalidatePath("/assets");
-  revalidatePath("/home");
-  revalidatePath("/notifications");
+  // NOTE: revalidation is deferred to the client side (WalletActionDrawer)
+  // so that the success confirmation screen remains visible after transfer.
 
   if (user.email) {
     await sendTransactionAlertEmail({
