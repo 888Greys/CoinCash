@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { sendLoginAlertEmail } from "@/lib/email-notifications";
 
 export async function sendOtpAction(formData: FormData) {
   const email = String(formData.get("identifier") ?? "")
@@ -52,6 +54,14 @@ export async function verifyOtpAction(formData: FormData) {
     return { success: false, error: `Code invalid or expired. Please request a new one.` };
   }
 
+  const forwardedFor = headers().get("x-forwarded-for");
+  const ipAddress = forwardedFor?.split(",")[0]?.trim() ?? null;
+  await sendLoginAlertEmail({
+    email,
+    method: "otp",
+    ipAddress,
+  });
+
   // Redirect on success
   redirect("/home");
 }
@@ -92,6 +102,14 @@ export async function devLoginAction() {
     }
     redirect(`/login?error=dev_login_failed&detail=${encodeURIComponent(error.message)}`);
   }
+
+  const forwardedFor = headers().get("x-forwarded-for");
+  const ipAddress = forwardedFor?.split(",")[0]?.trim() ?? null;
+  await sendLoginAlertEmail({
+    email: devEmail,
+    method: "password",
+    ipAddress,
+  });
 
   redirect("/home");
 }

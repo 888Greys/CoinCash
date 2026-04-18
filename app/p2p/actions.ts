@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { sendTransactionAlertEmail } from "@/lib/email-notifications";
 
 const KES_USDT_MIN_PRICE = 95;
 const KES_USDT_MAX_PRICE = 98;
@@ -407,6 +408,48 @@ export async function releaseTradeAction(tradeId: string) {
     return { success: false, error: result.error ?? "Failed to release trade" };
   }
 
+  const { data: tradeSnapshot } = await supabase
+    .from("p2p_trades")
+    .select("id, asset_amount, fiat_amount, buyer_id, seller_id, p2p_orders(asset, fiat)")
+    .eq("id", tradeId)
+    .maybeSingle();
+
+  if (tradeSnapshot) {
+    const orderDetails = Array.isArray(tradeSnapshot.p2p_orders)
+      ? tradeSnapshot.p2p_orders[0]
+      : tradeSnapshot.p2p_orders;
+    const participantIds = [tradeSnapshot.buyer_id, tradeSnapshot.seller_id].filter(Boolean);
+    const { data: participantProfiles } = await supabase
+      .from("profiles")
+      .select("id, email")
+      .in("id", participantIds);
+
+    const profileMap = new Map((participantProfiles ?? []).map((p) => [p.id, p.email]));
+
+    for (const participantId of participantIds) {
+      const email = profileMap.get(participantId);
+      if (!email) continue;
+
+      await sendTransactionAlertEmail({
+        email,
+        title: "P2P Trade Released",
+        summary: "Funds were released and the trade is complete.",
+        details: [
+          { label: "Trade ID", value: tradeSnapshot.id },
+          {
+            label: "Amount",
+            value: `${Number(tradeSnapshot.asset_amount).toFixed(6)} ${orderDetails?.asset ?? ""}`.trim(),
+          },
+          {
+            label: "Fiat",
+            value: `${Number(tradeSnapshot.fiat_amount).toFixed(2)} ${orderDetails?.fiat ?? ""}`.trim(),
+          },
+          { label: "Status", value: "Released" },
+        ],
+      });
+    }
+  }
+
   return { success: true };
 }
 
@@ -476,6 +519,66 @@ export async function markTradePaidAction(tradeId: string) {
   if (error) {
     console.error("markTradePaid error:", error.message);
     return { success: false, error: error.message };
+  }
+
+  const { data: tradeSnapshot } = await supabase
+    .from("p2p_trades")
+    .select("id, asset_amount, fiat_amount, seller_id, p2p_orders(asset, fiat)")
+    .eq("id", tradeId)
+    .maybeSingle();
+
+  if (user.email && tradeSnapshot) {
+    const orderDetails = Array.isArray(tradeSnapshot.p2p_orders)
+      ? tradeSnapshot.p2p_orders[0]
+      : tradeSnapshot.p2p_orders;
+    await sendTransactionAlertEmail({
+      email: user.email,
+      title: "P2P Payment Sent",
+      summary: "You marked this trade as paid. The seller has been notified.",
+      details: [
+        { label: "Trade ID", value: tradeSnapshot.id },
+        {
+          label: "Amount",
+          value: `${Number(tradeSnapshot.asset_amount).toFixed(6)} ${orderDetails?.asset ?? ""}`.trim(),
+        },
+        {
+          label: "Fiat",
+          value: `${Number(tradeSnapshot.fiat_amount).toFixed(2)} ${orderDetails?.fiat ?? ""}`.trim(),
+        },
+        { label: "Status", value: "Paid" },
+      ],
+    });
+  }
+
+  if (tradeSnapshot?.seller_id) {
+    const orderDetails = Array.isArray(tradeSnapshot.p2p_orders)
+      ? tradeSnapshot.p2p_orders[0]
+      : tradeSnapshot.p2p_orders;
+    const { data: sellerProfile } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", tradeSnapshot.seller_id)
+      .maybeSingle();
+    const sellerEmail = sellerProfile?.email;
+    if (sellerEmail) {
+      await sendTransactionAlertEmail({
+        email: sellerEmail,
+        title: "P2P Buyer Marked Paid",
+        summary: "A buyer marked payment as sent for your P2P trade.",
+        details: [
+          { label: "Trade ID", value: tradeSnapshot.id },
+          {
+            label: "Amount",
+            value: `${Number(tradeSnapshot.asset_amount).toFixed(6)} ${orderDetails?.asset ?? ""}`.trim(),
+          },
+          {
+            label: "Fiat",
+            value: `${Number(tradeSnapshot.fiat_amount).toFixed(2)} ${orderDetails?.fiat ?? ""}`.trim(),
+          },
+          { label: "Action", value: "Verify and release if payment received" },
+        ],
+      });
+    }
   }
 
   return { success: true };

@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getLivePrices } from "@/lib/price-api";
+import { sendTransactionAlertEmail } from "@/lib/email-notifications";
 
 const DEFAULT_CURRENCIES = ["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"];
 const CONVERTIBLE_CRYPTO = new Set(["USDT", "BTC", "ETH", "BNB", "SOL", "AVAX", "USDC"]);
@@ -56,6 +57,13 @@ export async function requestDeposit(walletId: string, network: string) {
     return { success: false, error: "Not authenticated" };
   }
 
+  const { data: walletForDeposit } = await supabase
+    .from("wallets")
+    .select("currency")
+    .eq("id", walletId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const reference = `DEP-${Date.now()}`;
   const { error } = await supabase.from("transactions").insert({
     wallet_id: walletId,
@@ -71,6 +79,20 @@ export async function requestDeposit(walletId: string, network: string) {
   }
 
   revalidatePath("/assets");
+
+  if (user.email) {
+    await sendTransactionAlertEmail({
+      email: user.email,
+      title: "Deposit Request Created",
+      summary: "We received your deposit request and started monitoring the transfer.",
+      details: [
+        { label: "Asset", value: String(walletForDeposit?.currency ?? "Unknown") },
+        { label: "Network", value: network.toUpperCase() },
+        { label: "Status", value: "Pending" },
+      ],
+    });
+  }
+
   return { success: true };
 }
 
@@ -92,7 +114,7 @@ export async function submitWithdrawal(walletId: string, amount: number, destina
 
   const { data: wallet, error: walletError } = await supabase
     .from("wallets")
-    .select("id, balance")
+    .select("id, balance, currency")
     .eq("id", walletId)
     .eq("user_id", user.id)
     .single();
@@ -134,6 +156,20 @@ export async function submitWithdrawal(walletId: string, amount: number, destina
 
   revalidatePath("/assets");
   revalidatePath("/home");
+
+  if (user.email) {
+    await sendTransactionAlertEmail({
+      email: user.email,
+      title: "Withdrawal Submitted",
+      summary: "Your withdrawal request has been submitted for processing.",
+      details: [
+        { label: "Amount", value: `${amount} ${String(wallet.currency ?? "")}`.trim() },
+        { label: "Destination", value: `${destination.slice(0, 8)}...` },
+        { label: "Status", value: "Pending" },
+      ],
+    });
+  }
+
   return { success: true };
 }
 
@@ -151,7 +187,7 @@ export async function transferFundingToSpot(walletId: string, amount: number, di
 
   const { data: wallet, error: walletError } = await supabase
     .from("wallets")
-    .select("id, balance, locked_balance")
+    .select("id, balance, locked_balance, currency")
     .eq("id", walletId)
     .eq("user_id", user.id)
     .single();
@@ -200,6 +236,23 @@ export async function transferFundingToSpot(walletId: string, amount: number, di
 
   revalidatePath("/assets");
   revalidatePath("/home");
+
+  if (user.email) {
+    await sendTransactionAlertEmail({
+      email: user.email,
+      title: "Wallet Transfer Completed",
+      summary: "Internal wallet transfer completed successfully.",
+      details: [
+        {
+          label: "Direction",
+          value: direction === "funding_to_spot" ? "Funding -> Spot" : "Spot -> Funding",
+        },
+        { label: "Amount", value: `${amount} ${String(wallet.currency ?? "")}`.trim() },
+        { label: "Status", value: "Completed" },
+      ],
+    });
+  }
+
   return { success: true };
 }
 
@@ -354,6 +407,19 @@ export async function convertCrypto(
 
   revalidatePath("/assets");
   revalidatePath("/home");
+
+  if (user.email) {
+    await sendTransactionAlertEmail({
+      email: user.email,
+      title: "Conversion Completed",
+      summary: "Your crypto conversion was executed successfully.",
+      details: [
+        { label: "From", value: `${fromAmount} ${fromCurrency}` },
+        { label: "To", value: `${receiveAmount} ${normalizedToCurrency}` },
+        { label: "Status", value: "Completed" },
+      ],
+    });
+  }
 
   return {
     success: true,
