@@ -17,9 +17,9 @@ DECLARE
   v_source_wallet_currency TEXT;
   v_source_wallet_balance NUMERIC;
   v_recipient_wallet_id UUID;
-  v_recipient_wallet_balance NUMERIC;
   v_amount NUMERIC := round(p_amount::NUMERIC, 8);
   v_reference TEXT := 'TRF-' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISSMS') || '-' || replace(gen_random_uuid()::text, '-', '');
+  v_row RECORD;
 BEGIN
   IF v_sender_id IS NULL THEN
     RETURN jsonb_build_object('success', false, 'error', 'Not authenticated');
@@ -29,17 +29,20 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'Enter a valid transfer amount');
   END IF;
 
-  FOR v_source_wallet_id, v_source_wallet_currency, v_source_wallet_balance IN
+  FOR v_row IN
     SELECT id, currency, balance
-    FROM wallets
+    FROM public.wallets
     WHERE id = p_source_wallet_id
       AND user_id = v_sender_id
     FOR UPDATE
   LOOP
+    v_source_wallet_id := v_row.id;
+    v_source_wallet_currency := v_row.currency;
+    v_source_wallet_balance := v_row.balance;
     EXIT;
   END LOOP;
 
-  IF NOT FOUND OR v_source_wallet_id IS NULL THEN
+  IF v_source_wallet_id IS NULL THEN
     RETURN jsonb_build_object('success', false, 'error', 'Source wallet not found');
   END IF;
 
@@ -51,52 +54,52 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'You cannot transfer to your own account');
   END IF;
 
-  FOR v_recipient_wallet_id, v_recipient_wallet_balance IN
+  FOR v_row IN
     SELECT id, balance
-    FROM wallets
+    FROM public.wallets
     WHERE user_id = p_recipient_user_id
       AND currency = v_source_wallet_currency
     FOR UPDATE
   LOOP
+    v_recipient_wallet_id := v_row.id;
     EXIT;
   END LOOP;
 
-  IF NOT FOUND OR v_recipient_wallet_id IS NULL THEN
-    FOR v_recipient_wallet_id, v_recipient_wallet_balance IN
-      INSERT INTO wallets (user_id, currency, balance, locked_balance)
-      VALUES (p_recipient_user_id, v_source_wallet_currency, 0, 0)
-      ON CONFLICT (user_id, currency) DO NOTHING
-      RETURNING id, balance
+  IF v_recipient_wallet_id IS NULL THEN
+    INSERT INTO public.wallets (user_id, currency, balance, locked_balance)
+    VALUES (p_recipient_user_id, v_source_wallet_currency, 0, 0)
+    ON CONFLICT (user_id, currency) DO NOTHING
+    ;
+
+    FOR v_row IN
+      SELECT id, balance
+      FROM public.wallets
+      WHERE user_id = p_recipient_user_id
+        AND currency = v_source_wallet_currency
+      FOR UPDATE
     LOOP
+      v_recipient_wallet_id := v_row.id;
       EXIT;
     END LOOP;
+  END IF;
 
-    IF NOT FOUND OR v_recipient_wallet_id IS NULL THEN
-      FOR v_recipient_wallet_id, v_recipient_wallet_balance IN
-        SELECT id, balance
-        FROM wallets
-        WHERE user_id = p_recipient_user_id
-          AND currency = v_source_wallet_currency
-        FOR UPDATE
-      LOOP
-        EXIT;
-      END LOOP;
-    END IF;
+  IF v_recipient_wallet_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Recipient wallet not available');
   END IF;
 
   IF v_source_wallet_balance < v_amount THEN
     RETURN jsonb_build_object('success', false, 'error', 'Insufficient available balance');
   END IF;
 
-  UPDATE wallets
+  UPDATE public.wallets
   SET balance = balance - v_amount
   WHERE id = v_source_wallet_id;
 
-  UPDATE wallets
+  UPDATE public.wallets
   SET balance = balance + v_amount
   WHERE id = v_recipient_wallet_id;
 
-  INSERT INTO transactions (wallet_id, type, amount, status, reference)
+  INSERT INTO public.transactions (wallet_id, type, amount, status, reference)
   VALUES
     (v_source_wallet_id, 'transfer_out', v_amount, 'completed', v_reference || '-OUT'),
     (v_recipient_wallet_id, 'transfer_in', v_amount, 'completed', v_reference || '-IN');
