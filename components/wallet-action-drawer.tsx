@@ -221,7 +221,7 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
           amount,
           currency: selectedWallet.currency,
           recipientLabel: result.data?.recipientLabel ?? "CoinCash User",
-          reference: result.data?.reference ?? \`TRF-\${Date.now()}\`,
+          reference: result.data?.reference ?? `TRF-${Date.now()}`,
         });
         router.refresh();
       });
@@ -280,7 +280,7 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
       setConvertAmount("");
       setFeedback({
         type: "success",
-        message: \`Converted \${amount} \${selectedWallet.currency} to \${result.data?.receiveAmount ?? ""} \${convertToCurrency}.\`,
+        message: `Converted ${amount} ${selectedWallet.currency} to ${result.data?.receiveAmount ?? ""} ${convertToCurrency}.`,
       });
       router.refresh();
     });
@@ -323,13 +323,13 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
         </button>
       </div>
 
-      <div className={\`fixed inset-0 z-40 transition \${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}\`}>
+      <div className={`fixed inset-0 z-40 transition ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/50" onClick={closeDrawer} />
 
         <aside
-          className={\`absolute right-0 top-0 h-full w-full max-w-md bg-surface-container-low border-l border-outline-variant/20 shadow-2xl transform transition-transform duration-300 \${
+          className={`absolute right-0 top-0 h-full w-full max-w-md bg-surface-container-low border-l border-outline-variant/20 shadow-2xl transform transition-transform duration-300 ${
             isOpen ? "translate-x-0" : "translate-x-full"
-          }\`}
+          }`}
         >
           <div className="p-5 border-b border-outline-variant/15 flex items-center justify-between">
             <div>
@@ -401,11 +401,11 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
               </div>
 
               {feedback && (
-                <div className={\`mt-4 w-full rounded-sm border px-3 py-2 text-xs \${
+                <div className={`mt-4 w-full rounded-sm border px-3 py-2 text-xs ${
                   feedback.type === "error"
                     ? "border-error/40 bg-error/10 text-error"
                     : "border-primary/30 bg-primary/10 text-primary"
-                }\`}>
+                }`}>
                   {feedback.message}
                 </div>
               )}
@@ -542,11 +542,11 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
                       setTransferMode("user");
                       setFeedback(null);
                     }}
-                    className={\`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border \${
+                    className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
                       transferMode === "user"
                         ? "bg-primary/10 text-primary border-primary/30"
                         : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
-                    }\`}
+                    }`}
                   >
                     To User
                   </button>
@@ -555,11 +555,11 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
                       setTransferMode("internal");
                       setFeedback(null);
                     }}
-                    className={\`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border \${
+                    className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
                       transferMode === "internal"
                         ? "bg-primary/10 text-primary border-primary/30"
                         : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
-                    }\`}
+                    }`}
                   >
                     My Wallets
                   </button>
@@ -586,17 +586,17 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setTransferDirection("funding_to_spot")}
-                      className={\`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border \${
+                      className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
                         transferDirection === "funding_to_spot" ? "bg-primary/10 text-primary border-primary/30" : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
-                      }\`}
+                      }`}
                     >
                       Funding to Spot
                     </button>
                     <button
                       onClick={() => setTransferDirection("spot_to_funding")}
-                      className={\`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border \${
+                      className={`py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border ${
                         transferDirection === "spot_to_funding" ? "bg-primary/10 text-primary border-primary/30" : "bg-surface-container-highest text-on-surface-variant border-outline-variant/25"
-                      }\`}
+                      }`}
                     >
                       Spot to Funding
                     </button>
@@ -674,7 +674,7 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
 
                 <div className="rounded-sm bg-surface-container-highest p-3 text-xs text-on-surface-variant space-y-1">
                   <p>
-                    Estimated receive: <span className="text-on-surface font-semibold">{convertPreview !== null ? \`\${convertPreview} \${convertToCurrency}\` : "-"}</span>
+                    Estimated receive: <span className="text-on-surface font-semibold">{convertPreview !== null ? `${convertPreview} ${convertToCurrency}` : "-"}</span>
                   </p>
                 </div>
 
@@ -683,18 +683,18 @@ export function WalletActionDrawer({ wallets, livePrices = {} }: { wallets: Wall
                   disabled={isPending}
                   className="w-full py-3 bg-primary text-on-primary font-bold uppercase tracking-widest text-sm rounded-sm disabled:opacity-50"
                 >
-                  {isPending ? "Converting..." : \`Convert \${selectedWallet.currency} to \${convertToCurrency}\`}
+                  {isPending ? "Converting..." : `Convert ${selectedWallet.currency} to ${convertToCurrency}`}
                 </button>
               </div>
             )}
 
             {feedback && (
               <div
-                className={\`rounded-sm border px-3 py-2 text-xs \${
+                className={`rounded-sm border px-3 py-2 text-xs ${
                   feedback.type === "error"
                     ? "border-error/40 bg-error/10 text-error"
                     : "border-primary/30 bg-primary/10 text-primary"
-                }\`}
+                }`}
               >
                 {feedback.message}
               </div>
